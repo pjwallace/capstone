@@ -2,25 +2,30 @@
 
 {% block body %}
 
-    <h1>Login</h1>
-
+    
     {% if message %}
         <div>{{ message }}</div>
     {% endif %}
 
-    <h5>Please Login:</h5>
+    <h1 class="title">Surgical Self Assessment</h1>
 
-    <form action="{% url 'login' %}" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <input autofocus class="form-control" type="text" name="username" placeholder="Username">
-        </div>
-        <div class="form-group">
-            <input class="form-control" type="password" name="password" placeholder="Password">
-        </div><br>
-        <input class="btn btn-primary" type="submit" value="Login">
-    </form>
+    <div class="login-container">
 
-    Don't have an account? <a href="{% url 'register' %}">Register here.</a>
+        
+        <h5>Please Login:</h5>
+
+        <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input autofocus class="form-control" type="text" name="username" placeholder="Username">
+            </div>
+            <div class="form-group">
+                <input class="form-control pass-word" type="password" name="password" placeholder="Password">
+            </div><br>
+            <input class="btn btn-primary mx-auto d-block" type="submit" value="Login">
+        </form>
+
+        <span id="register-span">Or <a href="{% url 'register' %}">Register</a> for an account</span>
+    </div>
 
 {% endblock %}

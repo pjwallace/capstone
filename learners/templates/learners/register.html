@@ -2,29 +2,34 @@
 
 {% block body %}
 
-    <h5>Register</h5>
+    
 
     {% if message %}
         <div>{{ message }}</div>
     {% endif %}
 
-    <form action="{% url 'register' %}" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <input class="form-control" autofocus type="text" name="username" placeholder="Username">
-        </div>
-        <div class="form-group">
-            <input class="form-control" type="email" name="email" placeholder="Email Address">
-        </div>
-        <div class="form-group">
-            <input class="form-control" type="password" name="password" placeholder="Password">
-        </div>
-        <div class="form-group">
-            <input class="form-control" type="password" name="confirmation" placeholder="Confirm Password">
-        </div>
-        <input class="btn btn-primary" type="submit" value="Register">
-    </form>
+    <h1 class="title">Surgical Self Assessment</h1>
 
-    Already have an account? <a href="{% url 'login' %}">Log In here.</a>
+    <div class="register-container">
+        <h5>Register</h5>
+
+        <form action="{% url 'register' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input class="form-control" autofocus type="text" name="username" placeholder="Username">
+            </div>
+            <div class="form-group">
+                <input class="form-control e-mail" type="email" name="email" placeholder="Email Address">
+            </div>
+            <div class="form-group">
+                <input class="form-control pass-word" type="password" name="password" placeholder="Password">
+            </div>
+            <div class="form-group">
+                <input class="form-control confirm-password" type="password" name="confirmation" placeholder="Confirm Password">
+            </div>
+            <input class="btn btn-primary mx-auto d-block" type="submit" value="Register">
+        </form>
+        <span class="register-span">Already have an account? <a href="{% url 'login' %}">Log In</a></span>
+    </div>
 
 {% endblock %}

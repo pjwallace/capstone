@@ -1,0 +1,56 @@
+body{
+    background-color: rgb(237, 234, 222);
+}
+.title{
+    text-align: center;
+}
+
+.login-container{
+    width: 40%;
+    height: 55vh;
+    margin: auto;
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: aliceblue;
+}
+
+h5{
+    margin-bottom: 15px;
+}
+
+.pass-word{
+    margin-top: 10px;
+}
+
+a{
+    text-decoration: none;
+}
+
+.register-span{
+    margin-top: 10px;
+}
+
+.register-container{
+    width: 40%;
+    height: 80vh;
+    margin: auto;
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: aliceblue;
+    border: 3px solid green;
+}
+
+.e-mail{
+    margin-top: 10px;
+}
+
+.confirm-password{
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
