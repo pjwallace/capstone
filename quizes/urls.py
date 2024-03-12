@@ -1,7 +1,7 @@
 from django.urls import path
-from quizes import views
+from . import views
 
 urlpatterns = [
-    path("quizes/", views.home, name="home"),
+    path("", views.quizes_home, name="quizes_home"),
     
 ]

@@ -4,7 +4,8 @@ from django.contrib import messages
 
 #from .models import User
 
-def quizes_home(request):
-  
-    return render(request, 'quizes/home.html')
+def management_portal(request):
+   
+    return render(request, 'management/manage_db.html')
+
 

@@ -19,17 +19,20 @@ def login_view(request):
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
 
-        # Check if authentication successful
+        # Check if authentication successful              
         if user is not None:
             login(request, user)
-            return render(request, 'quizes/home.html')
+            if user.is_superuser:
+                return redirect('management_portal')
+            else:
+                return redirect('quizes_home')
         else:
             return render(request, "network/login.html", {
                 "message": "Invalid username and/or password."
             })
         
     else:
-        return render(request, "learners/index.html")
+        return redirect("index")
         
 def register(request):
     
