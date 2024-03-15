@@ -26,7 +26,7 @@ class Topic(models.Model):
         return self.name
     
     class Meta:
-        ordering = ['display_order']
+        ordering = ['display_order', 'id']
 
 # Each quiz topic may have multiple subtopics
 class Subtopic(models.Model):
@@ -52,5 +52,5 @@ class Subtopic(models.Model):
         return self.name
     
     class Meta:
-        ordering = ['display_order']
+        ordering = ['display_order', 'id']
         unique_together = ('topic', 'name')
