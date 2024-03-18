@@ -24,7 +24,19 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function add_topic(){
-    pass
+    const route = `/add_topic`;
+
+    fetch(route)
+    .then(response => response.json())
+    .then(data => {
+        const container = document.getElementById('container');
+        container.innerHTML = ''; // Clear the container
+        container.innerHTML = data.form; // Insert the new form HTML
+    })
+    .catch(error => console.error('Error loading the form:', error));
+
+    })
+
 }
 
 function edit_topic(){

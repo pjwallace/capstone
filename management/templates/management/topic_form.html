@@ -1,0 +1,8 @@
+<div id="add-topic">
+    <form id="add-topic-form" method="post" action="{% url 'add_topic' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <input class="btn btn-primary" type="submit" value="Add Topic">
+    </form>
+</div>
