@@ -1,4 +1,4 @@
-<div id="add-topic">
+<div id="add-topic-container">
     <form id="add-topic-form" method="post" action="{% url 'add_topic' %}">
         {% csrf_token %}
         {{ form.as_p }}

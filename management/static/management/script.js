@@ -17,68 +17,66 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('dropdown-edit-choice').addEventListener('click', edit_choice);
     document.getElementById('dropdown-delete-choice').addEventListener('click', delete_choice);
 
-    //document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
-    //document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
-    //document.querySelector('#compose').addEventListener('click', () => compose_email('compose'));
-    //document.querySelector('#compose-form').addEventListener('submit', submit_email);
 });
 
 function add_topic(){
-    const route = `/add_topic`;
+    const route = `/management/portal/add_topic`;
+    console.log(route);
 
     fetch(route)
     .then(response => response.json())
     .then(data => {
-        const container = document.getElementById('container');
-        container.innerHTML = ''; // Clear the container
-        container.innerHTML = data.form; // Insert the new form HTML
-    })
-    .catch(error => console.error('Error loading the form:', error));
+        const management_container = document.getElementById('management-container');
+        management_container.innerHTML = ''; // Clear the container
+        management_container.innerHTML = data.form; // Insert the new form HTML
 
+        // Update the browser's URL without reloading the page
+        window.history.pushState({ path: route }, '', route);
     })
+    .catch(error => console.error('Error loading the form:', error));  
 
 }
 
 function edit_topic(){
-    pass
+    //pass
 }
 
 function delete_topic(){
-    pass
+    //pass
 }
 
 function add_subtopic(){
-    pass
+    //pass
 }
 
 function edit_subtopic(){
-    pass
+    //pass
 }
 
 function delete_subtopic(){
-    pass
+    //pass
 }
 
 function add_question(){
-    pass
+    //pass
 }
 
 function edit_question(){
-    pass
+    //pass
 }
 
 function delete_question(){
-    pass
+    //pass
 }
 
 function add_choice(){
-    pass
+    //pass
 }
 
 function edit_choice(){
-    pass
+    //pass
 }
 
 function delete_choice(){
-    pass
+    //pass
 }
