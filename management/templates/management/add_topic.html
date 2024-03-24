@@ -1,0 +1,14 @@
+{% extends "management/layout.html" %}
+
+{% block body %}
+    <div id="add-topic-container">
+        <form id="add-topic-form" method="post" action="{% url 'add_topic' %}">
+            {% csrf_token %}
+            {{ add_topic_form.as_p }}
+
+            <input class="btn btn-primary" id="add-topic-btn" type="submit" value="Add Topic">
+        </form>
+    </div>
+
+   
+{% endblock %}

@@ -1,13 +1,14 @@
 from django import forms
 from management.models import Topic, Subtopic
 
-class TopicForm(forms.ModelForm):
+class AddTopicForm(forms.ModelForm):
     class Meta:
         model = Topic
         fields = ['name']
         widgets = {
             'name' : forms.TextInput(attrs={
                 'class' : 'form-control',
+                'id' : 'new-topic',
                 'autofocus' : True,
                 'placeholder' : 'New Topic',
                 
@@ -17,7 +18,7 @@ class TopicForm(forms.ModelForm):
             'name' : ""
         } 
 
-class SubtopicForm(forms.ModelForm):
+class AddSubtopicForm(forms.ModelForm):
     class Meta:
         model = Subtopic
         fields = ['topic', 'name']
@@ -25,6 +26,7 @@ class SubtopicForm(forms.ModelForm):
             'topic' : forms.Select(attrs={'class': 'form-control'}),
             'name' : forms.TextInput(attrs={
                 'class' : 'form-control',
+                'id' : 'new-subtopic',
                 'placeholder' : 'Subtopic'
             })
        }
