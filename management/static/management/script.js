@@ -7,8 +7,6 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault(); // Prevent the default form submission
             
             if(e.target.id === 'add-topic-form') {
-                
-                console.log('Add topic form submitted');
                 add_topic();
             }
             
@@ -38,11 +36,23 @@ function add_topic(){
     
     .then(response => response.json())
     .then(data => {
-        console.log(data);
+        if (data.success){
 
-        // reset the form
-        document.getElementById('add-topic-form').reset();
-        alert("Topic successfully added. You can add another one.");                     
+            // reset the form
+            document.getElementById('add-topic-form').reset();
+
+            // display success message
+            console.log(data);
+            let msg_div = document.getElementById('msg-div');
+            msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+
+        } else {
+            // errors
+            let msg_div = document.getElementById('msg-div');
+            msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+
+        }
+                             
     })
     .catch(error => console.error('Error loading the form:', error));   
 

@@ -32,15 +32,17 @@ def add_topic(request):
         try:
             topic = Topic(name = name, created_by = request.user)
             topic.save()
+            #messages.success(request, f'{name} has been successfully added to the Topics database.')
 
         except IntegrityError as e:
             # topic name + slug must be unique
             if 'name' or 'slug' in str(e):
-                return JsonResponse({"error": "A topic with this name already exists. Please choose a different name."}, status=400)
+                return JsonResponse({"success": False, "messages": [{"message": "A topic with this name already exists. Please choose a different name.", "tags": "error"}]})
             else:
-                return JsonResponse({"error": "An error occurred while saving the topic. Please try again."}, status=400)
-
-        return JsonResponse({"message" : f"{name} successfully added"}, status=201)
+                return JsonResponse({"success": False,  "messages": [{"message": "An error occurred while saving the topic. Please try again.", "tags": "error"}]})
+            
+       
+        return JsonResponse({"success": True, "messages": [{"message": f"{name} has been successfully added.", "tags": "success"}]})
      
             
 
