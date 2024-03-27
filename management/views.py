@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 
 from .models import Topic, Subtopic
-from .forms import AddTopicForm
+from .forms import AddTopicForm, AddSubtopicForm
 
 def management_portal(request): 
     return render(request, 'management/layout.html')
@@ -37,12 +37,23 @@ def add_topic(request):
         except IntegrityError as e:
             # topic name + slug must be unique
             if 'name' or 'slug' in str(e):
-                return JsonResponse({"success": False, "messages": [{"message": "A topic with this name already exists. Please choose a different name.", "tags": "error"}]})
+                return JsonResponse({"success": False, 
+                    "messages": [{"message": "A topic with this name already exists. Please choose a different name.", "tags": "danger"}]})
             else:
-                return JsonResponse({"success": False,  "messages": [{"message": "An error occurred while saving the topic. Please try again.", "tags": "error"}]})
+                return JsonResponse({"success": False,  
+                    "messages": [{"message": "An error occurred while saving the topic. Please try again.", "tags": "danger"}]})
             
        
-        return JsonResponse({"success": True, "messages": [{"message": f"{name} has been successfully added.", "tags": "success"}]})
+        return JsonResponse({"success": True, 
+            "messages": [{"message": f"{name} has been successfully added.", "tags": "success"}]})
+    
+@login_required(login_url='login')  
+def add_subtopic(request):
+    if request.method == 'GET':
+        add_subtopic_form = AddSubtopicForm()
+        return render(request, 'management/add_subtopic.html', { 
+            'add_subtopic_form' : add_subtopic_form,
+        })
      
             
 

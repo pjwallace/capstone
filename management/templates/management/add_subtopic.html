@@ -1,0 +1,19 @@
+{% extends "management/layout.html" %}
+
+{% block body %}
+    
+    <div id="add-topic-container">
+        <div id="msg-div">
+            
+        </div>
+
+        <form id="add-subtopic-form" method="post" action="{% url 'add_subtopic' %}">
+            {% csrf_token %}
+            {{ add_subtopic_form.as_p }}
+
+            <input class="btn btn-primary" id="add-subtopic-btn" type="submit" value="Add Subtopic">
+        </form>
+    </div>
+
+   
+{% endblock %}
