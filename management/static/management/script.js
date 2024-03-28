@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if(e.target.id === 'add-topic-form') {
                 add_topic();
             }
+
+            if(e.target.id === 'add-subtopic-form'){
+                add_subtopic();
+            }
             
             // other forms go here
         }
@@ -42,7 +46,6 @@ function add_topic(){
             document.getElementById('add-topic-form').reset();
 
             // display success message
-            console.log(data);
             let msg_div = document.getElementById('msg-div');
             msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
 
@@ -67,7 +70,43 @@ function delete_topic(){
 }
 
 function add_subtopic(){
-    //pass
+    const route = `/management/portal/add_subtopic`;
+
+    // Retrieve the django CSRF token from the form
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(route, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+            topic : document.getElementById('topic-name').value,
+            name : document.getElementById('new-subtopic').value,
+                
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success){
+
+            // reset the form
+            document.getElementById('add-subtopic-form').reset();
+
+            // display success message
+            let msg_div = document.getElementById('msg-div');
+            msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+
+        } else {
+            // errors
+            let msg_div = document.getElementById('msg-div');
+            msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+
+        }
+                             
+    })
+    .catch(error => console.error('Error loading the form:', error));
 }
 
 function edit_subtopic(){

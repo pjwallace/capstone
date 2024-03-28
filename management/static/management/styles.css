@@ -16,3 +16,9 @@
     background-color: aliceblue;
     border: solid 1px green;
 }
+
+#topic-list {
+    -webkit-appearance: menulist; /* Safari and Chrome */
+    -moz-appearance: menulist; /* Firefox */
+    appearance: menulist;
+}

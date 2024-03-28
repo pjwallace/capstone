@@ -54,6 +54,11 @@ def add_subtopic(request):
         return render(request, 'management/add_subtopic.html', { 
             'add_subtopic_form' : add_subtopic_form,
         })
+    
+    elif request.method == 'POST':
+        data = json.loads(request.body)
+        topic = data.get("topic", "")
+        name = data.get("name", "").title()
      
             
 

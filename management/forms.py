@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from management.models import Topic, Subtopic
 
 class AddTopicForm(forms.ModelForm):
@@ -19,14 +20,31 @@ class AddTopicForm(forms.ModelForm):
         } 
 
 class AddSubtopicForm(forms.ModelForm):
+    topic = forms.ModelChoiceField(
+        queryset= Topic.objects.all(),
+        empty_label=None,
+        widget=forms.Select(attrs={
+            'class' : 'form-control',
+            'id' : 'topic-name'
+        }),
+        label='Select a Topic'
+        
+    )
     class Meta:
         model = Subtopic
         fields = ['topic', 'name']
         widgets = {
-            'topic' : forms.Select(attrs={'class': 'form-control'}),
             'name' : forms.TextInput(attrs={
-                'class' : 'form-control',
-                'id' : 'new-subtopic',
-                'placeholder' : 'Subtopic'
+            'class' : 'form-control',
+            'id' : 'new-subtopic',
             })
-       }
+        }
+        labels = {
+            'name': 'Subtopic Name',
+        }
+        
+    def clean_topic(self):
+        topic = self.cleaned_data.get('topic')
+        if not topic:
+            raise forms.ValidationError("Please select a valid topic.")
+        return topic
