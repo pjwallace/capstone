@@ -100,7 +100,10 @@ function add_subtopic(){
 
         } else {
             // errors
+            document.getElementById('new-subtopic').value = ''; // clear out the subtopic name field
+            document.getElementById('new-subtopic').focus();
             let msg_div = document.getElementById('msg-div');
+            msg_div.innerHTML = ''; // clear out any old messages
             msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
 
         }

@@ -17,7 +17,7 @@
     border: solid 1px green;
 }
 
-#topic-list {
+#topic-name{
     -webkit-appearance: menulist; /* Safari and Chrome */
     -moz-appearance: menulist; /* Firefox */
     appearance: menulist;

@@ -24,16 +24,12 @@ def add_topic(request):
 
     elif request.method == 'POST':
         data = json.loads(request.body)
-        name = data.get("name", "").title()
-
-        if not name:  # name can't be blank
-            return JsonResponse({"error": "Name is required"}, status=400)
-        
+        name = data.get("name", "").strip().title()
+               
         try:
             topic = Topic(name = name, created_by = request.user)
             topic.save()
-            #messages.success(request, f'{name} has been successfully added to the Topics database.')
-
+            
         except IntegrityError as e:
             # topic name + slug must be unique
             if 'name' or 'slug' in str(e):
@@ -57,8 +53,29 @@ def add_subtopic(request):
     
     elif request.method == 'POST':
         data = json.loads(request.body)
-        topic = data.get("topic", "")
-        name = data.get("name", "").title()
+        topic_id = int(data.get("topic", ""))
+        name = data.get("name", "").strip().title()
+
+        # Get the Topic using the provided id
+        try:
+            topic = Topic.objects.get(id=topic_id)
+        except Topic.DoesNotExist:
+            return JsonResponse({"success": False, "messages": [{"message": "Invalid topic selected.", "tags": "danger"}]}, status=400)
+        
+        if Subtopic.objects.filter(topic=topic, name=name).exists():
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "This topic/subtopic combination already exists. Please choose a different subtopic name.", "tags": "danger"}]}, status=400)
+        
+        try:
+            subtopic = Subtopic(topic=topic, name=name, created_by=request.user)
+            subtopic.save()
+            return JsonResponse({"success": True, 
+                "messages": [{"message": f"{name} has been successfully added.", "tags": "success"}]})
+            
+        except IntegrityError:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "An error occurred while saving this subtopic. Please try again.", "tags": "danger"}]}, status=500)
+
      
             
 

@@ -31,8 +31,7 @@ class Topic(models.Model):
 # Each quiz topic may have multiple subtopics
 class Subtopic(models.Model):
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='subtopics')
-    name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(max_length=150, unique=True, blank=True)
+    name = models.CharField(max_length=100)
     date_created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, 
         null=True, related_name='created_subtopics')
@@ -42,14 +41,8 @@ class Subtopic(models.Model):
     is_visible = models.BooleanField(default=True) # whether topic should be displayed or not
     display_order = models.IntegerField(default=0, blank=False, null=False)
 
-     # create a slug from subtopic name for URLs
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super(Subtopic, self).save(*args, **kwargs)
-
     def __str__(self):
-        return self.name
+        return f"{self.topic}/{self.name}"
     
     class Meta:
         ordering = ['display_order', 'id']
