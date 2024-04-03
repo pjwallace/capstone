@@ -1,0 +1,19 @@
+{% extends "management/layout.html" %}
+
+{% block body %}
+    
+    <div id="add-topic-container">
+        <div id="msg-div">
+            
+        </div>
+
+        <form id="delete-topic-form" method="post" action="{% url 'delete_topic' %}">
+            {% csrf_token %}
+            {{ delete_topic_form.as_p }}
+
+            <input class="btn btn-danger" id="delete-topic-btn" type="submit" value="Delete Topic">
+        </form>
+    </div>
+
+   
+{% endblock %}

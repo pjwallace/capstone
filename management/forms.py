@@ -19,6 +19,29 @@ class AddTopicForm(forms.ModelForm):
             'name' : ""
         } 
 
+class DeleteTopicForm(forms.ModelForm):
+    name = forms.ModelChoiceField(
+        queryset= Topic.objects.all(),
+        empty_label=None,
+        widget=forms.Select(attrs={
+            'class' : 'form-control',
+            'id' : 'topic-to-delete'
+        }),
+        label='Select a Topic to delete'     
+    )
+
+    class Meta:
+        model = Topic
+        fields = ['name']
+
+    def clean_topic(self):
+        name = self.cleaned_data.get('name')
+        if not name:
+            raise forms.ValidationError("Please select a valid topic.")
+        return name
+
+
+
 class AddSubtopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
         queryset= Topic.objects.all(),

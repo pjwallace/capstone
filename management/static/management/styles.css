@@ -17,7 +17,7 @@
     border: solid 1px green;
 }
 
-#topic-name{
+#topic-name, #topic-to-delete{
     -webkit-appearance: menulist; /* Safari and Chrome */
     -moz-appearance: menulist; /* Firefox */
     appearance: menulist;

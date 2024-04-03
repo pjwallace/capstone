@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 
 from .models import Topic, Subtopic
-from .forms import AddTopicForm, AddSubtopicForm
+from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm
 
 def management_portal(request): 
     return render(request, 'management/layout.html')
@@ -42,6 +42,18 @@ def add_topic(request):
        
         return JsonResponse({"success": True, 
             "messages": [{"message": f"{name} has been successfully added.", "tags": "success"}]})
+    
+@login_required(login_url='login')
+def delete_topic_form(request):
+    if request.method == 'GET':
+        delete_topic_form = DeleteTopicForm()
+        return render(request, 'management/delete_topic_form.html', { 
+            'delete_topic_form' : delete_topic_form,
+        })
+    
+@login_required(login_url='login')
+def delete_topic(request):
+    pass
     
 @login_required(login_url='login')  
 def add_subtopic(request):
