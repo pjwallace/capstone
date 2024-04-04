@@ -5,12 +5,34 @@ document.addEventListener('DOMContentLoaded', function () {
         // Ensure the event is coming from a form within the container
         if (e.target.tagName === 'FORM') {
             e.preventDefault(); // Prevent the default form submission
-            
-            if(e.target.id === 'add-topic-form') {
+
+            // add topic
+            if (e.target.id === 'add-topic-form') {
                 add_topic();
             }
 
-            if(e.target.id === 'add-subtopic-form'){
+            // delete topic
+            if (e.target.id === 'delete-topic-form'){
+                const selectElement = document.getElementById('topic-to-delete');
+                const deleteButton = document.getElementById('delete-topic-btn');
+
+                // Update button data attribute on select change
+                selectElement.addEventListener('change', function() {
+                const selectedTopicId = this.value; // Gets the selected option's value (topic ID)
+                deleteButton.setAttribute('data-topic-id', selectedTopicId); // Updates the button's data attribute
+                });
+
+                // Delete Topic when delete button is clicked
+                deleteButton.addEventListener('click', function() {
+                    const topicId = this.getAttribute('data-topic-id');
+               
+                    delete_topic(topicId);
+              
+                });
+            }
+
+            // add subtopic
+            if (e.target.id === 'add-subtopic-form'){
                 add_subtopic();
             }
             
@@ -65,7 +87,7 @@ function edit_topic(){
     //pass
 }
 
-function delete_topic(){
+function delete_topic(topic_id){
     //pass
 }
 

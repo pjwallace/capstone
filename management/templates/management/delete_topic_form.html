@@ -11,7 +11,8 @@
             {% csrf_token %}
             {{ delete_topic_form.as_p }}
 
-            <input class="btn btn-danger" id="delete-topic-btn" type="submit" value="Delete Topic">
+            <input class="btn btn-danger" id="delete-topic-btn" type="submit" 
+                data-topic-id = "{{ topic.id }}" value="Delete Topic">
         </form>
     </div>
 
