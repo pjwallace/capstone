@@ -7,12 +7,12 @@
             
         </div>
 
-        <form id="delete-topic-form" method="post" action="{% url 'delete_topic' %}">
+        <form id="delete-topic-form" method="post" action="#">
             {% csrf_token %}
             {{ delete_topic_form.as_p }}
 
             <input class="btn btn-danger" id="delete-topic-btn" type="submit" 
-                data-topic-id = "{{ topic.id }}" value="Delete Topic">
+                data-topic-id = "" value="Delete Topic">
         </form>
     </div>
 

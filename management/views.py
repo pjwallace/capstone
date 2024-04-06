@@ -52,8 +52,27 @@ def delete_topic_form(request):
         })
     
 @login_required(login_url='login')
-def delete_topic(request):
-    pass
+def delete_topic(request, topic_id):
+    print(topic_id)
+    try:
+        topic = Topic.objects.get(pk=topic_id)
+    except Topic.DoesNotExist:
+        return JsonResponse({"success": False, 
+            "messages": [{"message": "Topic not found.", "tags": "danger"}]}, status=400)
+        
+    if request.method == 'DELETE':
+        try:
+            topic.delete()                
+            return JsonResponse({"success": True, 
+                "messages": [{"message": f"{topic} has been successfully deleted.", "tags": "success"}]},
+                status=200)
+        
+        except Exception as e:
+            # Catch any other exceptions and return a generic error response
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "An error occurred while deleting this topic.", "tags": "danger"}]},
+                status=500)
+
     
 @login_required(login_url='login')  
 def add_subtopic(request):
@@ -72,7 +91,8 @@ def add_subtopic(request):
         try:
             topic = Topic.objects.get(id=topic_id)
         except Topic.DoesNotExist:
-            return JsonResponse({"success": False, "messages": [{"message": "Invalid topic selected.", "tags": "danger"}]}, status=400)
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Invalid topic selected.", "tags": "danger"}]}, status=400)
         
         if Subtopic.objects.filter(topic=topic, name=name).exists():
             return JsonResponse({"success": False, 

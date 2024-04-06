@@ -1,7 +1,7 @@
 
-document.addEventListener('DOMContentLoaded', function () {
-  
-    document.getElementById('management-container').addEventListener('submit', function(e){
+document.addEventListener('DOMContentLoaded', function(){
+     // form submission event listeners
+     document.getElementById('management-container').addEventListener('submit', function(e){
         // Ensure the event is coming from a form within the container
         if (e.target.tagName === 'FORM') {
             e.preventDefault(); // Prevent the default form submission
@@ -12,24 +12,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             // delete topic
-            if (e.target.id === 'delete-topic-form'){
-                const selectElement = document.getElementById('topic-to-delete');
-                const deleteButton = document.getElementById('delete-topic-btn');
-
-                // Update button data attribute on select change
-                selectElement.addEventListener('change', function() {
-                const selectedTopicId = this.value; // Gets the selected option's value (topic ID)
-                deleteButton.setAttribute('data-topic-id', selectedTopicId); // Updates the button's data attribute
-                });
-
-                // Delete Topic when delete button is clicked
-                deleteButton.addEventListener('click', function() {
-                    const topicId = this.getAttribute('data-topic-id');
-               
-                    delete_topic(topicId);
-              
-                });
-            }
+            if (e.target.id === 'delete-topic-form'){                                                     
+                    delete_topic(topicId);              
+            };
+        
 
             // add subtopic
             if (e.target.id === 'add-subtopic-form'){
@@ -39,8 +25,35 @@ document.addEventListener('DOMContentLoaded', function () {
             // other forms go here
         }
     });
-    
-});
+
+    // form select menu event listeners
+    const selectTopicToDelete = document.getElementById('topic-to-delete');
+    const deleteTopicButton = document.getElementById('delete-topic-btn');
+
+    if (selectTopicToDelete){
+         
+        selectTopicToDelete.addEventListener('change', function() {
+                    
+            const selectedTopicId = this.value; // Gets the selected option's value (topic ID)
+            // Update the deleteTopicButton with the topic.id to be deleted
+            deleteTopicButton.setAttribute('data-topic-id', selectedTopicId); 
+            
+        });
+    }
+
+    // form delete button event listeners
+    if (deleteTopicButton) {
+        deleteTopicButton.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent form submission when delete button is clicked
+            const topicId = this.getAttribute('data-topic-id');
+            
+            if (topicId) {
+                delete_topic(topicId);
+            }
+        });
+    }   
+});  
+   
 
 function add_topic(){
     const route = `/management/portal/add_topic`;
@@ -75,7 +88,6 @@ function add_topic(){
             // errors
             let msg_div = document.getElementById('msg-div');
             msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-
         }
                              
     })
@@ -88,7 +100,38 @@ function edit_topic(){
 }
 
 function delete_topic(topic_id){
-    //pass
+    topic_id = parseInt(topic_id);
+    
+    const route = `/management/portal/delete_topic/${topic_id}`;
+    console.log(route);
+
+    // Retrieve the django CSRF token from the form
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(route, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+          
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success){
+           // reset the form
+            document.getElementById('delete-topic-form').reset();
+            console.log('Topic deleted');
+           // display success message
+            let msg_div = document.getElementById('msg-div');
+            msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`; 
+        } else {
+           // errors
+            let msg_div = document.getElementById('msg-div');
+            msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`; 
+        }
+      })
+      .catch(error => console.error('Error loading the form:', error));
 }
 
 function add_subtopic(){
