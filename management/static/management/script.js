@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function(){
     // form select menu event listeners
     const selectTopicToDelete = document.getElementById('topic-to-delete');
     const deleteTopicButton = document.getElementById('delete-topic-btn');
+    console.log(selectTopicToDelete);
 
     if (selectTopicToDelete){
          
@@ -121,8 +122,13 @@ function delete_topic(topic_id){
         if (data.success){
            // reset the form
             document.getElementById('delete-topic-form').reset();
-            console.log('Topic deleted');
+
+            // remove the deleted topic from the dropdown select menu
+            let selectMenu = document.getElementById('topic-to-delete');
+            selectMenu.removeChild(selectMenu.querySelector(`option[value="${data.deleted_topic_id}"]`));
+            
            // display success message
+            console.log('Topic deleted');
             let msg_div = document.getElementById('msg-div');
             msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`; 
         } else {

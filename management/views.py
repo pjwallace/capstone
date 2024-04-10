@@ -63,7 +63,7 @@ def delete_topic(request, topic_id):
     if request.method == 'DELETE':
         try:
             topic.delete()                
-            return JsonResponse({"success": True, 
+            return JsonResponse({"success": True, "deleted_topic_id" : topic_id,
                 "messages": [{"message": f"{topic} has been successfully deleted.", "tags": "success"}]},
                 status=200)
         
