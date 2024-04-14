@@ -9,13 +9,7 @@ document.addEventListener('DOMContentLoaded', function(){
             // add topic
             if (e.target.id === 'add-topic-form') {
                 add_topic();
-            }
-
-            // delete topic
-            if (e.target.id === 'delete-topic-form'){                                                     
-                    delete_topic(topicId);              
-            };
-        
+            }       
 
             // add subtopic
             if (e.target.id === 'add-subtopic-form'){
@@ -26,33 +20,9 @@ document.addEventListener('DOMContentLoaded', function(){
         }
     });
 
-    // form select menu event listeners
-    const selectTopicToDelete = document.getElementById('topic-to-delete');
-    const deleteTopicButton = document.getElementById('delete-topic-btn');
-    console.log(selectTopicToDelete);
-
-    if (selectTopicToDelete){
-         
-        selectTopicToDelete.addEventListener('change', function() {
-                    
-            const selectedTopicId = this.value; // Gets the selected option's value (topic ID)
-            // Update the deleteTopicButton with the topic.id to be deleted
-            deleteTopicButton.setAttribute('data-topic-id', selectedTopicId); 
-            
-        });
-    }
-
-    // form delete button event listeners
-    if (deleteTopicButton) {
-        deleteTopicButton.addEventListener('click', function(e) {
-            e.preventDefault(); // Prevent form submission when delete button is clicked
-            const topicId = this.getAttribute('data-topic-id');
-            
-            if (topicId) {
-                delete_topic(topicId);
-            }
-        });
-    }   
+    setupSelectTopicToDelete();
+    setupTopicToDeleteButton();  
+    
 });  
    
 
@@ -100,12 +70,93 @@ function edit_topic(){
     //pass
 }
 
-function delete_topic(topic_id){
+function setupSelectTopicToDelete(){
+    // form select menu event listener
+    const selectTopicToDelete = document.getElementById('topic-to-delete');
+    const deleteTopicButton = document.getElementById('delete-topic-btn');
+    
+    if (selectTopicToDelete){
+         
+        selectTopicToDelete.addEventListener('change', function() {
+                    
+            const selectedTopicId = this.value; // Gets the selected option's value (topic ID)
+            // Update the deleteTopicButton with the topic.id to be deleted
+            deleteTopicButton.setAttribute('data-topic-id', selectedTopicId); 
+            
+        });
+    }
+
+}
+
+function setupTopicToDeleteButton(){
+    const deleteTopicButton = document.getElementById('delete-topic-btn');
+
+    // form delete button event listeners
+    if (deleteTopicButton) {
+        deleteTopicButton.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent form submission when delete button is clicked
+
+            // data attribute is set in the setupSelectTopicToDelete function
+            const topicId = this.getAttribute('data-topic-id');
+            
+            if (topicId) {
+                // display topic delete confirmation screen               
+                displayTopicDeleteConfirmation(topicId);
+            }
+        });
+    }   
+
+}
+
+function displayTopicDeleteConfirmation(topicId){
+    topicId = parseInt(topicId);  
+    const route = `/management/portal/delete_topic_confirmation/${topicId}`;  
+    
+    fetch(route)
+        .then(response => response.text())
+        .then(html => {
+            const deleteTopicModal = document.getElementById('delete-topic-modal');
+            deleteTopicModal.innerHTML = html;
+            deleteTopicModal.style.display = 'block';
+
+            // Attach event listeners to the confirm and cancel delete buttons
+            attachTopicDeleteEventListeners(topicId, deleteTopicModal);
+        })
+        .catch(error => console.error('Error loading the confirmation:', error));
+}
+
+function attachTopicDeleteEventListeners(topicId, deleteTopicModal){
+    const confirmDeleteTopicButton = deleteTopicModal.querySelector('#delete-topic-confirm-btn');
+    const cancelDeleteTopicButton = deleteTopicModal.querySelector('#delete-topic-cancel-btn');
+
+    // Ensure listeners are not repeatedly added if this function is called multiple times
+    confirmDeleteTopicButton.removeEventListener('click', confirmDeleteTopic);
+    cancelDeleteTopicButton.removeEventListener('click', cancelDeleteTopic);
+
+    confirmDeleteTopicButton.addEventListener('click', () => confirmDeleteTopic(topicId));
+    cancelDeleteTopicButton.addEventListener('click', cancelDeleteTopic);
+
+}
+
+function confirmDeleteTopic(topicId){
+    deleteTopic(topicId);
+    deleteTopicButton.removeAttribute('data-topic-id'); // Ensures the data attribute is cleared
+
+    console.log("Topic deleted", topicId);
+    document.getElementById('delete-topic-modal').style.display = 'none';
+
+}
+
+function cancelDeleteTopic(){
+    document.getElementById('delete-topic-modal').style.display = 'none';
+
+}
+
+function deleteTopic(topic_id){
     topic_id = parseInt(topic_id);
     
     const route = `/management/portal/delete_topic/${topic_id}`;
-    console.log(route);
-
+    
     // Retrieve the django CSRF token from the form
     var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 

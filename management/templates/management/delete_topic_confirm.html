@@ -1,0 +1,25 @@
+{% extends "management/layout.html" %}
+
+{% block body %}
+    <div id="delete-topic-modal">
+        
+        <form id="delete-topic-confirm" method="post" action="#">
+            {% csrf_token %}
+            <h2>Are you sure you want to delete this topic?</h2>
+
+            <p>If you delete the topic "{{ topic }}", all related subtopics, 
+                questions, and answers will also be permanantly deleted.
+            </p>
+            <h4>Do you want to proceed:</h4>
+
+            <button type="button" class="btn btn-danger" id="delete-topic-confirm-btn"
+                    value="Yes, I'm sure">
+            </button>
+
+            <button type="button" class="btn btn-primary" id="delete-topic-cancel-btn"
+                    value="No, take me back">
+            </button>
+        </form>
+
+    </div>
+    
