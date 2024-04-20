@@ -1,6 +1,5 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
@@ -52,26 +51,36 @@ def delete_topic_form(request):
         })
     
 @login_required(login_url='login')
+def delete_topic_confirmation(request, topic_id):
+    topic = get_object_or_404(Topic, id=topic_id)
+    
+    return render(request, 'management/delete_topic_confirm.html', {
+        'topic': topic,
+        'topic_id': topic_id
+    })
+    
+@login_required(login_url='login')
 def delete_topic(request, topic_id):
-    print(topic_id)
-    try:
-        topic = Topic.objects.get(pk=topic_id)
-    except Topic.DoesNotExist:
-        return JsonResponse({"success": False, 
-            "messages": [{"message": "Topic not found.", "tags": "danger"}]}, status=400)
-        
-    if request.method == 'DELETE':
+    print('here')
+    if request.method == 'POST':
+        topic = get_object_or_404(Topic, pk=topic_id)
+            
         try:
             topic.delete()                
-            return JsonResponse({"success": True, "deleted_topic_id" : topic_id,
-                "messages": [{"message": f"{topic} has been successfully deleted.", "tags": "success"}]},
-                status=200)
+            
+            messages.success(request, f"{topic} has been successfully deleted.")
+            return redirect('delete_topic_form')
         
         except Exception as e:
-            # Catch any other exceptions and return a generic error response
-            return JsonResponse({"success": False,  
-                "messages": [{"message": "An error occurred while deleting this topic.", "tags": "danger"}]},
-                status=500)
+            
+            messages.error(request, "An error occurred while deleting this topic.")
+            return redirect('delete_topic_form')
+        
+    else:
+        # Handle non-POST requests 
+        messages.error(request, "Invalid request method for deleting a topic.")
+        return redirect('delete_topic_form')  
+    
 
     
 @login_required(login_url='login')  

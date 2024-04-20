@@ -2,8 +2,8 @@
 document.addEventListener('DOMContentLoaded', function(){
      // form submission event listeners
      document.getElementById('management-container').addEventListener('submit', function(e){
-        // Ensure the event is coming from a form within the container
-        if (e.target.tagName === 'FORM') {
+        // Ensure the event is coming from specific forms
+        if (e.target.getAttribute('data-fetch') === 'true') {
             e.preventDefault(); // Prevent the default form submission
 
             // add topic
@@ -46,19 +46,17 @@ function add_topic(){
     
     .then(response => response.json())
     .then(data => {
-        if (data.success){
-
-            // reset the form
-            document.getElementById('add-topic-form').reset();
-
+        document.getElementById('add-topic-form').reset(); // reset the form
+        if (data.success){          
+            
             // display success message
-            let msg_div = document.getElementById('msg-div');
-            msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            let add_topic_msg = document.getElementById('add-topic-msg');
+            add_topic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
 
         } else {
             // errors
-            let msg_div = document.getElementById('msg-div');
-            msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            let add_topic_msg = document.getElementById('add-topic-msg');
+            add_topic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
         }
                              
     })
@@ -115,82 +113,19 @@ function displayTopicDeleteConfirmation(topicId){
     fetch(route)
         .then(response => response.text())
         .then(html => {
-            const deleteTopicModal = document.getElementById('delete-topic-modal');
-            deleteTopicModal.innerHTML = html;
-            deleteTopicModal.style.display = 'block';
-
-            // Attach event listeners to the confirm and cancel delete buttons
-            attachTopicDeleteEventListeners(topicId, deleteTopicModal);
+            const managementContainer = document.getElementById('management-container');
+            
+            if (managementContainer){
+                managementContainer.innerHTML = html;
+                managementContainer.style.display = 'block';
+                
+            } else{
+                console.error("delete-topic-confirm-container not found in the document.");
+            }                       
         })
         .catch(error => console.error('Error loading the confirmation:', error));
 }
-
-function attachTopicDeleteEventListeners(topicId, deleteTopicModal){
-    const confirmDeleteTopicButton = deleteTopicModal.querySelector('#delete-topic-confirm-btn');
-    const cancelDeleteTopicButton = deleteTopicModal.querySelector('#delete-topic-cancel-btn');
-
-    // Ensure listeners are not repeatedly added if this function is called multiple times
-    confirmDeleteTopicButton.removeEventListener('click', confirmDeleteTopic);
-    cancelDeleteTopicButton.removeEventListener('click', cancelDeleteTopic);
-
-    confirmDeleteTopicButton.addEventListener('click', () => confirmDeleteTopic(topicId));
-    cancelDeleteTopicButton.addEventListener('click', cancelDeleteTopic);
-
-}
-
-function confirmDeleteTopic(topicId){
-    deleteTopic(topicId);
-    deleteTopicButton.removeAttribute('data-topic-id'); // Ensures the data attribute is cleared
-
-    console.log("Topic deleted", topicId);
-    document.getElementById('delete-topic-modal').style.display = 'none';
-
-}
-
-function cancelDeleteTopic(){
-    document.getElementById('delete-topic-modal').style.display = 'none';
-
-}
-
-function deleteTopic(topic_id){
-    topic_id = parseInt(topic_id);
-    
-    const route = `/management/portal/delete_topic/${topic_id}`;
-    
-    // Retrieve the django CSRF token from the form
-    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-    fetch(route, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
-        },
-          
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success){
-           // reset the form
-            document.getElementById('delete-topic-form').reset();
-
-            // remove the deleted topic from the dropdown select menu
-            let selectMenu = document.getElementById('topic-to-delete');
-            selectMenu.removeChild(selectMenu.querySelector(`option[value="${data.deleted_topic_id}"]`));
-            
-           // display success message
-            console.log('Topic deleted');
-            let msg_div = document.getElementById('msg-div');
-            msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`; 
-        } else {
-           // errors
-            let msg_div = document.getElementById('msg-div');
-            msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`; 
-        }
-      })
-      .catch(error => console.error('Error loading the form:', error));
-}
-
+         
 function add_subtopic(){
     const route = `/management/portal/add_subtopic`;
 
@@ -217,16 +152,16 @@ function add_subtopic(){
             document.getElementById('add-subtopic-form').reset();
 
             // display success message
-            let msg_div = document.getElementById('msg-div');
-            msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            let add_subtopic_msg = document.getElementById('add-subtopic-msg');
+            add_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
 
         } else {
             // errors
             document.getElementById('new-subtopic').value = ''; // clear out the subtopic name field
             document.getElementById('new-subtopic').focus();
-            let msg_div = document.getElementById('msg-div');
-            msg_div.innerHTML = ''; // clear out any old messages
-            msg_div.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            let add_subtopic_msg = document.getElementById('add-subtopic-msg');
+            add_subtopic_msg.innerHTML = ''; // clear out any old messages
+            add_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
 
         }
                              

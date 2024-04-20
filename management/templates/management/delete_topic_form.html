@@ -1,13 +1,22 @@
 {% extends "management/layout.html" %}
 
 {% block body %}
+
     
-    <div id="add-topic-container">
-        <div id="msg-div">
-            
+    
+    <div class="form-container" id="delete-topic-container">
+       
+        <div class="error-msg">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
         </div>
 
-        <form id="delete-topic-form" method="post" action="#">
+        <form id="delete-topic-form" data-fetch="true" method="post" action="#">
             {% csrf_token %}
             {{ delete_topic_form.as_p }}
 

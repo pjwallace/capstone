@@ -1,20 +1,22 @@
 #management-container{
     height: 100vh;
     width: 95%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    overflow: auto;
 }
 
-#add-topic-container{
-    height: 80vh;
+.form-container{
+    
     width: 50%;
     margin: auto;
     margin-top: 10px;
     padding-top: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
     background-color: aliceblue;
     border: solid 1px green;
+    overflow: hidden;
 }
 
 #topic-name, #topic-to-delete{
@@ -23,23 +25,3 @@
     appearance: menulist;
 }
 
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Ensures the modal is on top of other content */
-}
-
-.modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    width: auto; /* Or a specific width, depending on your design needs */
-}

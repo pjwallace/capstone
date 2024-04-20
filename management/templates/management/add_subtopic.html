@@ -2,12 +2,12 @@
 
 {% block body %}
     
-    <div id="add-topic-container">
-        <div id="msg-div">
+    <div class="form-container" id="add-subtopic-container">
+        <div class="msg-div" id="add-subtopic-msg">
             
         </div>
 
-        <form id="add-subtopic-form" method="post" action="{% url 'add_subtopic' %}">
+        <form id="add-subtopic-form" data-fetch="true" method="post" action="{% url 'add_subtopic' %}">
             {% csrf_token %}
             {{ add_subtopic_form.as_p }}
 
