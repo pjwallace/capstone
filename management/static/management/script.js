@@ -2,14 +2,17 @@
 document.addEventListener('DOMContentLoaded', function(){
      // form submission event listeners
      document.getElementById('management-container').addEventListener('submit', function(e){
-        // Ensure the event is coming from specific forms
+        // Ensure the event is coming from forms that are processed asynchronously
         if (e.target.getAttribute('data-fetch') === 'true') {
             e.preventDefault(); // Prevent the default form submission
 
             // add topic
             if (e.target.id === 'add-topic-form') {
                 add_topic();
-            }       
+            }  
+            
+            // delete topic
+            
 
             // add subtopic
             if (e.target.id === 'add-subtopic-form'){
@@ -20,8 +23,10 @@ document.addEventListener('DOMContentLoaded', function(){
         }
     });
 
+    
     setupSelectTopicToDelete();
-    setupTopicToDeleteButton();  
+    setupTopicToDeleteButton(); 
+     
     
 });  
    
@@ -72,17 +77,43 @@ function setupSelectTopicToDelete(){
     // form select menu event listener
     const selectTopicToDelete = document.getElementById('topic-to-delete');
     const deleteTopicButton = document.getElementById('delete-topic-btn');
+
+    // Check if the delete button exists before setting properties
+    if (!deleteTopicButton) {
+        return;  // Early exit to avoid further errors
+    }
+    
+    // Ensure the delete button is initially disabled
+    deleteTopicButton.disabled = true;
     
     if (selectTopicToDelete){
-         
+        // at least one valid topic available
+        const validOptions = selectTopicToDelete.options.length > 1;
+
+        if (!validOptions) {
+            displayMessage('There are no more topics to delete.', 'info');  
+            return;  // No further setup needed if there are no valid topics
+        }
+
         selectTopicToDelete.addEventListener('change', function() {
                     
             const selectedTopicId = this.value; // Gets the selected option's value (topic ID)
-            // Update the deleteTopicButton with the topic.id to be deleted
-            deleteTopicButton.setAttribute('data-topic-id', selectedTopicId); 
+
+            if (!selectedTopicId) {
+                deleteTopicButton.disabled = true;  // If no valid topic, disable the button
+                displayMessage('There are no more topics to delete.', 'info');  
+                return; 
+
+            } else {
+                // Otherwise, enable the button and set the topic ID
+                deleteTopicButton.disabled = false;
+
+                // Update the deleteTopicButton with the topic.id to be deleted
+                deleteTopicButton.setAttribute('data-topic-id', selectedTopicId); 
+            }
             
         });
-    }
+    } 
 
 }
 
@@ -104,6 +135,13 @@ function setupTopicToDeleteButton(){
         });
     }   
 
+}
+
+function displayMessage(message, type) {
+    const messageContainer = document.querySelector('.error-msg');
+    if (messageContainer) {
+        messageContainer.insertAdjacentHTML('beforeend', `<div class="alert alert-${type}" role="alert">${message}</div>`);
+    }
 }
 
 function displayTopicDeleteConfirmation(topicId){

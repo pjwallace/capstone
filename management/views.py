@@ -58,10 +58,15 @@ def delete_topic_confirmation(request, topic_id):
         'topic': topic,
         'topic_id': topic_id
     })
-    
+
+@login_required(login_url='login')
+def delete_topic_cancel(request):
+    messages.info(request, "Topic deletion cancelled")
+    return redirect('delete_topic_form')
+   
 @login_required(login_url='login')
 def delete_topic(request, topic_id):
-    print('here')
+    
     if request.method == 'POST':
         topic = get_object_or_404(Topic, pk=topic_id)
             

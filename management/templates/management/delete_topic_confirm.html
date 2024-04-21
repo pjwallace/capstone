@@ -5,9 +5,7 @@
     <div class="msg-div" id="delete-topic-confirm-msg">
         
     </div>
-    
-     <!-- Debugging Output to check the URL generation -->
-     <p>Debug URL: {% url 'delete_topic' topic_id %}</p>   
+            
     <form id="delete-topic-confirm" data-fetch="false" method="POST" action="{% url 'delete_topic' topic_id %}">
         {% csrf_token %}
         <h2>Are you sure you want to delete this topic?</h2>
@@ -20,7 +18,7 @@
         <button type="submit" class="btn btn-danger" id="delete-topic-confirm-btn">Yes, Delete it
         </button>
 
-        <a href="{% url 'delete_topic_form' %}" type="button" class="btn btn-primary" 
+        <a href="{% url 'delete_topic_cancel' %}" type="button" class="btn btn-primary" 
             id="delete-topic-cancel-btn">No, Cancel
         </a>
     </form>
