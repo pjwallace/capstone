@@ -1,0 +1,27 @@
+{% extends "management/layout.html" %}
+
+{% block body %}   
+    
+    <div class="form-container" id="delete-subtopic-container">
+       
+        <div class="error-msg">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <form id="delete-subtopic-form" data-fetch="true" method="post" action="#">
+            {% csrf_token %}
+            {{ delete_subtopic_form.as_p }}
+
+            <button class="btn btn-danger" id="delete-subtopic-btn" type="submit" 
+                data-topic-id = "" data-subtopic-id = "" disabled>Delete Subtopic
+            </button>
+        </form>
+    </div>
+   
+{% endblock %}

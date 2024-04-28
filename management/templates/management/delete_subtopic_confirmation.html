@@ -1,0 +1,27 @@
+{% block body %}
+<div class="form-container" id="delete-subtopic-confirm-container">
+    <div class="msg-div" id="delete-subtopic-confirm-msg">
+        
+    </div>
+            
+    <form id="delete-subtopic-confirm" data-fetch="false" method="POST" action="{% url 'delete_subtopic' subtopic_id %}">
+        {% csrf_token %}
+        <h2>Are you sure you want to delete this subtopic?</h2>
+
+        <p>If you delete this subtopic "{{ subtopic }}" of {{ topic }}, all related 
+            questions and answers will also be permanantly deleted.
+        </p>
+        <h4>Do you want to proceed:</h4>
+
+        <button type="submit" class="btn btn-danger" id="delete-subtopic-confirm-btn">Yes, Delete it
+        </button>
+
+        <a href="{% url 'delete_subtopic_cancel' %}" type="button" class="btn btn-primary" 
+            id="delete-subtopic-cancel-btn">No, Cancel
+        </a>
+    </form>
+
+    
+</div>
+
+{% endblock %}

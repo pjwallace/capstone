@@ -19,13 +19,17 @@ document.addEventListener('DOMContentLoaded', function(){
                 add_subtopic();
             }
             
-            // other forms go here
+            
+            
         }
     });
 
-    
+    // delete topic
     setupSelectTopicToDelete();
     setupTopicToDeleteButton(); 
+
+    // delete subtopic
+    deleteSubtopic();
      
     
 });  
@@ -211,8 +215,9 @@ function edit_subtopic(){
     //pass
 }
 
-function delete_subtopic(){
-    //pass
+function deleteSubtopic(){
+    setupSelectSubtopicToDelete();
+    setupSubtopicToDeleteButton(); 
 }
 
 function add_question(){
@@ -237,4 +242,124 @@ function edit_choice(){
 
 function delete_choice(){
     //pass
+}
+
+function setupSelectSubtopicToDelete(){
+    const deleteSubtopicButton = document.getElementById('delete-subtopic-btn');
+    const selectTopic = document.getElementById('topic-to-choose');
+    const selectSubtopic = document.getElementById('subtopic-to-choose');
+   
+
+    if (selectTopic){
+        // must be at least one valid topic
+        const validOptions = selectTopic.options.length > 1;
+
+        if (!validOptions){
+            displayMessage('There are no topics to delete.', 'info');
+            return;
+        }
+
+        selectTopic.addEventListener('change', function(){
+            const selectedTopicId = selectTopic.value;
+            console.log(selectedTopicId);
+            if (!selectedTopicId){
+                deleteSubtopicButton.disabled = true;
+                displayMessage('There are no topics to delete.', 'info');
+                return;
+            } else{
+                
+                deleteSubtopicButton.setAttribute('data-topic-id', selectedTopicId);
+                getSubtopics(selectedTopicId, selectSubtopic, deleteSubtopicButton);
+            }
+        })
+        
+    }
+
+}
+
+function setupSubtopicToDeleteButton(){
+    const deleteSubtopicButton = document.getElementById('delete-subtopic-btn');
+    
+    // add event listener
+    if (deleteSubtopicButton){
+        deleteSubtopicButton.addEventListener('click', function(e){
+            e.preventDefault();
+            const topicId = this.getAttribute('data-topic-id');
+            const subtopicId = this.getAttribute('data-subtopic-id');
+            displaySubtopicDeleteConfirmation(topicId, subtopicId)
+        })
+        
+    }
+}
+
+
+function getSubtopics(selectedTopicId, selectSubtopic, deleteSubtopicButton){
+    // get the subtopics for the chosen topic to populate the subtopics dropdown menu
+    const route = `/management/portal/get_subtopics/${selectedTopicId}`;
+
+    fetch(route)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success){
+            // clear the existing subtopic options
+            selectSubtopic.innerHTML = '',
+
+            // load the new subtopics, including the placeholder option
+            selectSubtopic.innerHTML = '<option value="" selected ="">--------</option>';
+            data.subtopics.forEach(subtopic => {
+                const option = document.createElement('option');
+                option.value = subtopic.id;
+                option.textContent = subtopic.name;
+                selectSubtopic.appendChild(option);
+            });  
+        
+            if (selectSubtopic){
+                const validSubtopicOptions = selectSubtopic.options.length > 1;
+
+                if (!validSubtopicOptions){
+                    displayMessage('There are no available subtopics for the chosen topic', 'info');
+                    return;
+                }
+
+                // add eventlistener to the subtopic dropdown menu
+                selectSubtopic.addEventListener('change', function(){
+                    const selectedSubtopicId = this.value;
+                    console.log(selectedSubtopicId);
+                    if (!selectedSubtopicId){
+                        deleteSubtopicButton.disabled = true;
+                        displayMessage('There are no available subtopics for the chosen topic', 'info');
+                        return;
+                    } else {
+                        deleteSubtopicButton.disabled = false;
+                        deleteSubtopicButton.setAttribute('data-subtopic-id', selectedSubtopicId);
+                    }
+                })
+            }
+        }else{
+            displayMessage('There are no available subtopics for the chosen topic', 'info');
+            return;    
+        }      
+
+    })
+}
+
+function displaySubtopicDeleteConfirmation(topicId, subtopicId){
+    topicId = parseInt(topicId); 
+    subtopicId = parseInt(subtopicId);  
+    const route = `/management/portal/delete_subtopic_confirmation/${topicId}/${subtopicId}`;  
+    
+    fetch(route)
+        .then(response => response.text())
+        .then(html => {
+            const managementContainer = document.getElementById('management-container');
+            
+            if (managementContainer){
+                managementContainer.innerHTML = html;
+                managementContainer.style.display = 'block';
+                
+            } else{
+                console.error("delete-subtopic-confirm-container not found in the document.");
+            }                       
+        })
+        .catch(error => console.error('Error loading the confirmation:', error));   
 }

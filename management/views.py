@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 
 from .models import Topic, Subtopic
-from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm
+from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopicForm
 
 def management_portal(request): 
     return render(request, 'management/layout.html')
@@ -121,6 +121,63 @@ def add_subtopic(request):
         except IntegrityError:
             return JsonResponse({"success": False,  
                 "messages": [{"message": "An error occurred while saving this subtopic. Please try again.", "tags": "danger"}]}, status=500)
+        
+@login_required(login_url='login')  
+def delete_subtopic_form(request):
+    if request.method == 'GET':
+        delete_subtopic_form = DeleteSubtopicForm()
+        return render(request, 'management/delete_subtopic_form.html', { 
+            'delete_subtopic_form' : delete_subtopic_form,
+        })
+    
+@login_required(login_url='login')  
+def get_subtopics(request, topic_id):
+    subtopics = Subtopic.objects.filter(topic_id=topic_id).values('id', 'name')
+    if subtopics:
+        return JsonResponse({'success': True, 'subtopics': list(subtopics)})
+    else:
+        return JsonResponse({"success": False,  
+                "messages": [{"message": "An error occurred while retrieving subtopics.", "tags": "info"}]}, status=500)
+    
+@login_required(login_url='login')
+def delete_subtopic_confirmation(request, topic_id, subtopic_id):
+    topic = get_object_or_404(Topic, id=topic_id)
+    subtopic = get_object_or_404(Subtopic, id=subtopic_id)
+    
+    return render(request, 'management/delete_subtopic_confirmation.html', {
+        'subtopic': subtopic,
+        'subtopic_id': subtopic_id,
+        'topic_id' : topic_id,
+        'topic' : topic
+    })
+
+@login_required(login_url='login')
+def delete_subtopic_cancel(request):
+    messages.info(request, "Subtopic deletion cancelled")
+    return redirect('delete_subtopic_form')
+
+@login_required(login_url='login')
+def delete_subtopic(request, subtopic_id):
+    if request.method == 'POST':
+        subtopic = get_object_or_404(Subtopic, pk=subtopic_id)
+            
+        try:
+            subtopic.delete()                
+            
+            messages.success(request, f"{subtopic} has been successfully deleted.")
+            return redirect('delete_subtopic_form')
+        
+        except Exception as e:
+            
+            messages.error(request, "An error occurred while deleting this subtopic.")
+            return redirect('delete_subtopic_form')
+        
+    else:
+        # Handle non-POST requests 
+        messages.error(request, "Invalid request method for deleting a subtopic.")
+        return redirect('delete_subtopic_form')
+
+
 
      
             

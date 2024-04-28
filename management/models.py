@@ -42,7 +42,8 @@ class Subtopic(models.Model):
     display_order = models.IntegerField(default=0, blank=False, null=False)
 
     def __str__(self):
-        return f"{self.topic}/{self.name}"
+        #return f"{self.topic}/{self.name}"
+        return self.name
     
     class Meta:
         ordering = ['display_order', 'id']
