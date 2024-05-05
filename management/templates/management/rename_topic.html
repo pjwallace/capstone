@@ -1,0 +1,19 @@
+{% extends "management/layout.html" %}
+
+{% block body %}
+    
+    <div class="form-container" id="rename-topic-container">
+        <div id="rename-topic-msg" class="msg-div">
+            
+        </div>
+
+        <form id="rename-topic-form" data-fetch="true" method="post" action="{% url 'rename_topic' %}">
+            {% csrf_token %}
+            {{ rename_topic_form.as_p }}
+
+            <input class="btn btn-primary" id="rename-topic-btn" type="submit" value="Rename Topic">
+        </form>
+    </div>
+
+   
+{% endblock %}

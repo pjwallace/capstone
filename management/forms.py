@@ -19,6 +19,29 @@ class AddTopicForm(forms.ModelForm):
             'name' : ""
         } 
 
+class RenameTopicForm(forms.ModelForm):
+    topic = forms.ModelChoiceField(
+        queryset=Topic.objects.all(),
+        label="Choose Topic",
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'id': 'rename-topic',
+        })
+    )
+
+    new_topic_name = forms.CharField(
+        max_length=100,
+        label="",
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'id': 'new-topic-name',
+            'placeholder': 'Enter new topic name'
+        })
+    )
+    class Meta:
+        model = Topic
+        fields = []
+    
 class DeleteTopicForm(forms.ModelForm):
     name = forms.ModelChoiceField(
         queryset= Topic.objects.all(),

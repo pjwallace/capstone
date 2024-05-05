@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path("", views.management_portal, name="management_portal"),
     path("add_topic", views.add_topic, name="add_topic"),
+    path("rename_topic", views.rename_topic, name="rename_topic"),
     path("delete_topic_form", views.delete_topic_form, name="delete_topic_form"),
     path("delete_topic/<int:topic_id>", views.delete_topic, name="delete_topic"),
     path("delete_topic_confirmation/<int:topic_id>", views.delete_topic_confirmation, 

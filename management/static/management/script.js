@@ -7,16 +7,18 @@ document.addEventListener('DOMContentLoaded', function(){
             e.preventDefault(); // Prevent the default form submission
 
             // add topic
-            if (e.target.id === 'add-topic-form') {
-                add_topic();
+            if (e.target.id === 'add-topic-form'){
+                addTopic();
             }  
             
-            // delete topic
-            
+            // rename topic
+            if (e.target.id === 'rename-topic-form'){
+                renameTopic()
+            }
 
             // add subtopic
             if (e.target.id === 'add-subtopic-form'){
-                add_subtopic();
+                addSubtopic();
             }
             
             
@@ -35,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function(){
 });  
    
 
-function add_topic(){
+function addTopic(){
     const route = `/management/portal/add_topic`;
 
     // Retrieve the django CSRF token from the form
@@ -73,8 +75,25 @@ function add_topic(){
 
 }
 
-function edit_topic(){
-    //pass
+function renameTopic(){
+    const route = `/management/portal/rename_topic`;
+
+    // Retrieve the django CSRF token from the form
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(route, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+            old_topic_name : document.getElementById('rename-topic').value,
+            new_topic_name : document.getElementById('new-topic-name').value               
+        })
+    })
+    
+    .then(response => response.json())
 }
 
 function setupSelectTopicToDelete(){
@@ -144,6 +163,10 @@ function setupTopicToDeleteButton(){
 function displayMessage(message, type) {
     const messageContainer = document.querySelector('.error-msg');
     if (messageContainer) {
+        // Clear any existing messages
+        messageContainer.innerHTML = '';
+
+        // insert the new message
         messageContainer.insertAdjacentHTML('beforeend', `<div class="alert alert-${type}" role="alert">${message}</div>`);
     }
 }
@@ -168,7 +191,7 @@ function displayTopicDeleteConfirmation(topicId){
         .catch(error => console.error('Error loading the confirmation:', error));
 }
          
-function add_subtopic(){
+function addSubtopic(){
     const route = `/management/portal/add_subtopic`;
 
     // Retrieve the django CSRF token from the form

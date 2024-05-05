@@ -5,10 +5,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 import json
 from django.http import JsonResponse
-from django.template.loader import render_to_string
 
 from .models import Topic, Subtopic
-from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopicForm
+from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopicForm, RenameTopicForm
 
 def management_portal(request): 
     return render(request, 'management/layout.html')
@@ -41,6 +40,39 @@ def add_topic(request):
        
         return JsonResponse({"success": True, 
             "messages": [{"message": f"{name} has been successfully added.", "tags": "success"}]})
+
+@login_required(login_url='login')  
+def rename_topic(request):
+    if request.method == 'GET':
+        rename_topic_form = RenameTopicForm()
+        return render(request, 'management/rename_topic.html', { 
+            'rename_topic_form' : rename_topic_form,
+        })
+    
+    elif request.method == 'PUT':
+        data = json.loads(request.body)
+        topic_id = data.get("old_topic_id")
+        new_topic_name = data.get("new_topic_name", "").strip().title()
+
+        # create a Topic instance
+        try:
+            topic = Topic.objects.get(pk=topic_id)
+            old_topic_name = topic.name
+        except Topic.DoesNotExist:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Invalid topic selected.", "tags": "danger"}]}, status=400)
+        
+        # update topic name in Topic model
+        try:
+            topic.name = new_topic_name
+            topic.save()
+        except Exception as e:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
+        
+        # update topic name in the Subtopic, Question, Answer models
+
+
     
 @login_required(login_url='login')
 def delete_topic_form(request):
@@ -160,6 +192,10 @@ def delete_subtopic_cancel(request):
 def delete_subtopic(request, subtopic_id):
     if request.method == 'POST':
         subtopic = get_object_or_404(Subtopic, pk=subtopic_id)
+
+        # clear old messages
+        storage = messages.get_messages(request)
+        storage.used = True
             
         try:
             subtopic.delete()                

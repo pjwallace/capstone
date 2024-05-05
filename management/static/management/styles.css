@@ -19,7 +19,7 @@
     overflow: hidden;
 }
 
-#topic-name, #topic-to-delete, #topic-to-choose, #subtopic-to-choose{
+#topic-name, #rename-topic, #topic-to-delete, #topic-to-choose, #subtopic-to-choose{
     -webkit-appearance: menulist; /* Safari and Chrome */
     -moz-appearance: menulist; /* Firefox */
     appearance: menulist;
