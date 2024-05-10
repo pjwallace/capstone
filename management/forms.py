@@ -41,6 +41,16 @@ class RenameTopicForm(forms.ModelForm):
     class Meta:
         model = Topic
         fields = []
+
+    def clean(self):
+        cleaned_data = super().clean()
+        topic = cleaned_data.get('topic')
+        new_topic_name = cleaned_data.get('new_topic_name')
+
+        if topic and new_topic_name and topic.name == new_topic_name:
+            self.add_error('new_topic_name', 'The new topic name must be different from the current name.')
+
+        return cleaned_data
     
 class DeleteTopicForm(forms.ModelForm):
     name = forms.ModelChoiceField(

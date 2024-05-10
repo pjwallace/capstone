@@ -88,12 +88,56 @@ function renameTopic(){
             'X-CSRFToken': csrftoken,
         },
         body: JSON.stringify({
-            old_topic_name : document.getElementById('rename-topic').value,
+            old_topic_id : document.getElementById('rename-topic').value,
             new_topic_name : document.getElementById('new-topic-name').value               
         })
-    })
-    
+    })   
     .then(response => response.json())
+    .then(data =>{
+        document.getElementById('rename-topic-form').reset(); // reset the form
+        
+        if (data.success){  
+            // update the topic select menu to reflect the name change
+            updateTopicSelectMenu();        
+            
+            // display success message
+            let rename_topic_msg = document.getElementById('rename-topic-msg');
+            rename_topic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            
+        } else {
+            // errors
+            let rename_topic_msg = document.getElementById('rename-topic-msg');
+            rename_topic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+        }
+        
+    })
+    .catch(error => console.error('Error loading the form:', error)); 
+}
+
+function updateTopicSelectMenu(){
+    const route = `/management/portal/get_topics`;
+    fetch(route)
+    .then(response => response.json())
+    .then(data =>{
+        
+        if (data.success){
+            
+            const selectTopics = document.getElementById('rename-topic');
+            // clear the existing subtopic options
+            selectTopics.innerHTML = '',  
+            
+            // load the new topics menu, including the placeholder option
+            selectTopics.innerHTML = '<option value="" selected ="">--------</option>';
+            data.topics.forEach(topic => {
+                const option = document.createElement('option');
+                option.value = topic.id;
+                option.textContent = topic.name;
+                selectTopics.appendChild(option);
+            }); 
+             
+        }
+    })
+
 }
 
 function setupSelectTopicToDelete(){

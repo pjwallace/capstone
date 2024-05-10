@@ -53,7 +53,7 @@ def rename_topic(request):
         data = json.loads(request.body)
         topic_id = data.get("old_topic_id")
         new_topic_name = data.get("new_topic_name", "").strip().title()
-
+       
         # create a Topic instance
         try:
             topic = Topic.objects.get(pk=topic_id)
@@ -62,6 +62,12 @@ def rename_topic(request):
             return JsonResponse({"success": False, 
                 "messages": [{"message": "Invalid topic selected.", "tags": "danger"}]}, status=400)
         
+        # Check if the new name is the same as the old name
+        if new_topic_name == old_topic_name:
+            return JsonResponse({"success": False,
+                                 "messages": [{"message": "The new topic name must be different from the current topic name.", 
+                                               "tags": "danger"}]}, status=400)
+        
         # update topic name in Topic model
         try:
             topic.name = new_topic_name
@@ -69,11 +75,11 @@ def rename_topic(request):
         except Exception as e:
             return JsonResponse({"success": False, 
                 "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
-        
-        # update topic name in the Subtopic, Question, Answer models
+                
+        return JsonResponse({"success": True, 
+            "messages": [{"message": f"{old_topic_name} has been renamed to {new_topic_name}.", "tags": "success"}]})
 
 
-    
 @login_required(login_url='login')
 def delete_topic_form(request):
     if request.method == 'GET':
@@ -118,7 +124,14 @@ def delete_topic(request, topic_id):
         messages.error(request, "Invalid request method for deleting a topic.")
         return redirect('delete_topic_form')  
     
-
+@login_required(login_url='login')  
+def get_topics(request):
+    topics = Topic.objects.all().values('id', 'name')
+    if topics:
+        return JsonResponse({'success': True, 'topics': list(topics)}, safe=False)
+    else:
+        return JsonResponse({"success": False,  
+                "messages": [{"message": "An error occurred while retrieving topics.", "tags": "info"}]}, status=500)
     
 @login_required(login_url='login')  
 def add_subtopic(request):
