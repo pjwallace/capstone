@@ -25,3 +25,9 @@
     appearance: menulist;
 }
 
+#topic-for-renamed-subtopic, #choose-subtopic-to-rename{
+    -webkit-appearance: menulist; /* Safari and Chrome */
+    -moz-appearance: menulist; /* Firefox */
+    appearance: menulist;
+}
+

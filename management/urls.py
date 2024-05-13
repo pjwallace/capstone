@@ -12,6 +12,7 @@ urlpatterns = [
          name="delete_topic_confirmation"),
     path("delete_topic_cancel", views.delete_topic_cancel, name="delete_topic_cancel"),
     path("add_subtopic", views.add_subtopic, name="add_subtopic"),
+    path("rename_subtopic", views.rename_subtopic, name="rename_subtopic"),
     path("delete_subtopic_form", views.delete_subtopic_form, name="delete_subtopic_form"),
     path("get_subtopics/<int:topic_id>", views.get_subtopics, name="get_subtopics"),
     path("delete_subtopic/<int:subtopic_id>", views.delete_subtopic, name="delete_subtopic"),

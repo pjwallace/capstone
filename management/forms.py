@@ -104,6 +104,39 @@ class AddSubtopicForm(forms.ModelForm):
             raise forms.ValidationError("Please select a valid topic.")
         return topic
     
+class RenameSubtopicForm(forms.ModelForm):
+    topic = forms.ModelChoiceField(
+        queryset=Topic.objects.all(),
+        label="Choose Topic",
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'id': 'topic-for-renamed-subtopic',
+        })
+    )
+
+    name = forms.ModelChoiceField(
+        queryset = Subtopic.objects.none(),
+        widget=forms.Select(attrs={
+            'class' : 'form-control',
+            'id' : 'choose-subtopic-to-rename',
+        }),
+        label='Select a Subtopic'     
+    )
+    new_subtopic_name = forms.CharField(
+        max_length=100,
+        label="",
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'id': 'new-subtopic-name',
+            'placeholder': 'Enter new subtopic name'
+        })
+    )
+    class Meta:
+        model = Subtopic
+        fields = []
+
+
+    
 class DeleteSubtopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
         queryset= Topic.objects.all(),

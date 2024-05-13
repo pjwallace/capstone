@@ -1,0 +1,31 @@
+{% extends "management/layout.html" %}
+
+{% block body %}
+    
+    <div class="form-container" id="rename-subtopic-container">
+        
+        <div id="rename-subtopic-msg" class="msg-div">
+            
+        </div>
+        
+        <div class="error-msg">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <form id="rename-subtopic-form" data-fetch="true" method="post" action="{% url 'rename_subtopic' %}">
+            {% csrf_token %}
+            {{ rename_subtopic_form.as_p }}
+
+            <input class="btn btn-primary" id="rename-subtopic-btn" type="submit" 
+                    data-topic-id = "" data-subtopic-id = "" value="Rename Subtopic">
+        </form>
+    </div>
+
+   
+{% endblock %}

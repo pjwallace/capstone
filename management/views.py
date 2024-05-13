@@ -8,6 +8,7 @@ from django.http import JsonResponse
 
 from .models import Topic, Subtopic
 from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopicForm, RenameTopicForm
+from .forms import RenameSubtopicForm
 
 def management_portal(request): 
     return render(request, 'management/layout.html')
@@ -68,9 +69,10 @@ def rename_topic(request):
                                  "messages": [{"message": "The new topic name must be different from the current topic name.", 
                                                "tags": "danger"}]}, status=400)
         
-        # update topic name in Topic model
+        # update topic name, modified by in Topic model
         try:
             topic.name = new_topic_name
+            topic.modified_by = request.user
             topic.save()
         except Exception as e:
             return JsonResponse({"success": False, 
@@ -79,7 +81,7 @@ def rename_topic(request):
         return JsonResponse({"success": True, 
             "messages": [{"message": f"{old_topic_name} has been renamed to {new_topic_name}.", "tags": "success"}]})
 
-
+ 
 @login_required(login_url='login')
 def delete_topic_form(request):
     if request.method == 'GET':
@@ -168,6 +170,46 @@ def add_subtopic(request):
                 "messages": [{"message": "An error occurred while saving this subtopic. Please try again.", "tags": "danger"}]}, status=500)
         
 @login_required(login_url='login')  
+def rename_subtopic(request):
+    if request.method == 'GET':
+        rename_subtopic_form = RenameSubtopicForm()
+        return render(request, 'management/rename_subtopic.html', { 
+            'rename_subtopic_form' : rename_subtopic_form,
+        })
+    
+    elif request.method == 'PUT':
+        data = json.loads(request.body)
+        subtopic_id = data.get("subtopic_id")
+        new_subtopic_name = data.get("new_subtopic_name", "").strip().title()
+
+        # create a Subtopic instance
+        try:
+            subtopic = Subtopic.objects.get(pk=subtopic_id)
+            old_subtopic_name = subtopic.name
+        except Subtopic.DoesNotExist:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Invalid subtopic selected.", "tags": "danger"}]}, status=400)
+        
+        # Check if the new name is the same as the old name
+        if new_subtopic_name == old_subtopic_name:
+            return JsonResponse({"success": False,
+                                 "messages": [{"message": "The new subtopic name must be different from the current subtopic name.", 
+                                               "tags": "danger"}]}, status=400)
+        
+        # update subtopic name, modified by in Subtopic model
+        try:
+            subtopic.name = new_subtopic_name
+            subtopic.modified_by = request.user
+            subtopic.save()
+        except Exception as e:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
+                
+        return JsonResponse({"success": True, 
+            "messages": [{"message": f"{old_subtopic_name} has been renamed to {new_subtopic_name}.", 
+                          "tags": "success"}]})
+        
+@login_required(login_url='login')  
 def delete_subtopic_form(request):
     if request.method == 'GET':
         delete_subtopic_form = DeleteSubtopicForm()
@@ -179,7 +221,7 @@ def delete_subtopic_form(request):
 def get_subtopics(request, topic_id):
     subtopics = Subtopic.objects.filter(topic_id=topic_id).values('id', 'name')
     if subtopics:
-        return JsonResponse({'success': True, 'subtopics': list(subtopics)})
+        return JsonResponse({'success': True, 'subtopics': list(subtopics)}, safe=False)
     else:
         return JsonResponse({"success": False,  
                 "messages": [{"message": "An error occurred while retrieving subtopics.", "tags": "info"}]}, status=500)

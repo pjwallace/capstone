@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function(){
             
             // rename topic
             if (e.target.id === 'rename-topic-form'){
-                renameTopic()
+                renameTopic();
             }
 
             // add subtopic
@@ -21,8 +21,10 @@ document.addEventListener('DOMContentLoaded', function(){
                 addSubtopic();
             }
             
-            
-            
+            // rename subtopic
+            if (e.target.id === 'rename-subtopic-form'){
+                renameSubtopic();
+            }
         }
     });
 
@@ -30,9 +32,11 @@ document.addEventListener('DOMContentLoaded', function(){
     setupSelectTopicToDelete();
     setupTopicToDeleteButton(); 
 
+    // rename subtopic
+    setupSelectSubtopicToRename();
+
     // delete subtopic
-    deleteSubtopic();
-     
+    deleteSubtopic();   
     
 });  
    
@@ -204,17 +208,6 @@ function setupTopicToDeleteButton(){
 
 }
 
-function displayMessage(message, type) {
-    const messageContainer = document.querySelector('.error-msg');
-    if (messageContainer) {
-        // Clear any existing messages
-        messageContainer.innerHTML = '';
-
-        // insert the new message
-        messageContainer.insertAdjacentHTML('beforeend', `<div class="alert alert-${type}" role="alert">${message}</div>`);
-    }
-}
-
 function displayTopicDeleteConfirmation(topicId){
     topicId = parseInt(topicId);  
     const route = `/management/portal/delete_topic_confirmation/${topicId}`;  
@@ -278,8 +271,43 @@ function addSubtopic(){
     .catch(error => console.error('Error loading the form:', error));
 }
 
-function edit_subtopic(){
-    //pass
+function renameSubtopic(){
+    //setupSelectSubtopicToRename();
+    const route = `/management/portal/rename_subtopic`;
+
+    // Retrieve the django CSRF token from the form
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(route, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+            subtopic_id : document.getElementById('choose-subtopic-to-rename').value,
+            new_subtopic_name : document.getElementById('new-subtopic-name').value               
+        })
+    })   
+    .then(response => response.json())
+    .then(data =>{
+        document.getElementById('rename-subtopic-form').reset(); // reset the form
+        
+        if (data.success){  
+            clearMessages();
+            // display success message
+            let rename_subtopic_msg = document.getElementById('rename-subtopic-msg');
+            rename_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            
+        } else {
+            // errors
+            let rename_subtopic_msg = document.getElementById('rename-subtopic-msg');
+            rename_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+        }
+        
+    })
+    .catch(error => console.error('Error loading the form:', error)); 
+    
 }
 
 function deleteSubtopic(){
@@ -311,6 +339,82 @@ function delete_choice(){
     //pass
 }
 
+function setupSelectSubtopicToRename(){
+    const renameSubtopicButton = document.getElementById('rename-subtopic-btn');
+    const selectTopicForRenamedSubtopic = document.getElementById('topic-for-renamed-subtopic');
+    const selectSubtopicToRename = document.getElementById('choose-subtopic-to-rename');
+    
+    if (selectTopicForRenamedSubtopic){
+        // must be at least one valid topic
+        const validTopicOptions = selectTopicForRenamedSubtopic.options.length > 1;
+
+        if (!validTopicOptions){
+            displayMessage('There are no topics or subtopics to rename.', 'info');
+            return;
+        }
+
+        // add event listeneer for the topic dropdown menu
+        selectTopicForRenamedSubtopic.addEventListener('change', function(){
+            const selectedTopicId = selectTopicForRenamedSubtopic.value;
+            if (!selectedTopicId){
+                displayMessage('There are no topics/subtopics to rename.', 'info');
+                return;
+            } else{
+                
+                //renameSubtopicButton.setAttribute('data-topic-id', selectedTopicId);
+                getSubtopicsToRename(selectedTopicId, selectSubtopicToRename);
+            }
+
+        })
+    }
+
+}
+
+function getSubtopicsToRename(selectedTopicId, selectSubtopicToRename){
+    // get the subtopics for the chosen topic to populate the subtopics dropdown menu
+    const route = `/management/portal/get_subtopics/${selectedTopicId}`;
+
+    fetch(route)
+    .then(response => response.json())
+    .then(data =>{
+        
+        if (data.success){
+            // clear the existing subtopic options
+            selectSubtopicToRename.innerHTML = '',
+
+            // load the new subtopics, including the placeholder option
+            selectSubtopicToRename.innerHTML = '<option value="" selected ="">--------</option>';
+            data.subtopics.forEach(subtopic => {
+                const option = document.createElement('option');
+                option.value = subtopic.id;
+                option.textContent = subtopic.name;
+                selectSubtopicToRename.appendChild(option);
+            }); 
+            
+            const validSubtopicOptions = selectSubtopicToRename.options.length > 1;
+
+                if (!validSubtopicOptions){
+                    let rename_subtopic_msg = document.getElementById('rename-subtopic-msg');
+                    if (rename_subtopic_msg){
+                        rename_subtopic_msg.innerHTML = '';
+                    }
+                    clearMessages();
+                    displayMessage('There are no available subtopics for the chosen topic', 'info');
+                    return;
+                }
+        }else{
+            let rename_subtopic_msg = document.getElementById('rename-subtopic-msg');
+            if (rename_subtopic_msg){
+                rename_subtopic_msg.innerHTML = '';
+            }
+            clearMessages();
+            displayMessage('There are no available subtopics for the chosen topic', 'info');
+            return;    
+        } 
+    })
+
+}
+
 function setupSelectSubtopicToDelete(){
     const deleteSubtopicButton = document.getElementById('delete-subtopic-btn');
     const selectTopic = document.getElementById('topic-to-choose');
@@ -322,13 +426,13 @@ function setupSelectSubtopicToDelete(){
         const validOptions = selectTopic.options.length > 1;
 
         if (!validOptions){
-            displayMessage('There are no topics to delete.', 'info');
+            displayMessage('There are no topics or subtopics to delete.', 'info');
             return;
         }
 
         selectTopic.addEventListener('change', function(){
             const selectedTopicId = selectTopic.value;
-            console.log(selectedTopicId);
+            
             if (!selectedTopicId){
                 deleteSubtopicButton.disabled = true;
                 displayMessage('There are no topics to delete.', 'info');
@@ -336,7 +440,7 @@ function setupSelectSubtopicToDelete(){
             } else{
                 
                 deleteSubtopicButton.setAttribute('data-topic-id', selectedTopicId);
-                getSubtopics(selectedTopicId, selectSubtopic, deleteSubtopicButton);
+                getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicButton);
             }
         })
         
@@ -360,7 +464,7 @@ function setupSubtopicToDeleteButton(){
 }
 
 
-function getSubtopics(selectedTopicId, selectSubtopic, deleteSubtopicButton){
+function getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicButton){
     // get the subtopics for the chosen topic to populate the subtopics dropdown menu
     const route = `/management/portal/get_subtopics/${selectedTopicId}`;
 
@@ -429,4 +533,25 @@ function displaySubtopicDeleteConfirmation(topicId, subtopicId){
             }                       
         })
         .catch(error => console.error('Error loading the confirmation:', error));   
+}
+
+// Helper functions
+
+function displayMessage(message, type) {
+    const messageContainer = document.querySelector('.error-msg');
+    if (messageContainer) {
+        // Clear any existing messages
+        messageContainer.innerHTML = '';
+
+        // insert the new message
+        messageContainer.insertAdjacentHTML('beforeend', `<div class="alert alert-${type}" role="alert">${message}</div>`);
+    }
+}
+
+function clearMessages(){
+    const messageContainer = document.querySelector('.error-msg');
+    if (messageContainer) {
+        // Clear any existing messages
+        messageContainer.innerHTML = '';
+    }
 }
