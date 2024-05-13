@@ -38,7 +38,7 @@ class Subtopic(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, 
         null=True, blank=True, related_name='modified_subtopics')
-    is_visible = models.BooleanField(default=True) # whether topic should be displayed or not
+    is_visible = models.BooleanField(default=True) # whether subtopic should be displayed or not
     display_order = models.IntegerField(default=0, blank=False, null=False)
 
     def __str__(self):
@@ -48,3 +48,44 @@ class Subtopic(models.Model):
     class Meta:
         ordering = ['display_order', 'id']
         unique_together = ('topic', 'name')
+
+class Question(models.Model):
+    subtopic = models.ForeignKey(Subtopic, related_name='questions', on_delete=models.CASCADE)
+    text = models.CharField(max_length=255)
+    date_created = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, 
+        null=True, related_name='created_questions')
+    date_modified = models.DateTimeField(auto_now=True)
+    modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, 
+        null=True, blank=True, related_name='modified_questions')
+
+    def __str__(self):
+        return self.text
+    
+class Choice(models.Model):
+    question = models.ForeignKey(Question, related_name='choices', on_delete=models.CASCADE)
+    text = models.CharField(max_length=150)
+    is_correct = models.BooleanField(default=False)
+    date_created = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, 
+        null=True, related_name='created_choices')
+    date_modified = models.DateTimeField(auto_now=True)
+    modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, 
+        null=True, blank=True, related_name='modified_choices')
+
+    def __str__(self):
+        return self.text
+    
+class Explanation(models.Model):
+    question = models.OneToOneField(Question, related_name='explanation', on_delete=models.CASCADE)
+    text = models.TextField()
+    date_created = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, 
+        null=True, related_name='created_explanations')
+    date_modified = models.DateTimeField(auto_now=True)
+    modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, 
+        null=True, blank=True, related_name='modified_explanations')
+
+    def __str__(self):
+        return self.text
+
