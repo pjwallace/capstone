@@ -24,6 +24,10 @@ def add_topic(request):
     elif request.method == 'POST':
         data = json.loads(request.body)
         name = data.get("name", "").strip().title()
+
+        if not name:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "Please enter a valid topic name.", "tags": "danger"}]})
                
         try:
             topic = Topic(name = name, created_by = request.user)
@@ -54,6 +58,10 @@ def rename_topic(request):
         data = json.loads(request.body)
         topic_id = data.get("old_topic_id")
         new_topic_name = data.get("new_topic_name", "").strip().title()
+
+        if not new_topic_name:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Please enter a valid topic name.", "tags": "danger"}]}, status=400)   
        
         # create a Topic instance
         try:
@@ -69,7 +77,7 @@ def rename_topic(request):
                                  "messages": [{"message": "The new topic name must be different from the current topic name.", 
                                                "tags": "danger"}]}, status=400)
         
-        # update topic name, modified by in Topic model
+        # update topic name, modified_by in Topic model
         try:
             topic.name = new_topic_name
             topic.modified_by = request.user
@@ -148,6 +156,10 @@ def add_subtopic(request):
         topic_id = int(data.get("topic", ""))
         name = data.get("name", "").strip().title()
 
+        if not name:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Please enter a valid subtopic name.", "tags": "danger"}]}, status=400)
+
         # Get the Topic using the provided id
         try:
             topic = Topic.objects.get(id=topic_id)
@@ -163,7 +175,7 @@ def add_subtopic(request):
             subtopic = Subtopic(topic=topic, name=name, created_by=request.user)
             subtopic.save()
             return JsonResponse({"success": True, 
-                "messages": [{"message": f"{name} has been successfully added.", "tags": "success"}]})
+                "messages": [{"message": f"{name} has been successfully added as a subtopic of {topic}.", "tags": "success"}]})
             
         except IntegrityError:
             return JsonResponse({"success": False,  
@@ -181,6 +193,11 @@ def rename_subtopic(request):
         data = json.loads(request.body)
         subtopic_id = data.get("subtopic_id")
         new_subtopic_name = data.get("new_subtopic_name", "").strip().title()
+
+        if not new_subtopic_name:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Please enter a valid subtopic name.", "tags": "danger"}]}, status=400)
+
 
         # create a Subtopic instance
         try:

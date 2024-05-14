@@ -77,7 +77,7 @@ class DeleteTopicForm(forms.ModelForm):
 class AddSubtopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
         queryset = Topic.objects.all(),
-        empty_label="Select a topic",
+        #empty_label="Select a topic",
         widget=forms.Select(attrs={
             'class' : 'form-control',
             'id' : 'topic-name'

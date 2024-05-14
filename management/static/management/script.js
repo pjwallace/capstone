@@ -131,7 +131,7 @@ function updateTopicSelectMenu(){
             selectTopics.innerHTML = '',  
             
             // load the new topics menu, including the placeholder option
-            selectTopics.innerHTML = '<option value="" selected ="">--------</option>';
+            selectTopics.innerHTML = '<option value="" selected ="">---------</option>';
             data.topics.forEach(topic => {
                 const option = document.createElement('option');
                 option.value = topic.id;
@@ -139,6 +139,10 @@ function updateTopicSelectMenu(){
                 selectTopics.appendChild(option);
             }); 
              
+        }else{
+            // error occurred while retrieving topics
+            let rename_topic_msg = document.getElementById('rename-topic-msg');
+            rename_topic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
         }
     })
 
