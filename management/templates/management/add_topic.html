@@ -7,6 +7,8 @@
             
         </div>
 
+        <h2>Add a New Topic</h2><br>
+
         <form id="add-topic-form" data-fetch="true" method="post" action="{% url 'add_topic' %}">
             {% csrf_token %}
             {{ add_topic_form.as_p }}

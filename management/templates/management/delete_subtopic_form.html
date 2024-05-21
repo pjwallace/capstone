@@ -14,6 +14,8 @@
             {% endif %}
         </div>
 
+        <h2>Delete a Subtopic</h2><br>
+
         <form id="delete-subtopic-form" data-fetch="true" method="post" action="#">
             {% csrf_token %}
             {{ delete_subtopic_form.as_p }}

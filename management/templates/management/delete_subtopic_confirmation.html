@@ -9,14 +9,14 @@
         <h2>Are you sure you want to delete this subtopic?</h2>
 
         <p>If you delete this subtopic "{{ subtopic }}" of {{ topic }}, all related 
-            questions and answers will also be permanantly deleted.
+            questions and answer choices will also be permanantly deleted.
         </p>
-        <h4>Do you want to proceed:</h4>
+        <h4>Do you want to proceed:</h4><br>
 
         <button type="submit" class="btn btn-danger" id="delete-subtopic-confirm-btn">Yes, Delete it
         </button>
 
-        <a href="{% url 'delete_subtopic_cancel' %}" type="button" class="btn btn-primary" 
+        <a href="{% url 'delete_subtopic_cancel' %}" type="button" class="btn btn-primary me-3" 
             id="delete-subtopic-cancel-btn">No, Cancel
         </a>
     </form>

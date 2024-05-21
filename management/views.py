@@ -11,7 +11,11 @@ from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopi
 from .forms import RenameSubtopicForm
 
 def management_portal(request): 
-    return render(request, 'management/layout.html')
+    # load topics for sidebar
+    topics = Topic.objects.all()
+    return render(request, 'management/layout.html', {
+        'topics' : topics    
+    })
 
 @login_required(login_url='login')  
 def add_topic(request):

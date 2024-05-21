@@ -7,6 +7,8 @@
             
         </div>
 
+        <h2>Rename a Topic</h2><br>
+
         <form id="rename-topic-form" data-fetch="true" method="post" action="{% url 'rename_topic' %}">
             {% csrf_token %}
             {{ rename_topic_form.as_p }}

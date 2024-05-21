@@ -22,7 +22,7 @@ class AddTopicForm(forms.ModelForm):
 class RenameTopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
         queryset=Topic.objects.all(),
-        label="Choose Topic",
+        label="Choose a topic to rename",
         widget=forms.Select(attrs={
             'class': 'form-control',
             'id': 'rename-topic',
@@ -55,12 +55,12 @@ class RenameTopicForm(forms.ModelForm):
 class DeleteTopicForm(forms.ModelForm):
     name = forms.ModelChoiceField(
         queryset= Topic.objects.all(),
-        empty_label="Select a topic",
+        #empty_label="Select a topic",
         widget=forms.Select(attrs={
             'class' : 'form-control',
             'id' : 'topic-to-delete'
         }),
-        label='Select a Topic'     
+        label='Select a topic to delete'     
     )
 
     class Meta:
@@ -107,7 +107,7 @@ class AddSubtopicForm(forms.ModelForm):
 class RenameSubtopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
         queryset=Topic.objects.all(),
-        label="Choose Topic",
+        label="Select a Topic",
         widget=forms.Select(attrs={
             'class': 'form-control',
             'id': 'topic-for-renamed-subtopic',
@@ -120,7 +120,7 @@ class RenameSubtopicForm(forms.ModelForm):
             'class' : 'form-control',
             'id' : 'choose-subtopic-to-rename',
         }),
-        label='Select a Subtopic'     
+        label='Select a subtopic to rename'     
     )
     new_subtopic_name = forms.CharField(
         max_length=100,
@@ -150,12 +150,12 @@ class DeleteSubtopicForm(forms.ModelForm):
 
     name = forms.ModelChoiceField(
         queryset = Subtopic.objects.none(),
-        #empty_label="Select a subtopic",
+        #empty_label="Select a subtopic to delete",
         widget=forms.Select(attrs={
             'class' : 'form-control',
             'id' : 'subtopic-to-choose'
         }),
-        label='Select a Subtopic'     
+        label='Select a Subtopic to delete'     
     )
 
     class Meta:
