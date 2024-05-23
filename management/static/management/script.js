@@ -62,7 +62,16 @@ function addTopic(){
     .then(response => response.json())
     .then(data => {
         document.getElementById('add-topic-form').reset(); // reset the form
-        if (data.success){          
+        if (data.success){  
+            // update the sidebar with the new topic 
+            const sidebar = document.querySelector('.sidebar');
+            const aTag = document.createElement('a');
+            aTag.setAttribute('href', '#');
+            aTag.setAttribute('id', `topic-${data.topic_id}`);
+            aTag.setAttribute('class', 'topic');
+            aTag.setAttribute('data-topic-id', data.topic_id);
+            aTag.textContent = data.topic_name;
+            sidebar.appendChild(aTag);      
             
             // display success message
             let add_topic_msg = document.getElementById('add-topic-msg');
@@ -102,7 +111,11 @@ function renameTopic(){
         
         if (data.success){  
             // update the topic select menu to reflect the name change
-            updateTopicSelectMenu();        
+            updateTopicSelectMenu(); 
+            
+            // update the sidebar with the new topic name
+            const aTag = document.getElementById(`topic-${data.topic_id}`);
+            aTag.textContent = data.renamed_topic;
             
             // display success message
             let rename_topic_msg = document.getElementById('rename-topic-msg');

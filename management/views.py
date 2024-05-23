@@ -21,8 +21,11 @@ def management_portal(request):
 def add_topic(request):
     if request.method == 'GET':
         add_topic_form = AddTopicForm()
+        # load topics for sidebar
+        topics = Topic.objects.all()
         return render(request, 'management/add_topic.html', { 
             'add_topic_form' : add_topic_form,
+            'topics' : topics,
         })
 
     elif request.method == 'POST':
@@ -47,15 +50,18 @@ def add_topic(request):
                     "messages": [{"message": "An error occurred while saving the topic. Please try again.", "tags": "danger"}]})
             
        
-        return JsonResponse({"success": True, 
+        return JsonResponse({"success": True, "topic_id" : topic.id, "topic_name": topic.name,
             "messages": [{"message": f"{name} has been successfully added.", "tags": "success"}]})
 
 @login_required(login_url='login')  
 def rename_topic(request):
     if request.method == 'GET':
         rename_topic_form = RenameTopicForm()
+         # load topics for sidebar
+        topics = Topic.objects.all()
         return render(request, 'management/rename_topic.html', { 
             'rename_topic_form' : rename_topic_form,
+            'topics' : topics,
         })
     
     elif request.method == 'PUT':
@@ -90,7 +96,7 @@ def rename_topic(request):
             return JsonResponse({"success": False, 
                 "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
                 
-        return JsonResponse({"success": True, 
+        return JsonResponse({"success": True, "renamed_topic": new_topic_name, "topic_id": topic_id,
             "messages": [{"message": f"{old_topic_name} has been renamed to {new_topic_name}.", "tags": "success"}]})
 
  
@@ -98,8 +104,11 @@ def rename_topic(request):
 def delete_topic_form(request):
     if request.method == 'GET':
         delete_topic_form = DeleteTopicForm()
+        # load topics for sidebar
+        topics = Topic.objects.all()
         return render(request, 'management/delete_topic_form.html', { 
             'delete_topic_form' : delete_topic_form,
+            'topics' : topics,
         })
     
 @login_required(login_url='login')
@@ -151,8 +160,11 @@ def get_topics(request):
 def add_subtopic(request):
     if request.method == 'GET':
         add_subtopic_form = AddSubtopicForm()
+         # load topics for sidebar
+        topics = Topic.objects.all()
         return render(request, 'management/add_subtopic.html', { 
             'add_subtopic_form' : add_subtopic_form,
+            'topics' : topics,
         })
     
     elif request.method == 'POST':
@@ -189,8 +201,11 @@ def add_subtopic(request):
 def rename_subtopic(request):
     if request.method == 'GET':
         rename_subtopic_form = RenameSubtopicForm()
+         # load topics for sidebar
+        topics = Topic.objects.all()
         return render(request, 'management/rename_subtopic.html', { 
             'rename_subtopic_form' : rename_subtopic_form,
+            'topics' : topics,
         })
     
     elif request.method == 'PUT':
@@ -234,8 +249,11 @@ def rename_subtopic(request):
 def delete_subtopic_form(request):
     if request.method == 'GET':
         delete_subtopic_form = DeleteSubtopicForm()
+         # load topics for sidebar
+        topics = Topic.objects.all()
         return render(request, 'management/delete_subtopic_form.html', { 
             'delete_subtopic_form' : delete_subtopic_form,
+            'topics' : topics,
         })
     
 @login_required(login_url='login')  

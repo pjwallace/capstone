@@ -71,8 +71,19 @@
               </ul>
             </div>
           </nav>
+
+          <div class="sidebar">
+            {% if topics %}
+                {% for topic in topics %}
+                    <a href="#" id="topic-{{ topic.id }}" class="topic" data-topic-id="{{ topic.id }}">{{ topic.name }}</a>
+
+                {% endfor %}
+
+            {% endif %}
+          </div>              
         
-        <div class="body" id="management-container">
+        <div class="body" id="management-container"> 
+
             {% block body %}
             {% endblock %}
         </div>
