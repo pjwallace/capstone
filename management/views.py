@@ -17,6 +17,20 @@ def management_portal(request):
         'topics' : topics    
     })
 
+@login_required(login_url='login')
+def subtopics_for_topic(request, topic_id):
+    '''
+    Retrieves subtopics for the chosen topic. 
+    Used for dynamic loading in the sidebar.
+    '''
+    topic = Topic.objects.get(id=topic_id)
+    subtopics = topic.subtopics.filter(is_visible=True).values('id', 'name')
+    if subtopics:
+        return JsonResponse({'success' : True, 'subtopics' : list(subtopics)})
+    else:
+        return JsonResponse({"success": False,  
+                "messages": [{"message": "Subtopic retrieval failed.", "tags": "danger"}]})
+
 @login_required(login_url='login')  
 def add_topic(request):
     if request.method == 'GET':

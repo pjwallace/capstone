@@ -1,7 +1,10 @@
 
 document.addEventListener('DOMContentLoaded', function(){
-     // form submission event listeners
-     document.getElementById('management-container').addEventListener('submit', function(e){
+    // load subtopics for the chosen topic in the sidebar
+    loadSuptopicsForTopic();
+
+    // form submission event listeners
+    document.getElementById('management-container').addEventListener('submit', function(e){
         // Ensure the event is coming from forms that are processed asynchronously
         if (e.target.getAttribute('data-fetch') === 'true') {
             e.preventDefault(); // Prevent the default form submission
@@ -38,8 +41,54 @@ document.addEventListener('DOMContentLoaded', function(){
     // delete subtopic
     deleteSubtopic();   
     
-});  
-   
+}); 
+
+function loadSuptopicsForTopic(){
+    // add event listener to each topic in the sidebar
+    document.querySelectorAll('.topic').forEach(topicATag =>{
+        topicATag.addEventListener('click', function(e){
+            e.preventDefault();
+            const topicId = topicATag.dataset.topicId;
+            const subtopicsContainer = document.getElementById('subtopics-' + topicId);
+            const downIcon = document.getElementById('caretdown-' + topicId);
+            const upIcon = document.getElementById('caretup-' + topicId);
+
+            // check if subtopics have already been loaded for the chosen topic
+            if (subtopicsContainer.children.length > 0){
+                // hide the subtopics container and display the down caret
+                subtopicsContainer.style.display === 'none';
+                downIcon.style.display === 'block';
+                upIcon.style.display === 'none'
+            }else{
+                // fetch subtopics for the chosen topic
+                route = `/management/portal/subtopics_for_topic${topicId}`;
+                fetch(route)
+                .then(response => response.json())
+                .then(data =>{
+                    if (data.success){
+                        data.subtopics.forEach(subtopic =>{
+                            console.log(data);
+                            const subtopicATag = document.createElement('a');
+                            subtopicATag.setAttribute('href', '#');
+                            subtopicATag.setAttribute('id', `subtopic-${subtopic.id}`);
+                            subtopicATag.setAttribute('class', 'subtopic');
+                            subtopicATag.setAttribute('data-subtopic-id', subtopic.id);
+                            subtopicATag.textContent = subtopic.name;
+                            subtopicsContainer.appendChild(subtopicATag); 
+                        });
+                        subtopicsContainer.style.display = 'block';
+                        downIcon.style.display === 'none';
+                        upIcon.style.display === 'block';
+                    }else{
+                        alert('This topic has no subtopics yet.');
+                    }
+                })
+                .catch(error => console.error('Error loading the form:', error));
+            }
+        })
+
+    })
+}   
 
 function addTopic(){
     const route = `/management/portal/add_topic`;

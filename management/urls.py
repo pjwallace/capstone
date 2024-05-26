@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path("", views.management_portal, name="management_portal"),
+    path("subtopics_for_topic/<int:topic_id>", views.subtopics_for_topic, name="subtopics_for_topic"),
     path("add_topic", views.add_topic, name="add_topic"),
     path("rename_topic", views.rename_topic, name="rename_topic"),
     path("get_topics", views.get_topics, name="get_topics"),
