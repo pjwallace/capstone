@@ -25,6 +25,11 @@
     outline: none;
 }
 
+/* Gold color for hover, focus, and active links */
+.sidebar a:hover, .sidebar a:focus, .sidebar a.active {
+    color: #FFD700; 
+}
+
 /* font awesome up and down carets */
 .fa-caret-down{
     float: right;
@@ -39,10 +44,20 @@
     display: none;
 }
 
-.subtopics-container{
+.subtopics{
     display: none;
     background-color: #262626;
-    padding-left: 8 px;
+    
+}
+
+.subtopic{
+    padding-left: 12px;
+    font-size: 16px;
+    color: #A9A9A9;
+}
+
+.suptopic:hover, .suptopic:focus {
+    color: #FFD700; /* Gold color for hover and focus on subtopics */
 }
 
 #management-container{

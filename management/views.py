@@ -204,7 +204,7 @@ def add_subtopic(request):
         try:
             subtopic = Subtopic(topic=topic, name=name, created_by=request.user)
             subtopic.save()
-            return JsonResponse({"success": True, 
+            return JsonResponse({"success": True, "subtopic_id": subtopic.id, "subtopic_name": subtopic.name, "topic_id": topic_id,
                 "messages": [{"message": f"{name} has been successfully added as a subtopic of {topic}.", "tags": "success"}]})
             
         except IntegrityError:
@@ -255,7 +255,7 @@ def rename_subtopic(request):
             return JsonResponse({"success": False, 
                 "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
                 
-        return JsonResponse({"success": True, 
+        return JsonResponse({"success": True, "subtopic_id" : subtopic_id, "new_subtopic_name" : new_subtopic_name,
             "messages": [{"message": f"{old_subtopic_name} has been renamed to {new_subtopic_name}.", 
                           "tags": "success"}]})
         

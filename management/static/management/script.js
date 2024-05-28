@@ -49,25 +49,38 @@ function loadSuptopicsForTopic(){
         topicATag.addEventListener('click', function(e){
             e.preventDefault();
             const topicId = topicATag.dataset.topicId;
-            const subtopicsContainer = document.getElementById('subtopics-' + topicId);
-            const downIcon = document.getElementById('caretdown-' + topicId);
+            const subtopicsContainer = document.getElementById('subtopicscontainer-' + topicId);
+            let downIcon = document.getElementById('caretdown-' + topicId);
             const upIcon = document.getElementById('caretup-' + topicId);
 
+            // downIcon won't exist if there are no subtopics yet for he chosen topic
+            if (!downIcon){
+                downIcon = document.createElement('i');
+                downIcon.classList.add('fa', 'fa-caret-down');
+                downIcon.setAttribute('id', `caretdown-${topicId}`);
+                downIcon.style.display = 'none';
+            }
+           
             // check if subtopics have already been loaded for the chosen topic
             if (subtopicsContainer.children.length > 0){
+                subtopicsContainer.innerHTML = '';
                 // hide the subtopics container and display the down caret
-                subtopicsContainer.style.display === 'none';
-                downIcon.style.display === 'block';
-                upIcon.style.display === 'none'
+                if (subtopicsContainer.style.display === 'block'){
+                    subtopicsContainer.style.display = 'none';
+                    downIcon.style.display = 'block';
+                    upIcon.style.display = 'none';
+                    topicATag.appendChild(downIcon);
+                }
+               
             }else{
                 // fetch subtopics for the chosen topic
-                route = `/management/portal/subtopics_for_topic${topicId}`;
+                route = `/management/portal/subtopics_for_topic/${topicId}`;
                 fetch(route)
                 .then(response => response.json())
                 .then(data =>{
                     if (data.success){
+                        subtopicsContainer.innerHTML = '';
                         data.subtopics.forEach(subtopic =>{
-                            console.log(data);
                             const subtopicATag = document.createElement('a');
                             subtopicATag.setAttribute('href', '#');
                             subtopicATag.setAttribute('id', `subtopic-${subtopic.id}`);
@@ -77,8 +90,11 @@ function loadSuptopicsForTopic(){
                             subtopicsContainer.appendChild(subtopicATag); 
                         });
                         subtopicsContainer.style.display = 'block';
-                        downIcon.style.display === 'none';
-                        upIcon.style.display === 'block';
+
+                        // toggle the caret icons
+                        downIcon.style.display = 'none';
+                        upIcon.style.display = 'block';
+
                     }else{
                         alert('This topic has no subtopics yet.');
                     }
@@ -315,9 +331,32 @@ function addSubtopic(){
     .then(response => response.json())
     .then(data => {
         if (data.success){
-
-            // reset the form
+            // reset the add subtopic form
             document.getElementById('add-subtopic-form').reset();
+
+            // update the sidebar with the new subtopic
+            const topicId = data.topic_id;
+            const subtopicsContainer = document.getElementById('subtopicscontainer-' + topicId);
+            const topicATag = document.getElementById('topic-' + topicId);
+            let upIcon = document.getElementById('caretup-' + topicId);
+            let downIcon = document.getElementById('caretdown-' + topicId);            
+
+            // if this is the first subtopic for the topic, enable the subtopics container and up caret
+            if (subtopicsContainer.children.length == 0){
+                subtopicsContainer.innerHTML = '';
+                // enable the subtopics container and display the up caret
+                subtopicsContainer.style.display = 'block'; 
+                upIcon.style.display = 'block'; 
+                downIcon.style.display = 'none';                
+            }
+
+            const subtopicATag = document.createElement('a');
+            subtopicATag.setAttribute('href', '#');
+            subtopicATag.setAttribute('id', `subtopic-${data.subtopic_id}`);
+            subtopicATag.setAttribute('class', 'subtopic');
+            subtopicATag.setAttribute('data-subtopic-id', data.subtopic_id);
+            subtopicATag.textContent = data.subtopic_name;
+            subtopicsContainer.appendChild(subtopicATag); 
 
             // display success message
             let add_subtopic_msg = document.getElementById('add-subtopic-msg');
@@ -361,6 +400,11 @@ function renameSubtopic(){
         
         if (data.success){  
             clearMessages();
+
+            // update the sidebar
+            const subtopicATag = document.getElementById(`subtopic-${data.subtopic_id}`);
+            subtopicATag.textContent = data.new_subtopic_name;
+
             // display success message
             let rename_subtopic_msg = document.getElementById('rename-subtopic-msg');
             rename_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
@@ -561,7 +605,7 @@ function getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicBut
                 // add eventlistener to the subtopic dropdown menu
                 selectSubtopic.addEventListener('change', function(){
                     const selectedSubtopicId = this.value;
-                    console.log(selectedSubtopicId);
+                    
                     if (!selectedSubtopicId){
                         deleteSubtopicButton.disabled = true;
                         displayMessage('There are no available subtopics for the chosen topic', 'info');

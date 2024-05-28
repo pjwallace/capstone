@@ -18,7 +18,7 @@
     <body>
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Surgery</a>
+            <a class="navbar-brand" href="#">Database Management</a>
           
             <div>
               <ul class="navbar-nav mr-auto">
@@ -78,15 +78,17 @@
             {% if topics %}
                 {% for topic in topics %}
                     <a href="#" id="topic-{{ topic.id }}" class="topic" data-topic-id="{{ topic.id }}">{{ topic.name }}
+                   
                         {% if topic.subtopics.exists %}
-                            <i class="fa fa-caret-down" id="caretdown-{{ topic.id }}"></iclass></i>
-                            <i class="fa fa-caret-up" id="caretup-{{ topic.id }}"></iclass></i>
+                            <i class="fa fa-caret-down" id="caretdown-{{ topic.id }}"></i> 
                         {% endif %}
-                    </a>
-
-                    <div class="suptopics-container" id="subtopics-{{ topic.id }}">
+                        <i class="fa fa-caret-up" id="caretup-{{ topic.id }}"></i>
                         
-                    </div>
+                    </a>
+                    
+                    <div class="subtopics" id="subtopicscontainer-{{ topic.id }}">
+                        
+                    </div>  
 
                 {% endfor %}
 
