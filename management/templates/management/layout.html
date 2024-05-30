@@ -46,23 +46,24 @@
                     
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle"
-                        href="#" id="navbardrop-question" data-bs-toggle="dropdown">Questions
+                        href="#" id="navbardrop-question" data-bs-toggle="dropdown">Questions/Choices
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" id="dropdown-add-question" href="#">Add Question</a>
-                        <a class="dropdown-item" id="dropdown-edit-question" href="#">Edit Question</a>
-                        <a class="dropdown-item" id="dropdown-delete-question" href="#">Delete Question</a>   
+                        <a class="dropdown-item" id="dropdown-add-question-and-choices" href="{% url 'add_question_and_choices' %}">
+                            Add Question/Choices</a>
+                        <a class="dropdown-item" id="dropdown-edit-question-and-choices" href="#">Edit Question/Choices</a>
+                        <a class="dropdown-item" id="dropdown-delete-question-and-choices" href="#">Delete Question/Choices</a>   
                     </div>
                 </li>
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle"
-                        href="#" id="navbardrop-choice" data-bs-toggle="dropdown">Choices
+                        href="#" id="navbardrop-choice" data-bs-toggle="dropdown">Explanations
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" id="dropdown-add-choice" href="#">Add Choice</a>
-                        <a class="dropdown-item" id="dropdown-edit-choice" href="#">Edit Choice</a>
-                        <a class="dropdown-item" id="dropdown-delete-choice"href="#">Delete Choice</a>   
+                        <a class="dropdown-item" id="dropdown-add-explanation" href="#">Add Explanation</a>
+                        <a class="dropdown-item" id="dropdown-edit-explanation" href="#">Edit Explanation</a>
+                        <a class="dropdown-item" id="dropdown-delete-explanation" href="#">Delete Explanation</a>   
                     </div>
                 </li>
 

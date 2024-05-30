@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from management.models import Topic, Subtopic
+from management.models import Topic, Subtopic, Question, Choice, Explanation
+from collections import OrderedDict
 
 class AddTopicForm(forms.ModelForm):
     class Meta:
@@ -55,7 +56,6 @@ class RenameTopicForm(forms.ModelForm):
 class DeleteTopicForm(forms.ModelForm):
     name = forms.ModelChoiceField(
         queryset= Topic.objects.all(),
-        #empty_label="Select a topic",
         widget=forms.Select(attrs={
             'class' : 'form-control',
             'id' : 'topic-to-delete'
@@ -77,7 +77,6 @@ class DeleteTopicForm(forms.ModelForm):
 class AddSubtopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
         queryset = Topic.objects.all(),
-        #empty_label="Select a topic",
         widget=forms.Select(attrs={
             'class' : 'form-control',
             'id' : 'topic-name'
@@ -134,9 +133,7 @@ class RenameSubtopicForm(forms.ModelForm):
     class Meta:
         model = Subtopic
         fields = []
-
-
-    
+   
 class DeleteSubtopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
         queryset= Topic.objects.all(),
@@ -171,3 +168,69 @@ class DeleteSubtopicForm(forms.ModelForm):
         if not name:
             raise forms.ValidationError("Please select a valid sub topic.")
         return name
+    
+class AddQuestionForm(forms.ModelForm):
+    topic = forms.ModelChoiceField(
+        queryset= Topic.objects.all(),
+        widget=forms.Select(attrs={
+            'class' : 'form-control',
+            'id' : 'topic-for-question'
+        }),
+        label='Select a Topic'     
+    )
+
+    subtopic = forms.ModelChoiceField(
+        queryset = Subtopic.objects.none(),
+        widget=forms.Select(attrs={
+            'class' : 'form-control',
+            'id' : 'subtopic-for-question'
+        }),
+        label='Select a Subtopic'     
+    )
+
+    text = forms.CharField(
+        max_length=255,
+        label="",
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'id': 'new-question',
+            'placeholder': 'Question'
+        })
+    )
+
+    class Meta:
+        model = Question
+        fields = ['subtopic', 'text']
+
+    def __init__(self, *args, **kwargs):
+        super(AddQuestionForm, self).__init__(*args, **kwargs)
+        self.fields['topic'].queryset = Topic.objects.all()  
+        self.fields['subtopic'].queryset = Subtopic.objects.none()  
+        
+        # Reorder the fields
+        self.fields = OrderedDict([
+            ('topic', self.fields['topic']),
+            ('subtopic', self.fields['subtopic']),
+            ('text', self.fields['text']),
+        ])
+
+class AddChoiceForm(forms.ModelForm):
+    class Meta:
+        model = Choice
+        fields = ['text', 'is_correct']
+        widgets = {
+            'text' : forms.TextInput(attrs={
+                'class' : 'form-control',
+                'id' : 'new-choice',
+                'placeholder' : 'Choice',              
+            }),
+            'is_correct': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'id': 'choice-correct'
+            })
+        }
+        labels = {
+            'text' : "",
+            'is_correct': "Correct"
+        } 
+

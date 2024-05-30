@@ -6,9 +6,9 @@ from django.contrib import messages
 import json
 from django.http import JsonResponse
 
-from .models import Topic, Subtopic
+from .models import Topic, Subtopic, Question, Choice, Explanation
 from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopicForm, RenameTopicForm
-from .forms import RenameSubtopicForm
+from .forms import RenameSubtopicForm, AddQuestionForm, AddChoiceForm
 
 def management_portal(request): 
     # load topics for sidebar
@@ -320,6 +320,21 @@ def delete_subtopic(request, subtopic_id):
         # Handle non-POST requests 
         messages.error(request, "Invalid request method for deleting a subtopic.")
         return redirect('delete_subtopic_form')
+    
+@login_required(login_url='login')
+def add_question_and_choices(request):
+    if request.method == 'GET':
+        add_question_form = AddQuestionForm()
+        add_choice_form = AddChoiceForm()
+
+        # load topics for sidebar
+        topics = Topic.objects.all()
+        
+        return render(request, 'management/add_question_and_choices.html', { 
+            'add_question_form' : add_question_form,
+            'add_choice_form' : add_choice_form,
+            'topics' : topics,
+        })
 
 
 

@@ -1,0 +1,42 @@
+{% extends "management/layout.html" %}
+
+{% block body %}   
+    
+    <div class="form-container" id="add-question-and-choices-container">
+       
+        <div class="error-msg">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <h2>Add Question and Answer Choices</h2><br>
+
+        <form id="add-question-and-choices-form" data-fetch="true" method="post" action="#">
+            {% csrf_token %}
+            {{ add_question_form.as_p }}
+
+            <div id="choices-container">
+                <div class="choice-form" id="choice-1">
+                    {{ add_choice_form.as_p}}
+                </div>
+                <div class="choice-form" id="choice-2">
+                    {{ add_choice_form.as_p}}
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="another-choice-btn" type="submit" >
+                Add Another Choice
+            </button>
+
+            <button class="btn btn-primary" id="add-question-and-choices-btn" type="submit" >
+                Submit Question and Choices
+            </button>
+        </form>
+    </div>
+   
+{% endblock %}
