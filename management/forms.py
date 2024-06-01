@@ -221,12 +221,11 @@ class AddChoiceForm(forms.ModelForm):
         widgets = {
             'text' : forms.TextInput(attrs={
                 'class' : 'form-control',
-                'id' : 'new-choice',
                 'placeholder' : 'Choice',              
             }),
             'is_correct': forms.CheckboxInput(attrs={
                 'class': 'form-check-input',
-                'id': 'choice-correct'
+                
             })
         }
         labels = {

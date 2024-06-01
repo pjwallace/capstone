@@ -82,6 +82,23 @@
     overflow: hidden;
 }
 
+#add-question-and-choices-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Adds space between form elements */
+}
+
+.choice-form {
+    margin-bottom: 10px;
+}
+
+.add-choice-fields {
+    display: flex;
+    align-items: center; /* Align items vertically centered */
+    gap: 10px; /* Adds space between the text field and the checkbox */
+}
+
+
 #topic-name, #rename-topic, #topic-to-delete, #topic-to-choose, #subtopic-to-choose{
     -webkit-appearance: menulist; /* Safari and Chrome */
     -moz-appearance: menulist; /* Firefox */

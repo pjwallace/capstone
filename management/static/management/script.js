@@ -28,6 +28,11 @@ document.addEventListener('DOMContentLoaded', function(){
             if (e.target.id === 'rename-subtopic-form'){
                 renameSubtopic();
             }
+
+            // add question and choices
+            if (e.target.id === 'add-question-and-choices-form'){
+                addQuestionAndChoices();
+            }
         }
     });
 
@@ -39,7 +44,10 @@ document.addEventListener('DOMContentLoaded', function(){
     setupSelectSubtopicToRename();
 
     // delete subtopic
-    deleteSubtopic();   
+    deleteSubtopic(); 
+    
+    // delect subtopic for question
+    SelectSubtopicsForQuestion();
     
 }); 
 
@@ -377,7 +385,6 @@ function addSubtopic(){
 }
 
 function renameSubtopic(){
-    //setupSelectSubtopicToRename();
     const route = `/management/portal/rename_subtopic`;
 
     // Retrieve the django CSRF token from the form
@@ -425,11 +432,9 @@ function deleteSubtopic(){
     setupSubtopicToDeleteButton(); 
 }
 
-function add_question(){
-    //pass
-}
 
-function edit_question(){
+
+function editQuestionAndChoices(){
     //pass
 }
 
@@ -437,17 +442,6 @@ function delete_question(){
     //pass
 }
 
-function add_choice(){
-    //pass
-}
-
-function edit_choice(){
-    //pass
-}
-
-function delete_choice(){
-    //pass
-}
 
 function setupSelectSubtopicToRename(){
     const renameSubtopicButton = document.getElementById('rename-subtopic-btn');
@@ -645,7 +639,85 @@ function displaySubtopicDeleteConfirmation(topicId, subtopicId){
         .catch(error => console.error('Error loading the confirmation:', error));   
 }
 
+function addQuestionAndChoices(){
+    //pass
+}
+
+function SelectSubtopicsForQuestion(){
+    //const renameSubtopicButton = document.getElementById('rename-subtopic-btn');
+    const topicMenu = document.getElementById('topic-for-question');
+    const subtopicMenu = document.getElementById('subtopic-for-question');
+    
+    if (topicMenu){
+        // must be at least one valid topic
+        const validTopicOptions = topicMenu.options.length > 1;
+
+        if (!validTopicOptions){
+            displayMessage('There are no topics available.', 'info');
+            return;
+        }
+
+        // add event listeneer for the topic dropdown menu
+        topicMenu.addEventListener('change', function(){
+            const selectedTopicId = topicMenu.value;
+            
+            if (!selectedTopicId){
+                displayMessage('There are no topics available.', 'info');
+                return;
+            } else{            
+                getSubtopics(selectedTopicId, subtopicMenu);
+            }
+
+        })
+    }
+}
+
 // Helper functions
+
+function getSubtopics(selectedTopicId, subtopicMenu){
+    // get the subtopics for the chosen topic to populate the subtopics dropdown menu
+    const route = `/management/portal/get_subtopics/${selectedTopicId}`;
+    
+    fetch(route)
+    .then(response => response.json())
+    .then(data =>{
+        
+        if (data.success){
+            // clear the existing subtopic options
+            subtopicMenu.innerHTML = '',
+           
+            // load the new subtopics, including the placeholder option
+            subtopicMenu.innerHTML = '<option value="" selected ="">--------</option>';
+            data.subtopics.forEach(subtopic => {
+                const option = document.createElement('option');
+                option.value = subtopic.id;
+                option.textContent = subtopic.name;
+                subtopicMenu.appendChild(option);
+            }); 
+            
+            const validSubtopicOptions = subtopicMenu.options.length > 1;
+
+                if (!validSubtopicOptions){
+                    let add_question_and_choices_msg = document.getElementById('add-question-and-choices-msg');
+                    if (add_question_and_choices_msg){
+                        add_question_and_choices_msg.innerHTML = '';
+                    }
+                    clearMessages();
+                    displayMessage('There are no available subtopics for the chosen topic', 'info');
+                    return;
+                }
+        }else{
+            let add_question_and_choices_msg = document.getElementById('rename-subtopic-msg');
+            if (add_question_and_choices_msg){
+                add_question_and_choices_msg.innerHTML = '';
+            }
+            clearMessages();
+            displayMessage('There are no available subtopics for the chosen topic', 'info');
+            return;    
+        } 
+    })
+
+}
 
 function displayMessage(message, type) {
     const messageContainer = document.querySelector('.error-msg');

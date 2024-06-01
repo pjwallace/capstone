@@ -325,14 +325,16 @@ def delete_subtopic(request, subtopic_id):
 def add_question_and_choices(request):
     if request.method == 'GET':
         add_question_form = AddQuestionForm()
-        add_choice_form = AddChoiceForm()
+
+        # Initially,  2 choice forms are loaded. More can be loaded dynamically
+        add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(2)]  
 
         # load topics for sidebar
         topics = Topic.objects.all()
         
         return render(request, 'management/add_question_and_choices.html', { 
             'add_question_form' : add_question_form,
-            'add_choice_form' : add_choice_form,
+            'add_choice_forms' : add_choice_forms,
             'topics' : topics,
         })
 
