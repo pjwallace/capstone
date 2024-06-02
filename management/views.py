@@ -337,7 +337,41 @@ def add_question_and_choices(request):
             'add_choice_forms' : add_choice_forms,
             'topics' : topics,
         })
+    elif request.method == 'POST':
+        data = json.loads(request.body)
+        subtopic_id = int(data.get("subtopic_id", ""))
+        text = data.get("question_text", "").strip()
 
+        # Make sure the subtopic exists
+        try:
+            subtopic = Subtopic.objects.get(id=subtopic_id)
+        except Subtopic.DoesNotExist:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Invalid subtopic selected.", "tags": "danger"}]}, status=400)
+        
+        # Subtopic/question text must be unique
+        if Question.objects.filter(subtopic=subtopic, text=text).exists():
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "This subtopic/question combination already exists.", "tags": "danger"}]}, status=400)
+
+        # Answer can't be blank. Must have a minimun length of 10
+        if not text:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Please enter a question.", "tags": "danger"}]}, status=400)
+        
+        if len(text) < 10:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "This question is too short. Please provide more details.", "tags": "danger"}]}, status=400)
+        
+        try:
+            question = Question(subtopic=subtopic, text=text, created_by=request.user)
+            question.save()
+            return JsonResponse({"success": True, "subtopic_id": subtopic.id, 
+                "messages": [{"message": "Question has been successfully added.", "tags": "success"}]})
+            
+        except IntegrityError:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "An error occurred while saving this question. Please try again.", "tags": "danger"}]}, status=500)
 
 
      

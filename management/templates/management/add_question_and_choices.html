@@ -24,6 +24,11 @@
             {% csrf_token %}
             {{ add_question_form.as_p }}
 
+            <button class="btn btn-primary" id="test-question-btn" type="submit" >
+                Add Question
+            </button>
+
+            <!--
             <div id="add-choices-container">
                 {% for add_choice_form in add_choice_forms %}
                     <div class="choice-form" id="add-choice-{{ forloop.counter }}">
@@ -44,6 +49,7 @@
             <button class="btn btn-primary" id="add-question-and-choices-btn" type="submit" >
                 Submit Question and Choices
             </button>
+            -->
         </form>
     </div>
    

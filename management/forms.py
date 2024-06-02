@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from management.models import Topic, Subtopic, Question, Choice, Explanation
+from management.models import Topic, Subtopic, Question, QuestionType, Choice, Explanation
 from collections import OrderedDict
 
 class AddTopicForm(forms.ModelForm):
@@ -188,6 +188,15 @@ class AddQuestionForm(forms.ModelForm):
         label='Select a Subtopic'     
     )
 
+    question_type = forms.ModelChoiceField(
+        queryset= QuestionType.objects.all(),
+        widget=forms.Select(attrs={
+            'class' : 'form-control',
+            'id' : 'question-type'
+        }),
+        label='Select a Question Type'     
+    )
+
     text = forms.CharField(
         max_length=255,
         label="",
@@ -200,17 +209,26 @@ class AddQuestionForm(forms.ModelForm):
 
     class Meta:
         model = Question
-        fields = ['subtopic', 'text']
+        fields = ['subtopic', 'question_type', 'text']
 
     def __init__(self, *args, **kwargs):
         super(AddQuestionForm, self).__init__(*args, **kwargs)
         self.fields['topic'].queryset = Topic.objects.all()  
-        self.fields['subtopic'].queryset = Subtopic.objects.none()  
+        self.fields['subtopic'].queryset = Subtopic.objects.none()
+        self.fields['question_type'].queryset = QuestionType.objects.all()
+
+        # Set initial value for question_type to the default value (Multiple Choice), if it exists.
+        try:
+            default_question_type = QuestionType.objects.get(name='Multiple Choice')
+            self.fields['question_type'].initial = default_question_type
+        except QuestionType.DoesNotExist:
+            pass  
         
         # Reorder the fields
         self.fields = OrderedDict([
             ('topic', self.fields['topic']),
             ('subtopic', self.fields['subtopic']),
+            ('question_type', self.fields['question_type']),
             ('text', self.fields['text']),
         ])
 

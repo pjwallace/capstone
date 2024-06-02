@@ -640,7 +640,44 @@ function displaySubtopicDeleteConfirmation(topicId, subtopicId){
 }
 
 function addQuestionAndChoices(){
-    //pass
+    const route = `/management/portal/add_question_and_choices`;
+
+    // Retrieve the django CSRF token from the form
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(route, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+            subtopic_id : document.getElementById('subtopic-for-question').value,
+            question_text : document.getElementById('new-question').value               
+        })
+    })   
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('add-question-and-choices-form').reset(); // reset the form
+        console.log(data);
+        if (data.success){  
+            
+
+            // update the sidebar
+            //const subtopicATag = document.getElementById(`subtopic-${data.subtopic_id}`);
+            //subtopicATag.textContent = data.new_subtopic_name;
+
+            // display success message
+            let add_question_and_choices_msg = document.getElementById('add-question-and-choices-msg');
+            add_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            
+        } else {
+            // errors
+            let add_question_and_choices_msg = document.getElementById('add-question-and-choices-msg');
+            add_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+        }
+    })
+
 }
 
 function SelectSubtopicsForQuestion(){

@@ -3,6 +3,12 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils.text import slugify
 
+def get_default_question_type():
+    try:
+        return QuestionType.objects.get(name='Multiple Choice').id
+    except QuestionType.DoesNotExist:
+        return None
+
 # Create all the quiz topics.
 class Topic(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -49,8 +55,16 @@ class Subtopic(models.Model):
         ordering = ['display_order', 'id']
         unique_together = ('topic', 'name')
 
+class QuestionType(models.Model):
+    name = models.CharField(max_length=25, unique=True)
+
+    def __str__(self):
+        return self.name
+
 class Question(models.Model):
     subtopic = models.ForeignKey(Subtopic, related_name='questions', on_delete=models.CASCADE)
+    question_type = models.ForeignKey(QuestionType, related_name='questions', on_delete=models.CASCADE, 
+        default=get_default_question_type)
     text = models.CharField(max_length=255)
     date_created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, 
