@@ -61,7 +61,7 @@ function loadSuptopicsForTopic(){
             let downIcon = document.getElementById('caretdown-' + topicId);
             const upIcon = document.getElementById('caretup-' + topicId);
 
-            // downIcon won't exist if there are no subtopics yet for he chosen topic
+            // downIcon won't exist if there are no subtopics yet for the chosen topic
             if (!downIcon){
                 downIcon = document.createElement('i');
                 downIcon.classList.add('fa', 'fa-caret-down');
@@ -95,6 +95,28 @@ function loadSuptopicsForTopic(){
                             subtopicATag.setAttribute('class', 'subtopic');
                             subtopicATag.setAttribute('data-subtopic-id', subtopic.id);
                             subtopicATag.textContent = subtopic.name;
+
+                            // create a span for the question icon and badge.
+                            // This will display the number of questions for each subtopic
+                            const iconSpan = document.createElement('span');
+                            iconSpan.setAttribute('class', 'icon-with-badge');
+
+                            // create the question mark icon
+                            const questionIcon = document.createElement('i');
+                            questionIcon.setAttribute('class', 'fas fa-question-circle');
+
+                            // Create the badge element to display the number of questions
+                            const badge = document.createElement('span');
+                            badge.setAttribute('class', 'badge');
+                            badge.textContent = subtopic.question_count;
+
+                            // Append the question icon and badge to the icon span
+                            iconSpan.appendChild(questionIcon);
+                            iconSpan.appendChild(badge);
+
+                            // Append the icon span to the subtopic link
+                            subtopicATag.appendChild(iconSpan);
+                            
                             subtopicsContainer.appendChild(subtopicATag); 
                         });
                         subtopicsContainer.style.display = 'block';
@@ -644,7 +666,7 @@ function addQuestionAndChoices(){
 
     // Retrieve the django CSRF token from the form
     var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
+    
     fetch(route, {
         method: 'POST',
         headers: {
@@ -653,7 +675,8 @@ function addQuestionAndChoices(){
         },
         body: JSON.stringify({
             subtopic_id : document.getElementById('subtopic-for-question').value,
-            question_text : document.getElementById('new-question').value               
+            question_text : document.getElementById('new-question').value,  
+            question_type : document.getElementById('question-type').value            
         })
     })   
     .then(response => response.json())

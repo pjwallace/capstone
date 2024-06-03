@@ -6,7 +6,7 @@ from django.contrib import messages
 import json
 from django.http import JsonResponse
 
-from .models import Topic, Subtopic, Question, Choice, Explanation
+from .models import Topic, Subtopic, Question, QuestionType, Choice, Explanation
 from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopicForm, RenameTopicForm
 from .forms import RenameSubtopicForm, AddQuestionForm, AddChoiceForm
 
@@ -20,13 +20,23 @@ def management_portal(request):
 @login_required(login_url='login')
 def subtopics_for_topic(request, topic_id):
     '''
-    Retrieves subtopics for the chosen topic. 
+    Retrieves subtopics for the chosen topic.
+    Also returns the number of questions for subtopic.
     Used for dynamic loading in the sidebar.
     '''
-    topic = Topic.objects.get(id=topic_id)
-    subtopics = topic.subtopics.filter(is_visible=True).values('id', 'name')
+    topic = get_object_or_404(Topic, id=topic_id)
+    subtopics = topic.subtopics.filter(is_visible=True)
     if subtopics:
-        return JsonResponse({'success' : True, 'subtopics' : list(subtopics)})
+        subtopic_data = []
+        for subtopic in subtopics:
+            question_count = subtopic.questions.count()
+            subtopic_data.append({
+                'id': subtopic.id,
+                'name': subtopic.name,
+                'question_count': question_count
+            })
+
+        return JsonResponse({'success' : True, 'subtopics' : subtopic_data})
     else:
         return JsonResponse({"success": False,  
                 "messages": [{"message": "Subtopic retrieval failed.", "tags": "danger"}]})
@@ -340,7 +350,10 @@ def add_question_and_choices(request):
     elif request.method == 'POST':
         data = json.loads(request.body)
         subtopic_id = int(data.get("subtopic_id", ""))
+        question_type_id = int(data.get("question_type", ""))
         text = data.get("question_text", "").strip()
+
+        print(question_type_id)
 
         # Make sure the subtopic exists
         try:
@@ -348,6 +361,13 @@ def add_question_and_choices(request):
         except Subtopic.DoesNotExist:
             return JsonResponse({"success": False, 
                 "messages": [{"message": "Invalid subtopic selected.", "tags": "danger"}]}, status=400)
+        
+        # Make sure the question type exists
+        try:
+            question_type = QuestionType.objects.get(id=question_type_id)
+        except QuestionType.DoesNotExist:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Invalid question type selected.", "tags": "danger"}]}, status=400)
         
         # Subtopic/question text must be unique
         if Question.objects.filter(subtopic=subtopic, text=text).exists():
@@ -364,7 +384,7 @@ def add_question_and_choices(request):
                 "messages": [{"message": "This question is too short. Please provide more details.", "tags": "danger"}]}, status=400)
         
         try:
-            question = Question(subtopic=subtopic, text=text, created_by=request.user)
+            question = Question(subtopic=subtopic, text=text, question_type=question_type, created_by=request.user)
             question.save()
             return JsonResponse({"success": True, "subtopic_id": subtopic.id, 
                 "messages": [{"message": "Question has been successfully added.", "tags": "success"}]})

@@ -60,6 +60,28 @@
     color: #FFD700; /* Gold color for hover and focus on subtopics */
 }
 
+.icon-with-badge {
+    position: relative;
+    display: inline-block;
+    margin-left: 20px;  
+    
+}
+
+.icon-with-badge .fas {
+    font-size: 14px; 
+}
+
+.icon-with-badge .badge {
+    position: absolute;
+    top: -3px; 
+    right: -10px; 
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 5px;
+    font-size: 10px; /* Adjust font size as needed */
+}
+
 #management-container{
     height: 100vh;
     margin-left: 200px;
@@ -73,19 +95,38 @@
 
 .form-container{
     
-    width: 60%;
+    width: 80%;
     margin: auto;
     margin-top: 10px;
-    padding-top: 10px;
+    padding-top: 5px;
     background-color: aliceblue;
     border: solid 1px green;
     overflow: hidden;
+}
+
+.form-container h2{
+    text-align: center;
 }
 
 #add-question-and-choices-form {
     display: flex;
     flex-direction: column;
     gap: 10px; /* Adds space between form elements */
+}
+
+.add-question-fields {
+    display: flex;
+    align-items: center; /* Align items vertically centered */
+    gap: 150px; /* Adds space between the fields */
+    margin-left: 5px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 .choice-form {
@@ -111,3 +152,8 @@
     appearance: menulist;
 }
 
+#question-type{
+    -webkit-appearance: menulist; /* Safari and Chrome */
+    -moz-appearance: menulist; /* Firefox */
+    appearance: menulist;
+}

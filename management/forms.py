@@ -203,7 +203,7 @@ class AddQuestionForm(forms.ModelForm):
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'id': 'new-question',
-            'placeholder': 'Question'
+            'placeholder': 'Enter Question'
         })
     )
 
