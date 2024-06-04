@@ -20,7 +20,7 @@
 
         <h2>Add Question and Answer Choices</h2><br>
 
-        <form id="add-question-and-choices-form" data-fetch="true" method="post" action="{% url 'add_question_and_choices' %}">
+        <form id="add-question-and-choices-form" data-fetch="true" method="post" action="#">
             {% csrf_token %}
             <div id="add-question-container">
                 <div class="add-question-fields">
@@ -42,15 +42,15 @@
                     {{ add_question_form.text}}
                 </div>
             </div>
-
+            <!--
             <button class="btn btn-primary" id="test-question-btn" type="submit" >
                 Add Question
             </button>
-
-            <!--
+            -->
+            
             <div id="add-choices-container">
                 {% for add_choice_form in add_choice_forms %}
-                    <div class="choice-form" id="add-choice-{{ forloop.counter }}">
+                    <div class="choice-form" id="add-choice-{{ forloop.counter0 }}">
                         <div class="add-choice-fields">
                             {{ add_choice_form.text.label_tag }}
                             {{ add_choice_form.text }}
@@ -61,14 +61,14 @@
                 {% endfor %}
             </div>
 
-            <button class="btn btn-primary" id="another-choice-btn" type="submit" >
+            <button class="btn btn-primary" id="add-choice-btn" type="button" >
                 Add Another Choice
             </button>
 
             <button class="btn btn-primary" id="add-question-and-choices-btn" type="submit" >
                 Submit Question and Choices
             </button>
-            -->
+            
         </form>
     </div>
    

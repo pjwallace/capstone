@@ -46,8 +46,11 @@ document.addEventListener('DOMContentLoaded', function(){
     // delete subtopic
     deleteSubtopic(); 
     
-    // delect subtopic for question
+    // select subtopic for question
     SelectSubtopicsForQuestion();
+
+    // add another choice to the AddChoiceForm
+    addAnotherChoice();
     
 }); 
 
@@ -108,6 +111,7 @@ function loadSuptopicsForTopic(){
                             // Create the badge element to display the number of questions
                             const badge = document.createElement('span');
                             badge.setAttribute('class', 'badge');
+                            badge.setAttribute('id', `badge-${subtopic.id}`);
                             badge.textContent = subtopic.question_count;
 
                             // Append the question icon and badge to the icon span
@@ -116,7 +120,7 @@ function loadSuptopicsForTopic(){
 
                             // Append the icon span to the subtopic link
                             subtopicATag.appendChild(iconSpan);
-                            
+
                             subtopicsContainer.appendChild(subtopicATag); 
                         });
                         subtopicsContainer.style.display = 'block';
@@ -683,13 +687,7 @@ function addQuestionAndChoices(){
     .then(data => {
         document.getElementById('add-question-and-choices-form').reset(); // reset the form
         console.log(data);
-        if (data.success){  
-            
-
-            // update the sidebar
-            //const subtopicATag = document.getElementById(`subtopic-${data.subtopic_id}`);
-            //subtopicATag.textContent = data.new_subtopic_name;
-
+        if (data.success){                         
             // display success message
             let add_question_and_choices_msg = document.getElementById('add-question-and-choices-msg');
             add_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
@@ -730,6 +728,43 @@ function SelectSubtopicsForQuestion(){
 
         })
     }
+}
+
+function addAnotherChoice(){
+    const addChoicesContainer = document.getElementById('add-choices-container');
+    const addChoiceButton = document.getElementById('add-choice-btn');
+    let choiceCount = parseInt("{{ add_choice_forms|length }}", 10);  
+
+    addChoiceButton.addEventListener('click', function(e){
+        e.preventDefault();
+
+        newChoiceForm = addChoicesContainer.firstElementChild.cloneNode(true);
+        const choiceFields = newChoiceForm.query('input');
+
+        // clear the values from the cloned choice form
+        choiceFields.forEach(function(field){
+            field.value = '';
+            if (field.type === 'checkbox'){
+                field.checked = false;
+            }
+        })
+        // create the id for the new choice form
+        choiceCount++;
+        newChoiceForm.id = 'add-choice-' + choiceCount;
+
+        // update the form prefix
+        const newPrefix = choiceCount.toString();
+        choiceFields.forEach(function(field){
+            if (field.name){
+                field.name = field.name.replace(/\d+/, newPrefix);
+            }
+            if (field.id){
+                field.id = field.id.replace(/\d+/, newPrefix);
+            }
+        });
+
+        addChoicesContainer.appendChild(newChoiceForm);
+    });
 }
 
 // Helper functions

@@ -21,7 +21,7 @@ def management_portal(request):
 def subtopics_for_topic(request, topic_id):
     '''
     Retrieves subtopics for the chosen topic.
-    Also returns the number of questions for subtopic.
+    Also returns the number of questions for the subtopic.
     Used for dynamic loading in the sidebar.
     '''
     topic = get_object_or_404(Topic, id=topic_id)
@@ -386,13 +386,14 @@ def add_question_and_choices(request):
         try:
             question = Question(subtopic=subtopic, text=text, question_type=question_type, created_by=request.user)
             question.save()
-            return JsonResponse({"success": True, "subtopic_id": subtopic.id, 
-                "messages": [{"message": "Question has been successfully added.", "tags": "success"}]})
-            
+           
         except IntegrityError:
             return JsonResponse({"success": False,  
                 "messages": [{"message": "An error occurred while saving this question. Please try again.", "tags": "danger"}]}, status=500)
-
+        
+        return JsonResponse({"success": True, "subtopic_id": subtopic.id,
+                "messages": [{"message": "Question has been successfully added.", "tags": "success"}]})
+            
 
      
             
