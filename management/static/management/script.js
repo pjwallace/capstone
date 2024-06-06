@@ -733,38 +733,44 @@ function SelectSubtopicsForQuestion(){
 function addAnotherChoice(){
     const addChoicesContainer = document.getElementById('add-choices-container');
     const addChoiceButton = document.getElementById('add-choice-btn');
-    let choiceCount = parseInt("{{ add_choice_forms|length }}", 10);  
+    //let choiceCount = parseInt("{{ add_choice_forms|length }}", 10);  
+        
+    if (addChoiceButton){
+        addChoiceButton.addEventListener('click', function(e){
+            e.preventDefault();
 
-    addChoiceButton.addEventListener('click', function(e){
-        e.preventDefault();
+            newChoiceForm = addChoicesContainer.firstElementChild.cloneNode(true);
+            const choiceFields = newChoiceForm.querySelectorAll('input');
+            
+            let choiceCount = addChoicesContainer.childElementCount;
+           
+            // clear the values from the cloned choice form
+            choiceFields.forEach(function(field){
+                field.value = '';
+                if (field.type === 'checkbox'){
+                    field.checked = false;
+                }
+            })
+            // create the id for the new choice form
+            choiceCount++;
+            newChoiceForm.id = 'add-choice-' + choiceCount;
+           
+            // update the form prefix
+            const newPrefix = choiceCount.toString();
+            console.log(newPrefix);
+            choiceFields.forEach(function(field){
+                if (field.name){
+                    field.name = field.name.replace(/\d+/, newPrefix);
+                }
+                if (field.id){
+                    field.id = field.id.replace(/\d+/, newPrefix);
+                }
+                
+            });
 
-        newChoiceForm = addChoicesContainer.firstElementChild.cloneNode(true);
-        const choiceFields = newChoiceForm.query('input');
-
-        // clear the values from the cloned choice form
-        choiceFields.forEach(function(field){
-            field.value = '';
-            if (field.type === 'checkbox'){
-                field.checked = false;
-            }
-        })
-        // create the id for the new choice form
-        choiceCount++;
-        newChoiceForm.id = 'add-choice-' + choiceCount;
-
-        // update the form prefix
-        const newPrefix = choiceCount.toString();
-        choiceFields.forEach(function(field){
-            if (field.name){
-                field.name = field.name.replace(/\d+/, newPrefix);
-            }
-            if (field.id){
-                field.id = field.id.replace(/\d+/, newPrefix);
-            }
+            addChoicesContainer.appendChild(newChoiceForm);
         });
-
-        addChoicesContainer.appendChild(newChoiceForm);
-    });
+    }   
 }
 
 // Helper functions

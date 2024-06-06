@@ -338,7 +338,7 @@ def add_question_and_choices(request):
 
         # Initially,  2 choice forms are loaded. More can be loaded dynamically
         add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(2)]  
-
+        
         # load topics for sidebar
         topics = Topic.objects.all()
         
