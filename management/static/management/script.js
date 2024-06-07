@@ -669,7 +669,20 @@ function addQuestionAndChoices(){
     const route = `/management/portal/add_question_and_choices`;
 
     // Retrieve the django CSRF token from the form
-    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Retrieve the add choice forms (must be at least two)
+    let choices = [];
+    const choiceForms = document.querySelectorAll('.choice-form');
+    choiceForms.forEach((choiceForm, index) => {
+        let choiceText = choiceForm.querySelector(`[name="${index}-text"]`).value;
+        let isCorrect = choiceForm.querySelector(`[name="${index}-is_correct"]`).checked;
+        choices.push({
+            text: choiceText,
+            is_correct: isCorrect
+        });
+    });
+
     
     fetch(route, {
         method: 'POST',
@@ -678,9 +691,13 @@ function addQuestionAndChoices(){
             'X-CSRFToken': csrftoken,
         },
         body: JSON.stringify({
+            // question form values
             subtopic_id : document.getElementById('subtopic-for-question').value,
             question_text : document.getElementById('new-question').value,  
-            question_type : document.getElementById('question-type').value            
+            question_type : document.getElementById('question-type').value,
+            // choice forms
+            choices : choices
+
         })
     })   
     .then(response => response.json())
@@ -739,11 +756,13 @@ function addAnotherChoice(){
         addChoiceButton.addEventListener('click', function(e){
             e.preventDefault();
 
+            // clone the choice form and get all the fields and labels
             newChoiceForm = addChoicesContainer.firstElementChild.cloneNode(true);
-            const choiceFields = newChoiceForm.querySelectorAll('input');
-            
+            let choiceFields = newChoiceForm.querySelectorAll('input');
+            let choiceLabels = newChoiceForm.querySelectorAll('label');
+
             let choiceCount = addChoicesContainer.childElementCount;
-           
+            console.log(choiceCount);
             // clear the values from the cloned choice form
             choiceFields.forEach(function(field){
                 field.value = '';
@@ -754,10 +773,10 @@ function addAnotherChoice(){
             // create the id for the new choice form
             choiceCount++;
             newChoiceForm.id = 'add-choice-' + choiceCount;
-           
+            console.log(newChoiceForm.id);
             // update the form prefix
-            const newPrefix = choiceCount.toString();
-            console.log(newPrefix);
+            const newPrefix = (choiceCount-1).toString();
+            
             choiceFields.forEach(function(field){
                 if (field.name){
                     field.name = field.name.replace(/\d+/, newPrefix);
@@ -765,7 +784,16 @@ function addAnotherChoice(){
                 if (field.id){
                     field.id = field.id.replace(/\d+/, newPrefix);
                 }
-                
+                console.log(field.name);
+                console.log(field.id);
+            });
+
+            // Update the for attribute of labels
+            choiceLabels.forEach(function(label) {
+                if (label.htmlFor) {
+                    label.htmlFor = label.htmlFor.replace(/\d+/, newPrefix);
+                }
+                console.log(label.htmlFor);
             });
 
             addChoicesContainer.appendChild(newChoiceForm);

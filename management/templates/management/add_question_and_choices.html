@@ -50,7 +50,7 @@
             
             <div id="add-choices-container">
                 {% for add_choice_form in add_choice_forms %}
-                    <div class="choice-form" id="add-choice-{{ forloop.counter0 }}">
+                    <div class="choice-form" id="add-choice-{{ forloop.counter }}">
                         <div class="add-choice-fields">
                             {{ add_choice_form.text.label_tag }}
                             {{ add_choice_form.text }}
