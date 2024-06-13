@@ -200,10 +200,11 @@ class AddQuestionForm(forms.ModelForm):
     text = forms.CharField(
         max_length=255,
         label="",
-        widget=forms.TextInput(attrs={
+        widget=forms.Textarea(attrs={
             'class': 'form-control',
             'id': 'new-question',
-            'placeholder': 'Enter Question'
+            'placeholder': 'Enter Question',
+            'rows': 3,
         })
     )
 
@@ -239,7 +240,7 @@ class AddChoiceForm(forms.ModelForm):
         widgets = {
             'text' : forms.TextInput(attrs={
                 'class' : 'form-control',
-                'placeholder' : 'Choice',              
+                'placeholder' : 'Answer Choice',              
             }),
             'is_correct': forms.CheckboxInput(attrs={
                 'class': 'form-check-input',

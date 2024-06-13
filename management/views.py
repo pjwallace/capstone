@@ -337,7 +337,7 @@ def add_question_and_choices(request):
         add_question_form = AddQuestionForm()
 
         # Initially,  2 choice forms are loaded. More can be loaded dynamically
-        add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(2)]  
+        add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(4)]  
         
         # load topics for sidebar
         topics = Topic.objects.all()
@@ -352,8 +352,7 @@ def add_question_and_choices(request):
         subtopic_id = int(data.get("subtopic_id", ""))
         question_type_id = int(data.get("question_type", ""))
         text = data.get("question_text", "").strip()
-
-        print(question_type_id)
+        choice_forms = data.get("choices")
 
         # Make sure the subtopic exists
         try:
@@ -374,7 +373,7 @@ def add_question_and_choices(request):
             return JsonResponse({"success": False, 
                 "messages": [{"message": "This subtopic/question combination already exists.", "tags": "danger"}]}, status=400)
 
-        # Answer can't be blank. Must have a minimun length of 10
+        # Answer can't be blank. Also must have a minimun length of 10
         if not text:
             return JsonResponse({"success": False, 
                 "messages": [{"message": "Please enter a question.", "tags": "danger"}]}, status=400)
@@ -383,16 +382,33 @@ def add_question_and_choices(request):
             return JsonResponse({"success": False, 
                 "messages": [{"message": "This question is too short. Please provide more details.", "tags": "danger"}]}, status=400)
         
-        try:
-            question = Question(subtopic=subtopic, text=text, question_type=question_type, created_by=request.user)
-            question.save()
+        # validate the choice forms
+        for choice_form in choice_forms:
+            print(choice_form)
+
+        #try:
+            #question = Question(subtopic=subtopic, text=text, question_type=question_type, created_by=request.user)
+            #question.save()
            
-        except IntegrityError:
-            return JsonResponse({"success": False,  
-                "messages": [{"message": "An error occurred while saving this question. Please try again.", "tags": "danger"}]}, status=500)
+        #except IntegrityError:
+            #return JsonResponse({"success": False,  
+                #"messages": [{"message": "An error occurred while saving this question. Please try again.", "tags": "danger"}]}, status=500)
         
         return JsonResponse({"success": True, "subtopic_id": subtopic.id,
                 "messages": [{"message": "Question has been successfully added.", "tags": "success"}]})
+    
+def get_question_type_name(request, pk):
+    '''
+    takes in the question type id from the dropdown menu and returns the question type name
+    '''
+    try:
+        question_type = QuestionType.objects.get(pk=pk)
+        return JsonResponse({"success": True, 'name': question_type.name})
+    except QuestionType.DoesNotExist:
+        return JsonResponse({"success": False,  
+                "messages": [{"message": "Question Type not found.", "tags": "danger"}]}, status=404 )
+
+
             
 
      

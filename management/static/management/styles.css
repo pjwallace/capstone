@@ -101,7 +101,7 @@
     padding-top: 5px;
     background-color: aliceblue;
     border: solid 1px green;
-    overflow: hidden;
+    overflow: auto;
 }
 
 .form-container h2{
@@ -119,6 +119,11 @@
     align-items: center; /* Align items vertically centered */
     gap: 150px; /* Adds space between the fields */
     margin-left: 5px;
+}
+
+#new-question {
+    width: 100%;
+    resize: vertical;  /* Allows the user to resize the textarea vertically */
 }
 
 .form-group {

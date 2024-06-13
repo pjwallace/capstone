@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function(){
     
     // select subtopic for question
     SelectSubtopicsForQuestion();
+    selectQuestionType();
 
     // add another choice to the AddChoiceForm
     addAnotherChoice();
@@ -683,7 +684,6 @@ function addQuestionAndChoices(){
         });
     });
 
-    
     fetch(route, {
         method: 'POST',
         headers: {
@@ -697,17 +697,34 @@ function addQuestionAndChoices(){
             question_type : document.getElementById('question-type').value,
             // choice forms
             choices : choices
-
         })
     })   
     .then(response => response.json())
     .then(data => {
         document.getElementById('add-question-and-choices-form').reset(); // reset the form
-        console.log(data);
+        
         if (data.success){                         
             // display success message
             let add_question_and_choices_msg = document.getElementById('add-question-and-choices-msg');
             add_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            /*
+            // repopulate the form with the saved topic, subtopic, and question type for user convenience
+            const topicField = document.getElementById('topic-for-question');
+            const subtopicField = document.getElementById('subtopic-for-question');
+            const questionTypeField = document.getElementById('question-type');
+
+            if (sessionStorage.getItem('selectedTopic')){
+                topicField.value = sessionStorage.getItem('selectedTopic');
+            }
+
+            if (sessionStorage.getItem('selectedSubtopic')){
+                subtopicField.value = sessionStorage.getItem('selectedSubtopic');
+            }
+
+            if (sessionStorage.getItem('selectedQuestionType')){
+                questionTypeField.value = sessionStorage.getItem('selectedQuestionType');
+            }
+            */
             
         } else {
             // errors
@@ -719,7 +736,6 @@ function addQuestionAndChoices(){
 }
 
 function SelectSubtopicsForQuestion(){
-    //const renameSubtopicButton = document.getElementById('rename-subtopic-btn');
     const topicMenu = document.getElementById('topic-for-question');
     const subtopicMenu = document.getElementById('subtopic-for-question');
     
@@ -735,15 +751,91 @@ function SelectSubtopicsForQuestion(){
         // add event listeneer for the topic dropdown menu
         topicMenu.addEventListener('change', function(){
             const selectedTopicId = topicMenu.value;
-            
+           
             if (!selectedTopicId){
                 displayMessage('There are no topics available.', 'info');
                 return;
-            } else{            
+            } else{  
+                 // save the selected topic in session storage to be used in form reload
+                //sessionStorage.setItem('selectedTopic', selectedTopicId);          
                 getSubtopics(selectedTopicId, subtopicMenu);
             }
 
         })
+    }
+}
+
+function selectQuestionType(){
+    const questionType = document.getElementById('question-type');
+    const addChoiceButton = document.getElementById('add-choice-btn');
+    //const addChoicesContainer = document.getElementById('add-choices-container');
+
+    if (questionType){
+
+         // add event listeneer for the question type dropdown menu
+         questionType.addEventListener('change', function(){
+            const selectedQuestionType = questionType.value;
+
+            // save the question type in session storage for use in page reload
+            //sessionStorage.setItem('selectedQuestionType', selectedQuestionType);
+            const route = `/management/portal/get_question_type_name/${selectedQuestionType}`; 
+            
+            // get the question type name from the QuestionType table
+            fetch(route)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.success){
+                    const questionTypeName = data.name;
+                    if (questionTypeName === 'True/False'){
+                        // only 2 choices allowed in the form
+                        // prepopulate the choices with True and False
+                        // Set the text fields to "True" and "False" and make them read-only
+                        document.getElementById('id_0-text').value = "True";
+                        document.getElementById('id_0-text').readOnly = true;
+                        document.getElementById('id_1-text').value = "False";
+                        document.getElementById('id_1-text').readOnly = true;
+
+                        // hide any other choice forms
+                        if (document.getElementById('add-choice-3')){
+                            document.getElementById('add-choice-3').style.display = 'none';
+                        }
+                        if (document.getElementById('add-choice-4')){
+                            document.getElementById('add-choice-4').style.display = 'none';
+                        }
+
+                        // Disable the add choice button
+                        addChoiceButton.disabled = true;
+
+                    }else{
+                        // Clear the text fields and make them editable
+                        document.getElementById('id_0-text').value = "";
+                        document.getElementById('id_0-text').readOnly = false;
+                        document.getElementById('id_1-text').value = "";
+                        document.getElementById('id_1-text').readOnly = false;
+
+                        if (document.getElementById('add-choice-3')){
+                            document.getElementById('add-choice-3').style.display = 'block';
+                        }
+                        if (document.getElementById('add-choice-4')){
+                            document.getElementById('add-choice-4').style.display = 'block';
+                        }
+
+                        // enable the add choice button for the other question types
+                        addChoiceButton.disabled = false;
+                    }
+
+                }else{
+                    // errors
+                    let add_question_and_choices_msg = document.getElementById('add-question-and-choices-msg');
+                    add_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+                }
+            
+            })
+            .catch(error => console.error('Error retrieving questiontype name:', error));
+             
+        });
+
     }
 }
 
@@ -834,6 +926,10 @@ function getSubtopics(selectedTopicId, subtopicMenu){
                     clearMessages();
                     displayMessage('There are no available subtopics for the chosen topic', 'info');
                     return;
+                }else{
+                    subtopicMenu.addEventListener('change', function(){
+                    sessionStorage.setItem('selectedSubtopic', this.value);
+                    })
                 }
         }else{
             let add_question_and_choices_msg = document.getElementById('rename-subtopic-msg');
