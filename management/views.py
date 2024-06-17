@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 import json
 from django.http import JsonResponse
+from django.template.loader import render_to_string
 
 from .models import Topic, Subtopic, Question, QuestionType, Choice, Explanation
 from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopicForm, RenameTopicForm
@@ -336,7 +337,7 @@ def add_question_and_choices(request):
     if request.method == 'GET':
         add_question_form = AddQuestionForm()
 
-        # Initially,  2 choice forms are loaded. More can be loaded dynamically
+        # Initially,  4 choice forms are loaded. More can be loaded dynamically
         add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(4)]  
         
         # load topics for sidebar
@@ -349,10 +350,12 @@ def add_question_and_choices(request):
         })
     elif request.method == 'POST':
         data = json.loads(request.body)
+        topic_id = int(data.get("topic_id", ""))
         subtopic_id = int(data.get("subtopic_id", ""))
         question_type_id = int(data.get("question_type", ""))
-        text = data.get("question_text", "").strip()
-        choice_forms = data.get("choices")
+        question_text = data.get("question_text", "").strip()
+        choice_forms = data.get("choices", [])
+       
 
         # Make sure the subtopic exists
         try:
@@ -364,27 +367,61 @@ def add_question_and_choices(request):
         # Make sure the question type exists
         try:
             question_type = QuestionType.objects.get(id=question_type_id)
+            question_type_name = question_type.name
+
         except QuestionType.DoesNotExist:
             return JsonResponse({"success": False, 
                 "messages": [{"message": "Invalid question type selected.", "tags": "danger"}]}, status=400)
         
         # Subtopic/question text must be unique
-        if Question.objects.filter(subtopic=subtopic, text=text).exists():
+        if Question.objects.filter(subtopic=subtopic, text=question_text).exists():
             return JsonResponse({"success": False, 
                 "messages": [{"message": "This subtopic/question combination already exists.", "tags": "danger"}]}, status=400)
 
         # Answer can't be blank. Also must have a minimun length of 10
-        if not text:
+        if not question_text:
             return JsonResponse({"success": False, 
                 "messages": [{"message": "Please enter a question.", "tags": "danger"}]}, status=400)
         
-        if len(text) < 10:
+        if len(question_text) < 10:
             return JsonResponse({"success": False, 
                 "messages": [{"message": "This question is too short. Please provide more details.", "tags": "danger"}]}, status=400)
         
         # validate the choice forms
-        for choice_form in choice_forms:
-            print(choice_form)
+        
+            
+
+        # every question type must have at least 2 choices
+        if len(choice_forms) < 2:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Every question requires two or more answer choices", "tags": "danger"}]},
+                 status=400)
+        
+        # True/False questions can only have 2 answer choices
+        if question_type_name == 'True/False' and len(choice_forms) != 2:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "True/False questions require 2 answer choices", "tags": "danger"}]},
+                 status=400)
+        
+        # Other question types must have at least 4 answer choices
+        if not question_type_name == 'True/False' and len(choice_forms) < 4:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": f"{question_type_name} questions require 4 or more answer choices", "tags": "danger"}]},
+                 status=400)
+        
+        # each answer choice must be unique
+        # Get the choice text from each choice form
+        choice_texts = [choice_form['text'] for choice_form in choice_forms]
+        if len(choice_texts) != len(set(choice_texts)): # sets can't have duplicate members
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Duplicate answer choices are not allowed.", "tags": "danger"}]},
+                 status=400)
+        
+        # True/False and multiple choice questions can have only one correct answer checked
+
+
+
+        
 
         #try:
             #question = Question(subtopic=subtopic, text=text, question_type=question_type, created_by=request.user)
@@ -394,8 +431,19 @@ def add_question_and_choices(request):
             #return JsonResponse({"success": False,  
                 #"messages": [{"message": "An error occurred while saving this question. Please try again.", "tags": "danger"}]}, status=500)
         
-        return JsonResponse({"success": True, "subtopic_id": subtopic.id,
-                "messages": [{"message": "Question has been successfully added.", "tags": "success"}]})
+        #if question_type_name == 'True/False':
+            #add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(2)]
+        #else:
+        add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(4)]
+
+                
+        # initialize blank choice forms on form reload
+        add_choice_forms_html = [render_to_string('management/add_choice_form_snippet.html', {'add_choice_form': add_choice_form, 'index': i}) 
+                                for i, add_choice_form in enumerate(add_choice_forms)]
+              
+        return JsonResponse({"success": True, "topic_id": topic_id, "subtopic_id": subtopic_id,
+                "question_type_id": question_type_id, "question_type_name": question_type_name, "add_choice_forms": add_choice_forms_html,
+                "messages": [{"message": "Question and answer choices have been successfully added.", "tags": "success"}]})
     
 def get_question_type_name(request, pk):
     '''
