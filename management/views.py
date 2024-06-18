@@ -378,7 +378,7 @@ def add_question_and_choices(request):
             return JsonResponse({"success": False, 
                 "messages": [{"message": "This subtopic/question combination already exists.", "tags": "danger"}]}, status=400)
 
-        # Answer can't be blank. Also must have a minimun length of 10
+        # Question can't be blank. Also must have a minimun length of 10
         if not question_text:
             return JsonResponse({"success": False, 
                 "messages": [{"message": "Please enter a question.", "tags": "danger"}]}, status=400)
@@ -409,15 +409,53 @@ def add_question_and_choices(request):
                 "messages": [{"message": f"{question_type_name} questions require 4 or more answer choices", "tags": "danger"}]},
                  status=400)
         
+                
+        # create a list of answer choices
+        choice_texts = [choice_form['text'] for choice_form in choice_forms]
+
+        # answer choices can't be blank
+        if any(len(choice_text.strip()) == 0 for choice_text in choice_texts):
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Answer choices cannot be empty.", "tags": "danger"}]},
+                status=400)
+
         # each answer choice must be unique
         # Get the choice text from each choice form
-        choice_texts = [choice_form['text'] for choice_form in choice_forms]
-        if len(choice_texts) != len(set(choice_texts)): # sets can't have duplicate members
+        if len(choice_texts) != len(set(choice_texts)): # sets don't have duplicate members
             return JsonResponse({"success": False, 
                 "messages": [{"message": "Duplicate answer choices are not allowed.", "tags": "danger"}]},
                  status=400)
         
+        # each answer choice must be <= 75 characters
+        choice_text_length = [choice_text for choice_text in choice_texts if len(choice_text.strip()) > 75]
+        
+        if choice_text_length:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Answer choices must 75 characters or less.", "tags": "danger"}]},
+                 status=400)
+        
+        # validate the is_correct field        
+        choice_answers = [choice_form['is_correct'] for choice_form in choice_forms]
+        
+        # Each question must have at least one correct answer
+        if choice_answers.count(False) == len(choice_answers):
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "You haven't chosen a correct answer.", "tags": "danger"}]},
+                 status=400)     
+        
         # True/False and multiple choice questions can have only one correct answer checked
+        if question_type_name == 'True/False' or question_type_name == 'Multiple Choice':
+            if choice_answers.count(True) != 1:
+                return JsonResponse({"success": False, 
+                    "messages": [{"message": f"{question_type_name} questions can only have one correct answer.", "tags": "danger"}]},
+                    status=400) 
+            
+        # Multiple answer questions must have at least 2 correct answers
+        if question_type_name == 'Multiple Answer' and choice_answers.count(True) < 2:
+            return JsonResponse({"success": False, 
+                    "messages": [{"message": f"{question_type_name} questions must have at least two correct answers.", "tags": "danger"}]},
+                    status=400)   
+
 
 
 
@@ -431,9 +469,7 @@ def add_question_and_choices(request):
             #return JsonResponse({"success": False,  
                 #"messages": [{"message": "An error occurred while saving this question. Please try again.", "tags": "danger"}]}, status=500)
         
-        #if question_type_name == 'True/False':
-            #add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(2)]
-        #else:
+        
         add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(4)]
 
                 
