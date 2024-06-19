@@ -16,15 +16,24 @@ class QuestionTypeAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('text', 'subtopic', 'question_type', 'created_by', 'date_created')
-    search_fields = ('text',)
+    list_display = ('text', 'subtopic', 'question_type', 'created_by', 'date_created', 'date_modified',
+                    'modified_by')
+    search_fields = ('text', 'subtopic',)
     list_filter = ('subtopic', 'question_type', 'date_created')
+    readonly_fields = ('date_created', 'date_modified')
+
+class ChoiceAdmin(admin.ModelAdmin):
+    list_display = ('question', 'text', 'is_correct', 'date_created', 'created_by',
+                    'date_modified', 'modified_by')
+    search_fields = ('question', 'text',)
+    list_filter = ('question', 'is_correct')
+    readonly_fields = ('date_created', 'date_modified')
     
 
 # Register your models here.
 admin.site.register(Topic, TopicAdmin)
 admin.site.register(Subtopic, SubtopicAdmin)
 admin.site.register(Question, QuestionAdmin)
-admin.site.register(Choice)
+admin.site.register(Choice, ChoiceAdmin)
 admin.site.register(Explanation)
 admin.site.register(QuestionType, QuestionTypeAdmin)

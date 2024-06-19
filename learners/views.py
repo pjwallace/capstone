@@ -27,7 +27,7 @@ def login_view(request):
             else:
                 return redirect('quizes_home')
         else:
-            return render(request, "network/login.html", {
+            return render(request, "learners/index.html", {
                 "message": "Invalid username and/or password."
             })
         

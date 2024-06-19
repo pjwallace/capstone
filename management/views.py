@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 import json
@@ -354,8 +354,7 @@ def add_question_and_choices(request):
         subtopic_id = int(data.get("subtopic_id", ""))
         question_type_id = int(data.get("question_type", ""))
         question_text = data.get("question_text", "").strip()
-        choice_forms = data.get("choices", [])
-       
+        choice_forms = data.get("choices", [])       
 
         # Make sure the subtopic exists
         try:
@@ -387,9 +386,7 @@ def add_question_and_choices(request):
             return JsonResponse({"success": False, 
                 "messages": [{"message": "This question is too short. Please provide more details.", "tags": "danger"}]}, status=400)
         
-        # validate the choice forms
-        
-            
+        # validate the choice forms           
 
         # every question type must have at least 2 choices
         if len(choice_forms) < 2:
@@ -454,26 +451,34 @@ def add_question_and_choices(request):
         if question_type_name == 'Multiple Answer' and choice_answers.count(True) < 2:
             return JsonResponse({"success": False, 
                     "messages": [{"message": f"{question_type_name} questions must have at least two correct answers.", "tags": "danger"}]},
-                    status=400)   
-
-
-
-
+                    status=400)
         
-
-        #try:
-            #question = Question(subtopic=subtopic, text=text, question_type=question_type, created_by=request.user)
-            #question.save()
-           
-        #except IntegrityError:
-            #return JsonResponse({"success": False,  
-                #"messages": [{"message": "An error occurred while saving this question. Please try again.", "tags": "danger"}]}, status=500)
+        # after form validation save the data                
         
-        
-        add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(4)]
+        try:
+            with transaction.atomic():  # if any save operation fails, the database will be rolled back 
+            # save the question
+                question = Question(subtopic=subtopic, text=question_text, question_type=question_type,
+                                    created_by=request.user, modified_by=request.user)
+                question.save()
 
-                
+            # save the answer choices
+            for choice_form in choice_forms:
+                choice = Choice(question=question, text=choice_form['text'], is_correct=choice_form['is_correct'],
+                                created_by=request.user, modified_by=request.user)
+                choice.save()
+                       
+        except IntegrityError:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "An error occurred while saving this form. Please try again.", "tags": "danger"}]},
+                    status=500)
+        
+        except Exception as e:
+            return JsonResponse({"success": False, "messages": [{"message": f"An unexpected error occurred: {str(e)}", "tags": "danger"}]},
+                    status=500)
+               
         # initialize blank choice forms on form reload
+        add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(4)]
         add_choice_forms_html = [render_to_string('management/add_choice_form_snippet.html', {'add_choice_form': add_choice_form, 'index': i}) 
                                 for i, add_choice_form in enumerate(add_choice_forms)]
               
