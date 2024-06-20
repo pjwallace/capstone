@@ -117,7 +117,7 @@
 .add-question-fields {
     display: flex;
     align-items: center; /* Align items vertically centered */
-    gap: 150px; /* Adds space between the fields */
+    gap: 100px; /* Adds space between the fields */
     margin-left: 5px;
 }
 
@@ -142,6 +142,16 @@
     display: flex;
     align-items: center; /* Align items vertically centered */
     gap: 10px; /* Adds space between the text field and the checkbox */
+}
+
+.btn-group {
+    display: flex;
+    justify-content: space-between; /* Distributes space between the buttons */
+    gap: 50px; /* Adds space between buttons */
+}
+
+.btn {
+    flex: 1; /* Ensures buttons take up equal space */
 }
 
 

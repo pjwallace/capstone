@@ -122,6 +122,12 @@ function loadSuptopicsForTopic(){
                             // Append the icon span to the subtopic link
                             subtopicATag.appendChild(iconSpan);
 
+                            // Add eventlistener to the subtopic link. When clicked, a menu
+                            // will be displayed with options to add or edit a question
+                            subtopicATag.addEventListener('click', function(){
+                                displayQuestionMenu(topicId, subtopic.id)
+                            })
+
                             subtopicsContainer.appendChild(subtopicATag); 
                         });
                         subtopicsContainer.style.display = 'block';
@@ -139,7 +145,11 @@ function loadSuptopicsForTopic(){
         })
 
     })
-}   
+}
+
+function displayQuestionMenu(topicId, subtopicId){
+
+}
 
 function addTopic(){
     const route = `/management/portal/add_topic`;
@@ -717,6 +727,21 @@ function addQuestionAndChoices(){
             document.getElementById('topic-for-question').value = data.topic_id;
             document.getElementById('subtopic-for-question').value = data.subtopic_id;
             document.getElementById('question-type').value = data.question_type_id;
+
+            // update the sidebar question count
+            let badge = document.getElementById('badge-' + data.subtopic_id);
+            if (badge){
+                // Get the current value of the badge and convert it to an integer
+                let badgeValue = parseInt(badge.textContent, 10);
+
+                // Update the question count
+                badgeValue += 1;
+        
+                // Update the badge text content with the new question count
+                badge.textContent = badgeValue;
+                   
+            }
+           
 
             // clear out the question field and choice forms
             document.getElementById('new-question').value = '';
