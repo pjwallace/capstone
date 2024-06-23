@@ -21,5 +21,7 @@ urlpatterns = [
          name="delete_subtopic_confirmation"),
     path("delete_subtopic_cancel", views.delete_subtopic_cancel, name="delete_subtopic_cancel"),
     path("add_question_and_choices", views.add_question_and_choices, name="add_question_and_choices"),
+    path("add_question_and_choices_dynamically", views.add_question_and_choices_dynamically, 
+         name="add_question_and_choices_dynamically"),
     path("get_question_type_name/<int:pk>", views.get_question_type_name, name="get_question_type_nam"),
 ]

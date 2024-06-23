@@ -485,7 +485,28 @@ def add_question_and_choices(request):
         return JsonResponse({"success": True, "topic_id": topic_id, "subtopic_id": subtopic_id,
                 "question_type_id": question_type_id, "question_type_name": question_type_name, "add_choice_forms": add_choice_forms_html,
                 "messages": [{"message": "Question and answer choices have been successfully added.", "tags": "success"}]})
-    
+
+def add_question_and_choices_dynamically(request):
+    '''
+        This function is called dynamically from the sidebar menu and
+        returns the AddQuestionForm and 4 AddChoiceForms
+    '''
+    if request.method == 'GET':
+        add_question_form = AddQuestionForm()
+
+        # Initially,  4 choice forms are loaded. 
+        add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(4)] 
+
+        context = {
+        'add_question_form': add_question_form,
+        'add_choice_forms': add_choice_forms,
+        }
+        
+        add_question_and_choices_form_html = render_to_string('management/add_question_and_choices_snippet.html', context, request=request)
+        return JsonResponse({"success": True, 
+                             'add_question_and_choices_form_html': add_question_and_choices_form_html})
+                        
+           
 def get_question_type_name(request, pk):
     '''
     takes in the question type id from the dropdown menu and returns the question type name

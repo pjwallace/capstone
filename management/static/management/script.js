@@ -55,6 +55,8 @@ document.addEventListener('DOMContentLoaded', function(){
     
 }); 
 
+let currentOpenMenu = null; // keeps track of currently open sidebar menu
+
 function loadSuptopicsForTopic(){
     // add event listener to each topic in the sidebar
     document.querySelectorAll('.topic').forEach(topicATag =>{
@@ -122,11 +124,75 @@ function loadSuptopicsForTopic(){
                             // Append the icon span to the subtopic link
                             subtopicATag.appendChild(iconSpan);
 
-                            // Add eventlistener to the subtopic link. When clicked, a menu
-                            // will be displayed with options to add or edit a question
-                            subtopicATag.addEventListener('click', function(){
-                                displayQuestionMenu(topicId, subtopic.id)
-                            })
+                            // create the div to hold the sidebar menu options
+                            const sidebarMenu = document.createElement('div');
+                            sidebarMenu.setAttribute('class', 'sidebar-menu dropdown-menu');
+                            sidebarMenu.setAttribute('id', 'sidebarmenu-${subtopic.id');
+
+                            // initially the menu will not be displayed
+                            sidebarMenu.style.display = 'none';
+
+                            // add menu options
+                            // add a question and answer choices
+                            const addQuestionOption = document.createElement('a');
+                            addQuestionOption.setAttribute('class', 'dropdown-item');
+                            addQuestionOption.setAttribute('id', 'dropdown-add-question');
+                            addQuestionOption.setAttribute('href', '#');
+                            addQuestionOption.textContent = 'Add Question/Choices';
+
+                            addQuestionOption.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                addQuestion(topicId, subtopic.id);
+                            });
+
+                            // Display edit/review questions menu option if question count > 0
+                            let badgeValue = parseInt(badge.textContent, 10);
+                            
+                            const editQuestionOption = document.createElement('a');
+                            editQuestionOption.setAttribute('class', 'dropdown-item');
+                            editQuestionOption.setAttribute('id', 'dropdown-edit-question');
+                            editQuestionOption.setAttribute('href', '#');
+                            editQuestionOption.textContent = 'Edit Question/Choices';
+
+                            editQuestionOption.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                editQuestion(topicId, subtopic.id);
+                            });
+                            
+                            sidebarMenu.appendChild(addQuestionOption);
+                            if (badgeValue > 0){
+                                sidebarMenu.appendChild(editQuestionOption);
+                            }
+                            //sidebarMenu.appendChild(deleteQuestionOption);
+
+                            // Append the menu to the subtopic link
+                            subtopicATag.appendChild(sidebarMenu);
+
+                            // Add event listener to the subtopic link
+                            subtopicATag.addEventListener('click', function(e) {
+                                e.preventDefault();
+
+                                 // Check if the clicked menu is the currently open menu
+                                if (currentOpenMenu === sidebarMenu) {
+                                    sidebarMenu.style.display = 'none';
+                                    currentOpenMenu = null; // No menu is currently open
+                                } else {
+                                    // Hide all other submenus
+                                    hideSidebarMenus();
+
+                                    // Show the clicked menu
+                                    sidebarMenu.style.display = 'block';
+                                    currentOpenMenu = sidebarMenu; // Update the current open menu
+                                }
+                                /*
+                                // Toggle the display of the dropdown menu
+                                if (sidebarMenu.style.display === 'none') {
+                                    sidebarMenu.style.display = 'block';
+                                } else {
+                                    sidebarMenu.style.display = 'none';
+                                }
+                                */
+                            });
 
                             subtopicsContainer.appendChild(subtopicATag); 
                         });
@@ -147,8 +213,36 @@ function loadSuptopicsForTopic(){
     })
 }
 
-function displayQuestionMenu(topicId, subtopicId){
+function addQuestion(topicId, subtopic_id){
+    /*
+        This function will load the AddQuestionAndChoices form dynamically.
+        The topic and subtopic will be preloaded.
+    */
 
+    const route = `/management/portal/add_question_and_choices_dynamically`;
+
+    fetch(route)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success){
+            // Insert the form HTML into the management container
+            const managementContainer = document.getElementById('management-container');
+            managementContainer.innerHTML = data.add_question_and_choices_form_html;
+
+            // populate the topic and subtopic form fields
+            document.getElementById('topic-for-question').value = topicId;
+            subtopicMenu = document.getElementById('subtopic-for-question');
+            getSubtopics(topicId, subtopicMenu, function(){
+                // subtopic menu won't be initialized until the menu has finished loading
+                subtopicMenu.value = subtopic_id;
+            });           
+
+        }else{
+            console.error('Failed to load the form.');
+        }
+
+    })
+    .catch(error => console.error('Error loading the form:', error));
 }
 
 function addTopic(){
@@ -740,8 +834,7 @@ function addQuestionAndChoices(){
                 // Update the badge text content with the new question count
                 badge.textContent = badgeValue;
                    
-            }
-           
+            }         
 
             // clear out the question field and choice forms
             document.getElementById('new-question').value = '';
@@ -953,7 +1046,7 @@ function addAnotherChoice(){
 
 // Helper functions
 
-function getSubtopics(selectedTopicId, subtopicMenu){
+function getSubtopics(selectedTopicId, subtopicMenu, callback){
     // get the subtopics for the chosen topic to populate the subtopics dropdown menu
     const route = `/management/portal/get_subtopics/${selectedTopicId}`;
     
@@ -985,9 +1078,9 @@ function getSubtopics(selectedTopicId, subtopicMenu){
                     displayMessage('There are no available subtopics for the chosen topic', 'info');
                     return;
                 }else{
-                    subtopicMenu.addEventListener('change', function(){
-                    sessionStorage.setItem('selectedSubtopic', this.value);
-                    })
+                    if (callback){
+                        callback();
+                    }
                 }
         }else{
             let add_question_and_choices_msg = document.getElementById('rename-subtopic-msg');
@@ -1000,6 +1093,17 @@ function getSubtopics(selectedTopicId, subtopicMenu){
         } 
     })
 
+}
+
+function hideSidebarMenus(){
+    // This function clears any existing sidebar menus before loading a new one
+
+    const sidebarMenus = document.querySelectorAll('.sidebar-menu');
+    if (sidebarMenus.length > 0){
+        sidebarMenus.forEach(sidebarMenu =>{
+            sidebarMenu.style.display = 'none';
+        });
+    }
 }
 
 function displayMessage(message, type) {
