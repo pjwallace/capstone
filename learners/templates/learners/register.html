@@ -11,6 +11,16 @@
     <h1 class="title">Surgical Self Assessment</h1>
 
     <div class="register-container">
+        <div class="error-msg">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
         <h5>Register</h5>
 
         <form action="{% url 'register' %}" method="post">

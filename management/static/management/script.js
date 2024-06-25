@@ -184,14 +184,7 @@ function loadSuptopicsForTopic(){
                                     sidebarMenu.style.display = 'block';
                                     currentOpenMenu = sidebarMenu; // Update the current open menu
                                 }
-                                /*
-                                // Toggle the display of the dropdown menu
-                                if (sidebarMenu.style.display === 'none') {
-                                    sidebarMenu.style.display = 'block';
-                                } else {
-                                    sidebarMenu.style.display = 'none';
-                                }
-                                */
+                                
                             });
 
                             subtopicsContainer.appendChild(subtopicATag); 

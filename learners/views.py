@@ -27,9 +27,8 @@ def login_view(request):
             else:
                 return redirect('quizes_home')
         else:
-            return render(request, "learners/index.html", {
-                "message": "Invalid username and/or password."
-            })
+            messages.error(request, "Your username and password didn't match. Please try again.")
+            return render(request, "learners/index.html")
         
     else:
         return redirect("index")
@@ -44,18 +43,17 @@ def register(request):
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
         if password != confirmation:
-            return render(request, "learners/register.html", {
-                "message": "Passwords must match."
-            })
+            messages.error(request, "Passwords must match. Please try again.")
+            return render(request, "learners/register.html")
 
         # Attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
         except IntegrityError:
-            return render(request, "learners/register.html", {
-                "message": "Username already taken."
-            })
+            messages.error(request, "Username already taken. Please try another.")
+            return render(request, "learners/register.html")
+        
         login(request, user)
         return render(request, 'quizes/home.html')
     
