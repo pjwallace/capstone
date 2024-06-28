@@ -21,24 +21,28 @@
             {% endif %}
         </div>
 
-        <h5>Register</h5>
+        <h5>Register for an Account</h5>
 
-        <form action="{% url 'register' %}" method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <input class="form-control" autofocus type="text" name="username" placeholder="Username">
-            </div>
-            <div class="form-group">
-                <input class="form-control e-mail" type="email" name="email" placeholder="Email Address">
-            </div>
-            <div class="form-group">
-                <input class="form-control pass-word" type="password" name="password" placeholder="Password">
-            </div>
-            <div class="form-group">
-                <input class="form-control confirm-password" type="password" name="confirmation" placeholder="Confirm Password">
-            </div>
-            <input class="btn btn-primary mx-auto d-block" type="submit" value="Register">
-        </form>
+        <div class="form-container" id="form-container">
+            <form action="{% url 'register' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input class="form-control" autofocus type="text" name="username" placeholder="Username"
+                    value="{{ username }}">
+                </div>
+                <div class="form-group">
+                    <input class="form-control e-mail" type="email" name="email" placeholder="Email Address"
+                    value="{{ email }}">
+                </div>
+                <div class="form-group">
+                    <input class="form-control pass-word" type="password" name="password" placeholder="Password">
+                </div>
+                <div class="form-group">
+                    <input class="form-control confirm-password" type="password" name="confirmation" placeholder="Confirm Password">
+                </div>
+                <input class="btn btn-primary mx-auto d-block" type="submit" value="Register">
+            </form>
+        </div>
         <span class="register-span">Already have an account? <a href="{% url 'login' %}">Log In</a></span>
     </div>
 

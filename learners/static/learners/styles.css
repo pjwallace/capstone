@@ -35,22 +35,27 @@ a{
 
 .register-container{
     width: 40%;
-    height: 80vh;
+    height: auto;
     margin: auto;
-    margin-top: 25px;
+    margin-top: 15px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     background-color: aliceblue;
-    border: 3px solid green;
+    border: 1px solid green;
+    padding: 15px;
 }
 
-.e-mail{
-    margin-top: 10px;
+.form-container {
+    width: 100%; /* Ensure the form takes the full width of the container */
 }
 
-.confirm-password{
-    margin-top: 10px;
-    margin-bottom: 15px;
+.form-group input {
+    width: 100%; /* Make input fields take the full width of their container */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    padding: 10px; /* Add some padding for better appearance */
+    margin-bottom: 15px; /* Add margin at the bottom for spacing */
 }
+
+
