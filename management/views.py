@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 
 from .models import Topic, Subtopic, Question, QuestionType, Choice, Explanation
 from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopicForm, RenameTopicForm
-from .forms import RenameSubtopicForm, AddQuestionForm, AddChoiceForm
+from .forms import RenameSubtopicForm, AddQuestionForm, AddChoiceForm, EditQuestionForm
 
 def management_portal(request): 
     # load topics for sidebar
@@ -517,6 +517,17 @@ def get_question_type_name(request, pk):
     except QuestionType.DoesNotExist:
         return JsonResponse({"success": False,  
                 "messages": [{"message": "Question Type not found.", "tags": "danger"}]}, status=404 )
+
+@login_required(login_url='login')    
+def get_question_to_edit(request):
+    if request.method == 'GET':
+        edit_question_form = EditQuestionForm()
+         # load topics for sidebar
+        topics = Topic.objects.all()
+        return render(request, 'management/edit_question.html', { 
+            'edit_question_form' : edit_question_form,
+            'topics' : topics,
+        })
 
 
             

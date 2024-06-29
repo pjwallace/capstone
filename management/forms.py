@@ -252,3 +252,35 @@ class AddChoiceForm(forms.ModelForm):
             'is_correct': "Correct"
         } 
 
+class EditQuestionForm(forms.ModelForm):
+    topic = forms.ModelChoiceField(
+        queryset= Topic.objects.all(),
+        widget=forms.Select(attrs={
+            'class' : 'form-control',
+            'id' : 'topic-for-edit_question'
+        }),
+        label='Select a Topic'     
+    )
+
+    subtopic = forms.ModelChoiceField(
+        queryset = Subtopic.objects.none(),
+        widget=forms.Select(attrs={
+            'class' : 'form-control',
+            'id' : 'subtopic-for-edit_question'
+        }),
+        label='Select a Subtopic'     
+    )
+
+    text = forms.ModelChoiceField(
+        queryset = Question.objects.none(),
+        widget=forms.Select(attrs={
+            'class' : 'form-control',
+            'id' : 'question_to_edit'
+        }),
+        label='Select a Question to edit'
+    )
+
+    class Meta:
+        model = Question
+        fields = ['subtopic', 'text']
+

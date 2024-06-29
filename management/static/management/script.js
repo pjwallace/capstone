@@ -156,7 +156,7 @@ function loadSuptopicsForTopic(){
 
                             editQuestionOption.addEventListener('click', function(e) {
                                 e.preventDefault();
-                                editQuestion(topicId, subtopic.id);
+                                editQuestion(subtopic.id);
                             });
                             
                             sidebarMenu.appendChild(addQuestionOption);
