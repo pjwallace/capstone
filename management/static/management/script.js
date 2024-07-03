@@ -46,13 +46,16 @@ document.addEventListener('DOMContentLoaded', function(){
     // delete subtopic
     deleteSubtopic(); 
     
-    // select subtopic for question
+    // select subtopics for question
     SelectSubtopicsForQuestion();
     selectQuestionType();
 
     // add another choice to the AddChoiceForm
     addAnotherChoice();
-    
+
+    // select subtopics for edited question
+    selectSubtopicsForQuestionToEdit();
+        
 }); 
 
 let currentOpenMenu = null; // keeps track of currently open sidebar menu
@@ -589,7 +592,6 @@ function setupSelectSubtopicToRename(){
                 return;
             } else{
                 
-                //renameSubtopicButton.setAttribute('data-topic-id', selectedTopicId);
                 getSubtopicsToRename(selectedTopicId, selectSubtopicToRename);
             }
 
@@ -895,8 +897,7 @@ function SelectSubtopicsForQuestion(){
                 displayMessage('There are no topics available.', 'info');
                 return;
             } else{  
-                 // save the selected topic in session storage to be used in form reload
-                //sessionStorage.setItem('selectedTopic', selectedTopicId);          
+                         
                 getSubtopics(selectedTopicId, subtopicMenu);
             }
 
@@ -1037,6 +1038,134 @@ function addAnotherChoice(){
     }   
 }
 
+function selectSubtopicsForQuestionToEdit(){
+    const topicMenu = document.getElementById('topic-for-edit-question');
+    const subtopicMenu = document.getElementById('subtopic-for-edit-question');
+    
+    if (topicMenu){
+        // must be at least one valid topic
+        const validTopicOptions = topicMenu.options.length > 1;
+
+        if (!validTopicOptions){
+            displayMessage('There are no topics available.', 'info');
+            return;
+        }
+
+        // add event listeneer for the topic dropdown menu
+        topicMenu.addEventListener('change', function(){
+            const selectedTopicId = topicMenu.value;
+           
+            if (!selectedTopicId){
+                displayMessage('There are no topics available.', 'info');
+                return;
+            } else{  
+                         
+                getSubtopicsForQuestionsToEdit(selectedTopicId, subtopicMenu);
+            }
+
+        })
+    }
+
+}
+
+function getSubtopicsForQuestionsToEdit(selectedTopicId, subtopicMenu){
+    // get the subtopics for the chosen topic to populate the subtopics dropdown menu
+    const route = `/management/portal/get_subtopics/${selectedTopicId}`;
+    
+    fetch(route)
+    .then(response => response.json())
+    .then(data =>{
+        
+        if (data.success){
+            // clear the existing subtopic options
+            subtopicMenu.innerHTML = '',
+           
+            // load the new subtopics, including the placeholder option
+            subtopicMenu.innerHTML = '<option value="" selected ="">--------</option>';
+            data.subtopics.forEach(subtopic => {
+                const option = document.createElement('option');
+                option.value = subtopic.id;
+                option.textContent = subtopic.name;
+                subtopicMenu.appendChild(option);
+            }); 
+            
+            const validSubtopicOptions = subtopicMenu.options.length > 1;
+
+            if (!validSubtopicOptions){
+                let edit_question_msg = document.getElementById('edit-question-msg');
+                if (edit_question_msg){
+                    edit_question_msg.innerHTML = '';
+                }
+                clearMessages();
+                displayMessage('There are no available subtopics for the chosen topic', 'info');
+                return;
+            }else{
+                // add event listener to subtopic menu
+                subtopicMenu.addEventListener('change', function(){
+                    const selectedSubtopicId = subtopicMenu.value;
+                    loadQuestionsToEdit(selectedSubtopicId);
+                }) 
+            }
+                
+        }else{
+            let edit_question_msg = document.getElementById('edit-question-msg');
+            if (edit_question_msg){
+                edit_question_msg.innerHTML = '';
+            }
+            clearMessages();
+            displayMessage('There are no available subtopics for the chosen topic', 'info');
+            return;    
+        } 
+    })
+}
+
+function loadQuestionsToEdit(selectedSubtopicId){
+    const questionMenu = document.getElementById('question-to-edit');
+    
+    // get all the questions for the chosen subtopic
+    const route = `/management/portal/load_questions/${selectedSubtopicId}`;
+
+    fetch(route)
+    .then(response => response.json())
+    .then(data =>{
+        if (data.success){
+            // clear the existing question menu options
+            questionMenu.innerHTML = '';
+
+            // load the new questions, including the placeholder option
+            questionMenu.innerHTML = '<option value="" selected ="">--------</option>';
+            data.questions.forEach(question => {
+                const option = document.createElement('option');
+                option.value = question.id;
+                option.textContent = question.text;
+                questionMenu.appendChild(option);
+            }); 
+            
+            const validQuestionOptions = questionMenu.options.length > 1;
+
+            if (!validQuestionOptions){
+                let edit_question_msg = document.getElementById('edit-question-msg');
+                if (edit_question_msg){
+                    edit_question_msg.innerHTML = '';
+                }
+                clearMessages();
+                displayMessage('There are no available questions for the chosen subtopic', 'info');
+                return;
+            }
+
+        }else{
+            let edit_question_msg = document.getElementById('edit-question-msg');
+            if (edit_question_msg){
+                edit_question_msg.innerHTML = '';
+            }
+            clearMessages();
+            displayMessage('There are no available question for the chosen subtopic', 'info');
+            return;    
+        } 
+
+    })
+}
+
 // Helper functions
 
 function getSubtopics(selectedTopicId, subtopicMenu, callback){
@@ -1049,7 +1178,7 @@ function getSubtopics(selectedTopicId, subtopicMenu, callback){
         
         if (data.success){
             // clear the existing subtopic options
-            subtopicMenu.innerHTML = '',
+            subtopicMenu.innerHTML = '';
            
             // load the new subtopics, including the placeholder option
             subtopicMenu.innerHTML = '<option value="" selected ="">--------</option>';
@@ -1076,7 +1205,7 @@ function getSubtopics(selectedTopicId, subtopicMenu, callback){
                     }
                 }
         }else{
-            let add_question_and_choices_msg = document.getElementById('rename-subtopic-msg');
+            let add_question_and_choices_msg = document.getElementById('add-question-and-choices-msg');
             if (add_question_and_choices_msg){
                 add_question_and_choices_msg.innerHTML = '';
             }

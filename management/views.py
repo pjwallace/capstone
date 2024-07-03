@@ -520,6 +520,7 @@ def get_question_type_name(request, pk):
 
 @login_required(login_url='login')    
 def get_question_to_edit(request):
+    
     if request.method == 'GET':
         edit_question_form = EditQuestionForm()
          # load topics for sidebar
@@ -528,6 +529,22 @@ def get_question_to_edit(request):
             'edit_question_form' : edit_question_form,
             'topics' : topics,
         })
+    
+@login_required(login_url='login')
+def load_questions(request, subtopic_id):
+    '''
+    This function takes in a subtopic id and returns all the questions for this subtopic.
+    The response object will be returned to the Javascript function loadQuestionsToEdit.
+    '''
+    questions = Question.objects.filter(subtopic_id=subtopic_id).values('id', 'text', 'question_type')
+
+    if questions:
+        return JsonResponse({"success": True, "questions": list(questions)}, safe=False)
+    else:
+        return JsonResponse({"success": False,
+                "messages": [{"message": "An error occurred while retrieving questions.", "tags": "info"}]})
+    
+
 
 
             

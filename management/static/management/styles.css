@@ -167,7 +167,7 @@
     appearance: menulist;
 }
 
-#question-type{
+#question-type, #topic-for-edit-question, #subtopic-for-edit-question, #question-to-edit{
     -webkit-appearance: menulist; /* Safari and Chrome */
     -moz-appearance: menulist; /* Firefox */
     appearance: menulist;

@@ -257,7 +257,7 @@ class EditQuestionForm(forms.ModelForm):
         queryset= Topic.objects.all(),
         widget=forms.Select(attrs={
             'class' : 'form-control',
-            'id' : 'topic-for-edit_question'
+            'id' : 'topic-for-edit-question'
         }),
         label='Select a Topic'     
     )
@@ -266,7 +266,7 @@ class EditQuestionForm(forms.ModelForm):
         queryset = Subtopic.objects.none(),
         widget=forms.Select(attrs={
             'class' : 'form-control',
-            'id' : 'subtopic-for-edit_question'
+            'id' : 'subtopic-for-edit-question'
         }),
         label='Select a Subtopic'     
     )
@@ -275,7 +275,7 @@ class EditQuestionForm(forms.ModelForm):
         queryset = Question.objects.none(),
         widget=forms.Select(attrs={
             'class' : 'form-control',
-            'id' : 'question_to_edit'
+            'id' : 'question-to-edit'
         }),
         label='Select a Question to edit'
     )
@@ -283,4 +283,15 @@ class EditQuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         fields = ['subtopic', 'text']
+
+    def __init__(self, *args, **kwargs):
+        super(EditQuestionForm, self).__init__(*args, **kwargs)
+
+        # Reorder the fields
+        self.fields = OrderedDict([
+            ('topic', self.fields['topic']),
+            ('subtopic', self.fields['subtopic']),
+            ('text', self.fields['text']),
+            
+        ])
 

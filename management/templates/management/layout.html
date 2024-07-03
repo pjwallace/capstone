@@ -51,7 +51,8 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" id="dropdown-add-question-and-choices" href="{% url 'add_question_and_choices' %}">
                             Add Question/Choices</a>
-                        <a class="dropdown-item" id="dropdown-edit-question-and-choices" href="#">Edit Question/Choices</a>
+                        <a class="dropdown-item" id="dropdown-edit-question-and-choices" href="{% url 'get_question_to_edit' %}">
+                            Edit Question/Choices</a>
                         <a class="dropdown-item" id="dropdown-delete-question-and-choices" href="#">Delete Question/Choices</a>   
                     </div>
                 </li>

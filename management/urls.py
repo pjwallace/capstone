@@ -25,4 +25,5 @@ urlpatterns = [
          name="add_question_and_choices_dynamically"),
     path("get_question_type_name/<int:pk>", views.get_question_type_name, name="get_question_type_name"),
     path("get_question_to_edit", views.get_question_to_edit, name="get_question_to_edit"),
+    path("load_questions/<int:subtopic_id>", views.load_questions, name="load_questions"),
 ]
