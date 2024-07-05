@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 
 from .models import Topic, Subtopic, Question, QuestionType, Choice, Explanation
 from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopicForm, RenameTopicForm
-from .forms import RenameSubtopicForm, AddQuestionForm, AddChoiceForm, EditQuestionForm
+from .forms import RenameSubtopicForm, AddQuestionForm, AddChoiceForm, EditQuestionForm, EditAllQuestionsForm
 
 def management_portal(request): 
     # load topics for sidebar
@@ -525,11 +525,59 @@ def get_question_to_edit(request):
         edit_question_form = EditQuestionForm()
          # load topics for sidebar
         topics = Topic.objects.all()
-        return render(request, 'management/edit_question.html', { 
+        return render(request, 'management/select_question_to_edit.html', { 
             'edit_question_form' : edit_question_form,
             'topics' : topics,
         })
     
+@login_required(login_url='login')    
+def load_question_to_edit(request, question_id):
+    '''
+        This function takes the selected question as a parameter.
+        It will return the question type and question text.
+        It will also return the answer choices associated with the question.
+    '''
+    if request.method == 'GET':
+    
+        # Make sure the question exists
+        try:
+            question = Question.objects.get(id=question_id)
+
+            # Serialize the question
+            question_data = {
+                "id": question.id,
+                "question_type": {
+                    "id": question.question_type.id,
+                    "name": question.question_type.name
+                },
+                "text": question.text
+            }
+                        
+        except Question.DoesNotExist:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Invalid question selected.", "tags": "danger"}]}, status=400)
+        
+        # get the answer choices for the selected question
+        # serialize the answer choices
+        choices = Choice.objects.filter(question=question)
+        choices_data = [{"id": choice.id, "text": choice.text, "is_correct": choice.is_correct} for choice in choices]
+
+        #load the answer choice forms
+        add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(len(choices_data))] 
+
+        context = {
+        
+        'add_choice_forms': add_choice_forms,
+        }
+        
+        edit_question_and_choices_form_html = render_to_string('management/edit_question_and_choices.html', 
+                    context, request=request)
+        
+        
+        return JsonResponse({"success": True, 'question': question_data, 'choices': choices_data, 
+                             'edit_question_and_choices_form_html': edit_question_and_choices_form_html})
+    
+        
 @login_required(login_url='login')
 def load_questions(request, subtopic_id):
     '''
@@ -543,6 +591,16 @@ def load_questions(request, subtopic_id):
     else:
         return JsonResponse({"success": False,
                 "messages": [{"message": "An error occurred while retrieving questions.", "tags": "info"}]})
+    
+def get_all_questions_to_edit(request):
+    if request.method == 'GET':
+        edit_all_questions_form = EditAllQuestionsForm()
+         # load topics for sidebar
+        topics = Topic.objects.all()
+        return render(request, 'management/edit_all_questions.html', { 
+            'edit_all_questions_form' : edit_all_questions_form,
+            'topics' : topics,
+        })
     
 
 

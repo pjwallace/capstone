@@ -1,0 +1,21 @@
+{% block body %}   
+    
+    <div class="form-container" id="edit-question-and-choices-container">
+
+        <div id="edit-question-and-choices-msg" class="msg-div">
+            
+        </div>
+       
+        <div class="error-msg">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <h2>Edit Question and Answer Choices</h2><br>
+
+{% endblock %}

@@ -148,10 +148,25 @@
     display: flex;
     justify-content: space-between; /* Distributes space between the buttons */
     gap: 50px; /* Adds space between buttons */
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 .btn {
     flex: 1; /* Ensures buttons take up equal space */
+}
+
+#edit-question-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Adds space between form elements */
+}
+
+.edit-question-fields {
+    display: flex;
+    align-items: center; /* Align items vertically centered */
+    gap: 100px; /* Adds space between the fields */
+    margin-left: 5px;
 }
 
 

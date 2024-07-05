@@ -295,3 +295,36 @@ class EditQuestionForm(forms.ModelForm):
             
         ])
 
+class EditAllQuestionsForm(forms.ModelForm):
+    topic = forms.ModelChoiceField(
+        queryset= Topic.objects.all(),
+        widget=forms.Select(attrs={
+            'class' : 'form-control',
+            'id' : 'topic-for-edit-all-questions'
+        }),
+        label='Select a Topic'     
+    )
+
+    subtopic = forms.ModelChoiceField(
+        queryset = Subtopic.objects.none(),
+        widget=forms.Select(attrs={
+            'class' : 'form-control',
+            'id' : 'subtopic-for-edit-all_questions'
+        }),
+        label='Select a Subtopic'     
+    )
+
+    class Meta:
+        model = Question
+        fields = ['subtopic']
+
+    def __init__(self, *args, **kwargs):
+        super(EditAllQuestionsForm, self).__init__(*args, **kwargs)
+
+        # Reorder the fields
+        self.fields = OrderedDict([
+            ('topic', self.fields['topic']),
+            ('subtopic', self.fields['subtopic']),
+                        
+        ])
+

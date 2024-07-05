@@ -26,4 +26,6 @@ urlpatterns = [
     path("get_question_type_name/<int:pk>", views.get_question_type_name, name="get_question_type_name"),
     path("get_question_to_edit", views.get_question_to_edit, name="get_question_to_edit"),
     path("load_questions/<int:subtopic_id>", views.load_questions, name="load_questions"),
+    path("get_all_questions_to_edit", views.get_all_questions_to_edit, name="get_all_questions_to_edit"),
+    path("load_question_to_edit/<int:question_id>", views.load_question_to_edit, name="load_question_to_edit"),
 ]

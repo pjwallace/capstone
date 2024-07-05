@@ -33,6 +33,11 @@ document.addEventListener('DOMContentLoaded', function(){
             if (e.target.id === 'add-question-and-choices-form'){
                 addQuestionAndChoices();
             }
+
+            // edit question and choices
+            if (e.target.id === 'edit-question-form'){
+                selectQuestionToEdit();
+            }
         }
     });
 
@@ -54,7 +59,10 @@ document.addEventListener('DOMContentLoaded', function(){
     addAnotherChoice();
 
     // select subtopics for edited question
-    selectSubtopicsForQuestionToEdit();
+    selectTopicForQuestionToEdit();
+
+    // select subtopics for edited question
+    selectTopicForAllQuestionsToEdit();
         
 }); 
 
@@ -559,12 +567,6 @@ function deleteSubtopic(){
     setupSubtopicToDeleteButton(); 
 }
 
-
-
-function editQuestionAndChoices(){
-    //pass
-}
-
 function delete_question(){
     //pass
 }
@@ -1038,7 +1040,7 @@ function addAnotherChoice(){
     }   
 }
 
-function selectSubtopicsForQuestionToEdit(){
+function selectTopicForQuestionToEdit(){
     const topicMenu = document.getElementById('topic-for-edit-question');
     const subtopicMenu = document.getElementById('subtopic-for-edit-question');
     
@@ -1060,7 +1062,7 @@ function selectSubtopicsForQuestionToEdit(){
                 return;
             } else{  
                          
-                getSubtopicsForQuestionsToEdit(selectedTopicId, subtopicMenu);
+                getSubtopicsForQuestionToEdit(selectedTopicId, subtopicMenu);
             }
 
         })
@@ -1068,7 +1070,7 @@ function selectSubtopicsForQuestionToEdit(){
 
 }
 
-function getSubtopicsForQuestionsToEdit(selectedTopicId, subtopicMenu){
+function getSubtopicsForQuestionToEdit(selectedTopicId, subtopicMenu){
     // get the subtopics for the chosen topic to populate the subtopics dropdown menu
     const route = `/management/portal/get_subtopics/${selectedTopicId}`;
     
@@ -1165,6 +1167,108 @@ function loadQuestionsToEdit(selectedSubtopicId){
 
     })
 }
+
+function selectTopicForAllQuestionsToEdit(){
+    const topicMenu = document.getElementById('topic-for-edit-all-questions');
+    const subtopicMenu = document.getElementById('subtopic-for-edit-all_questions');
+    
+    if (topicMenu){
+        // must be at least one valid topic
+        const validTopicOptions = topicMenu.options.length > 1;
+
+        if (!validTopicOptions){
+            displayMessage('There are no topics available.', 'info');
+            return;
+        }
+
+        // add event listeneer for the topic dropdown menu
+        topicMenu.addEventListener('change', function(){
+            const selectedTopicId = topicMenu.value;
+           
+            if (!selectedTopicId){
+                displayMessage('There are no topics available.', 'info');
+                return;
+            } else{  
+                         
+                getSubtopicsForAllQuestionsToEdit(selectedTopicId, subtopicMenu);
+            }
+
+        })
+    }   
+}
+
+function getSubtopicsForAllQuestionsToEdit(selectedTopicId, subtopicMenu){
+// get the subtopics for the chosen topic to populate the subtopics dropdown menu
+    const route = `/management/portal/get_subtopics/${selectedTopicId}`;
+    
+    fetch(route)
+    .then(response => response.json())
+    .then(data =>{
+        
+        if (data.success){
+            // clear the existing subtopic options
+            subtopicMenu.innerHTML = '',
+           
+            // load the new subtopics, including the placeholder option
+            subtopicMenu.innerHTML = '<option value="" selected ="">--------</option>';
+            data.subtopics.forEach(subtopic => {
+                const option = document.createElement('option');
+                option.value = subtopic.id;
+                option.textContent = subtopic.name;
+                subtopicMenu.appendChild(option);
+            }); 
+            
+            const validSubtopicOptions = subtopicMenu.options.length > 1;
+
+            if (!validSubtopicOptions){
+                let edit_all_questions_msg = document.getElementById('edit-all-questions-msg');
+                if (edit_all_questions_msg){
+                    edit_all_questions_msg.innerHTML = '';
+                }
+                clearMessages();
+                displayMessage('There are no available subtopics for the chosen topic', 'info');
+                return;
+            }
+                
+        }else{
+            let edit_all_questions_msg = document.getElementById('edit-all-questions-msg');
+            if (edit_all_questions_msg){
+                edit_all_questions_msg.innerHTML = '';
+            }
+            clearMessages();
+            displayMessage('There are no available subtopics for the chosen topic', 'info');
+            return;    
+        } 
+    })
+}
+
+function selectQuestionToEdit(){
+    // retrieve the EditQuestionForm values
+    topicId = document.getElementById('topic-for-edit-question').value;
+    subtopicId = document.getElementById('subtopic-for-edit-question').value;
+    questionId = document.getElementById('question-to-edit').value;
+
+    const route = `/management/portal/load_question_to_edit/${questionId}`;
+    
+    fetch(route)
+    .then(response => response.json())
+    .then(data =>{
+        if (data.success){
+            console.log(data.question);
+            console.log(data.choices);
+
+            // Insert the form HTML into the management container
+            const managementContainer = document.getElementById('management-container');
+            managementContainer.innerHTML = data.edit_question_and_choices_form_html;
+        }else{
+
+        }
+
+    })  
+
+}
+
+
 
 // Helper functions
 
