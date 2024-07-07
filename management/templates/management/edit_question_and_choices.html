@@ -18,4 +18,61 @@
 
         <h2>Edit Question and Answer Choices</h2><br>
 
+        <form id="edit-question-and-choices-form" data-fetch="true" method="post" action="#">
+            {% csrf_token %}
+
+            <div id="edit-question-container">
+                <div class="edit-question-and-choice-fields">   
+                    
+                    <div class="form-group">
+                        {{ edit_question_text_form.topic.label_tag }}
+                        {{ edit_question_text_form.topic }}
+                    </div>
+                    <div class="form-group">
+                        {{ edit_question_text_form.subtopic.label_tag }}
+                        {{ edit_question_text_form.subtopic }}
+                    </div>
+                    <div class="form-group">
+                        {{ edit_question_text_form.question_type.label_tag }}
+                        {{ edit_question_text_form.question_type }}
+                    </div>
+                                       
+                </div>
+                
+                <div class="form-group" id="edit-question-and-choice-text">
+                    {{ edit_question_text_form.text.label_tag }}
+                    {{ edit_question_text_form.text }}
+                </div>
+               
+            </div>
+
+            <div id="edit-choices-container">
+                {% for edit_choice_form in edit_choice_forms %}
+                    <div class="choice-form" id="edit-choice-{{ forloop.counter }}">
+                        <div class="edit-choice-fields">
+                            {{ edit_choice_form.text.label_tag }}
+                            {{ edit_choice_form.text }}
+                            {{ edit_choice_form.is_correct.label_tag }}
+                            {{ edit_choice_form.is_correct }}
+                        </div>
+                    </div>                
+                {% endfor %}
+            </div>
+
+            <div class="btn-group" role="group">
+                <button class="btn btn-secondary" id="add-choice-btn" type="button" >
+                    Add Another Choice
+                </button>
+                
+                <button class="btn btn-primary" id="edit-question-and-choices-btn" type="submit" >
+                    Submit Your Changes
+                </button>
+            </div>
+
+
+        </form>
+
+
+    </div>
+
 {% endblock %}

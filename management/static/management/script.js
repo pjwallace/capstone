@@ -38,6 +38,11 @@ document.addEventListener('DOMContentLoaded', function(){
             if (e.target.id === 'edit-question-form'){
                 selectQuestionToEdit();
             }
+
+            // submit edited question and choiced
+            if (e.target.id === 'edit-question-and-choices-form'){
+                submitEditsToQuestionAndChoices();
+            }
         }
     });
 
@@ -1248,24 +1253,78 @@ function selectQuestionToEdit(){
     subtopicId = document.getElementById('subtopic-for-edit-question').value;
     questionId = document.getElementById('question-to-edit').value;
 
+    // retrieve the topic name from the topic id
+    let topicName = '';
+    const route1 = `/management/portal/get_topic_name/${topicId}`;
+    fetch(route1)
+    .then(response => response.json())
+    .then(data =>{
+        if (data.success){
+            topicName = data.topic_name;
+        }else{
+        // errors
+        let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
+        edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;  
+        }     
+    })
+    .catch(error => console.error('Error loading the form:', error));
+
+    // retrieve the subtopic name from the subtopic id
+    let subtopicName = '';
+    const route2 = `/management/portal/get_subtopic_name/${subtopicId}`;
+    fetch(route2)
+    .then(response => response.json())
+    .then(data =>{
+        if (data.success){
+            subtopicName = data.subtopic_name;
+        }else{
+            // errors
+            let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
+            edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+        }      
+    })
+    .catch(error => console.error('Error loading the form:', error));
+
     const route = `/management/portal/load_question_to_edit/${questionId}`;
     
     fetch(route)
     .then(response => response.json())
     .then(data =>{
         if (data.success){
-            console.log(data.question);
-            console.log(data.choices);
-
+                       
             // Insert the form HTML into the management container
             const managementContainer = document.getElementById('management-container');
             managementContainer.innerHTML = data.edit_question_and_choices_form_html;
-        }else{
+            document.getElementById('topic_name').value = topicName;
+            document.getElementById('subtopic_name').value = subtopicName;
+            document.getElementById('question_name').value = data.question.question_type.name;
+            document.getElementById('question_text').value = data.question.text;
 
+            // iterate over the choice forms array and prepopulate the blank choice forms
+            data.choices.forEach((choice, index) => {
+                document.querySelector(`#edit-choice-${index + 1} input[name$="text"]`).value = choice.text;
+                document.querySelector(`#edit-choice-${index + 1} input[name$="is_correct"]`).checked = choice.is_correct;
+            });
+
+            console.log(data.question.question_type.name);
+            // Can't change the value of True and False
+            if (data.question.question_type.name === 'True/False'){                
+                document.getElementById('id_0-text').readOnly = true;
+                document.getElementById('id_1-text').readOnly = true;
+
+                // 'read-only' class will be used to gray out the choice text field 
+                document.getElementById('id_0-text').classList.add('read-only');               
+                document.getElementById('id_1-text').classList.add('read-only');
+            }
+            
+        }else{
+            // errors
+            let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
+            edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
         }
 
-    })  
-
+    }) 
+    .catch(error => console.error('Error loading the form:', error));
 }
 
 

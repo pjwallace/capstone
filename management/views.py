@@ -10,6 +10,7 @@ from django.template.loader import render_to_string
 from .models import Topic, Subtopic, Question, QuestionType, Choice, Explanation
 from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopicForm, RenameTopicForm
 from .forms import RenameSubtopicForm, AddQuestionForm, AddChoiceForm, EditQuestionForm, EditAllQuestionsForm
+from .forms import EditQuestionTextForm
 
 def management_portal(request): 
     # load topics for sidebar
@@ -562,12 +563,15 @@ def load_question_to_edit(request, question_id):
         choices = Choice.objects.filter(question=question)
         choices_data = [{"id": choice.id, "text": choice.text, "is_correct": choice.is_correct} for choice in choices]
 
+        # load the EditQuestionTextForm
+        edit_question_text_form = EditQuestionTextForm()
+
         #load the answer choice forms
-        add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(len(choices_data))] 
+        edit_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(len(choices_data))] 
 
         context = {
-        
-        'add_choice_forms': add_choice_forms,
+        'edit_question_text_form': edit_question_text_form,
+        'edit_choice_forms': edit_choice_forms,
         }
         
         edit_question_and_choices_form_html = render_to_string('management/edit_question_and_choices.html', 
@@ -601,6 +605,28 @@ def get_all_questions_to_edit(request):
             'edit_all_questions_form' : edit_all_questions_form,
             'topics' : topics,
         })
+
+def get_topic_name(request, pk):
+    '''
+    takes in the topic id from the dropdown menu and returns the topic name
+    '''
+    try:
+        topic = Topic.objects.get(pk=pk)
+        return JsonResponse({"success": True, 'topic_name': topic.name})
+    except Topic.DoesNotExist:
+        return JsonResponse({"success": False,  
+                "messages": [{"message": "Topic Name not found.", "tags": "danger"}]}, status=404 )
+    
+def get_subtopic_name(request, pk):
+    '''
+    takes in the subtopic id from the dropdown menu and returns the subtopic name
+    '''
+    try:
+        subtopic = Subtopic.objects.get(pk=pk)
+        return JsonResponse({"success": True, 'subtopic_name': subtopic.name})
+    except Topic.DoesNotExist:
+        return JsonResponse({"success": False,  
+                "messages": [{"message": "Subtopic Name not found.", "tags": "danger"}]}, status=404 )
     
 
 

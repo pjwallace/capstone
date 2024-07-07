@@ -138,7 +138,7 @@
     margin-bottom: 10px;
 }
 
-.add-choice-fields {
+.add-choice-fields, .edit-choice-fields {
     display: flex;
     align-items: center; /* Align items vertically centered */
     gap: 10px; /* Adds space between the text field and the checkbox */
@@ -156,16 +156,16 @@
     flex: 1; /* Ensures buttons take up equal space */
 }
 
-#edit-question-form {
+#edit-question-form, #edit-question-and-choices-form {
     display: flex;
     flex-direction: column;
     gap: 10px; /* Adds space between form elements */
 }
 
-.edit-question-fields {
+.edit-question-fields, .edit-question-and-choice-fields {
     display: flex;
     align-items: center; /* Align items vertically centered */
-    gap: 100px; /* Adds space between the fields */
+    gap: 75px; /* Adds space between the fields */
     margin-left: 5px;
 }
 
@@ -186,4 +186,10 @@
     -webkit-appearance: menulist; /* Safari and Chrome */
     -moz-appearance: menulist; /* Firefox */
     appearance: menulist;
+}
+
+/* 'grays out read only fields */
+.read-only{
+    background-color: #f0f0f0; /* Light gray background */
+    cursor: not-allowed;      
 }

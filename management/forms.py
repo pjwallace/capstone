@@ -31,7 +31,7 @@ class RenameTopicForm(forms.ModelForm):
     )
 
     new_topic_name = forms.CharField(
-        max_length=100,
+        max_length=30,
         label="",
         widget=forms.TextInput(attrs={
             'class': 'form-control',
@@ -107,6 +107,7 @@ class RenameSubtopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
         queryset=Topic.objects.all(),
         label="Select a Topic",
+       
         widget=forms.Select(attrs={
             'class': 'form-control',
             'id': 'topic-for-renamed-subtopic',
@@ -122,7 +123,7 @@ class RenameSubtopicForm(forms.ModelForm):
         label='Select a subtopic to rename'     
     )
     new_subtopic_name = forms.CharField(
-        max_length=100,
+        max_length=30,
         label="",
         widget=forms.TextInput(attrs={
             'class': 'form-control',
@@ -327,4 +328,14 @@ class EditAllQuestionsForm(forms.ModelForm):
             ('subtopic', self.fields['subtopic']),
                         
         ])
+
+class EditQuestionTextForm(forms.Form):
+    topic = forms.CharField(label='Topic', max_length=30, 
+            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'topic_name', 'disabled': True}))
+    subtopic = forms.CharField(label='Subtopic', max_length=30, 
+            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'subtopic_name', 'disabled': True}))
+    question_type = forms.CharField(label='Question Type', max_length=25, 
+            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'question_name', 'disabled': True}))
+    text = forms.CharField(label='Question', 
+            widget=forms.Textarea(attrs={'rows':3, 'class': 'form-control', 'id': 'question_text'}))
 

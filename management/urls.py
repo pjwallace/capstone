@@ -28,4 +28,6 @@ urlpatterns = [
     path("load_questions/<int:subtopic_id>", views.load_questions, name="load_questions"),
     path("get_all_questions_to_edit", views.get_all_questions_to_edit, name="get_all_questions_to_edit"),
     path("load_question_to_edit/<int:question_id>", views.load_question_to_edit, name="load_question_to_edit"),
+    path("get_topic_name/<int:pk>", views.get_topic_name, name="get_topic_name"),
+    path("get_subtopic_name/<int:pk>", views.get_subtopic_name, name="get_subtopic_name"),
 ]
