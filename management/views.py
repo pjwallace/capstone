@@ -572,6 +572,7 @@ def load_question_to_edit(request, question_id):
         context = {
         'edit_question_text_form': edit_question_text_form,
         'edit_choice_forms': edit_choice_forms,
+        'question_id': question_id
         }
         
         edit_question_and_choices_form_html = render_to_string('management/edit_question_and_choices.html', 
@@ -627,6 +628,9 @@ def get_subtopic_name(request, pk):
     except Topic.DoesNotExist:
         return JsonResponse({"success": False,  
                 "messages": [{"message": "Subtopic Name not found.", "tags": "danger"}]}, status=404 )
+    
+def edit_question_and_choices():
+    pass
     
 
 

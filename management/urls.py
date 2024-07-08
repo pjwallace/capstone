@@ -30,4 +30,5 @@ urlpatterns = [
     path("load_question_to_edit/<int:question_id>", views.load_question_to_edit, name="load_question_to_edit"),
     path("get_topic_name/<int:pk>", views.get_topic_name, name="get_topic_name"),
     path("get_subtopic_name/<int:pk>", views.get_subtopic_name, name="get_subtopic_name"),
+    path("edit_question_and_choices", views.edit_question_and_choices, name="edit_question_and_choices"),
 ]

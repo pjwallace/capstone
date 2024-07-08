@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
             // submit edited question and choiced
             if (e.target.id === 'edit-question-and-choices-form'){
-                submitEditsToQuestionAndChoices();
+                editQuestionAndChoices();
             }
         }
     });
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // add another choice to the AddChoiceForm
     addAnotherChoice();
-
+    
     // select subtopics for edited question
     selectTopicForQuestionToEdit();
 
@@ -993,31 +993,35 @@ function selectQuestionType(){
 }
 
 function addAnotherChoice(){
-    const addChoicesContainer = document.getElementById('add-choices-container');
+   
+    addChoicesContainer = document.getElementById('add-choices-container');
+    
     const addChoiceButton = document.getElementById('add-choice-btn'); 
-        
+
     if (addChoiceButton){
         addChoiceButton.addEventListener('click', function(e){
             e.preventDefault();
 
-            // clone the choice form and get all the fields and labels
-            newChoiceForm = addChoicesContainer.firstElementChild.cloneNode(true);
+            // clone the choice form and get all the fields and labels           
+            const newChoiceForm = addChoicesContainer.firstElementChild.cloneNode(true);
+                        
             let choiceFields = newChoiceForm.querySelectorAll('input');
             let choiceLabels = newChoiceForm.querySelectorAll('label');
-
-            let choiceCount = addChoicesContainer.childElementCount;
-            console.log(choiceCount);
+          
+            let choiceCount = addChoicesContainer.childElementCount;       
+                        
             // clear the values from the cloned choice form
             choiceFields.forEach(function(field){
                 field.value = '';
                 if (field.type === 'checkbox'){
                     field.checked = false;
                 }
-            })
+            });
+
             // create the id for the new choice form
             choiceCount++;
             newChoiceForm.id = 'add-choice-' + choiceCount;
-            console.log(newChoiceForm.id);
+            
             // update the form prefix
             const newPrefix = (choiceCount-1).toString();
             
@@ -1028,8 +1032,7 @@ function addAnotherChoice(){
                 if (field.id){
                     field.id = field.id.replace(/\d+/, newPrefix);
                 }
-                console.log(field.name);
-                console.log(field.id);
+                
             });
 
             // Update the for attribute of labels
@@ -1037,12 +1040,74 @@ function addAnotherChoice(){
                 if (label.htmlFor) {
                     label.htmlFor = label.htmlFor.replace(/\d+/, newPrefix);
                 }
-                console.log(label.htmlFor);
+                
             });
-
+           
             addChoicesContainer.appendChild(newChoiceForm);
+                      
         });
     }   
+}
+
+function addChoiceToEditForm(){
+    editChoicesContainer = document.getElementById('edit-choices-container');    
+    const addChoiceButtonEdit = document.getElementById('add-choice-btn-edit');
+    
+    if (addChoiceButtonEdit){
+
+        addChoiceButtonEdit.addEventListener('click', function (e){
+            if (editChoicesContainer){
+                // clone the choice form and get all the fields and labels           
+                const newChoiceForm = editChoicesContainer.firstElementChild.cloneNode(true);                            
+                let choiceFields = newChoiceForm.querySelectorAll('input');
+                let choiceLabels = newChoiceForm.querySelectorAll('label');           
+                let choiceCount = editChoicesContainer.childElementCount; 
+
+                // clear the values from the cloned choice form
+                choiceFields.forEach(function(field){
+                    field.value = '';
+                    if (field.type === 'checkbox'){
+                        field.checked = false;
+                    }
+                });
+
+                // create the id for the new choice form
+                choiceCount++;
+                newChoiceForm.id = 'edit-choice-' + choiceCount;
+
+                // update the form prefix
+                const newPrefix = (choiceCount-1).toString();
+
+                choiceFields.forEach(function(field){
+                    if (field.name){
+                        field.name = field.name.replace(/\d+/, newPrefix);
+                    }
+                    if (field.id){
+                        field.id = field.id.replace(/\d+/, newPrefix);
+                    }
+                    
+                });
+
+                // Update the for attribute of labels
+                choiceLabels.forEach(function(label) {
+                    if (label.htmlFor) {
+                        label.htmlFor = label.htmlFor.replace(/\d+/, newPrefix);
+                    }
+                    
+                });
+
+                editChoicesContainer.appendChild(newChoiceForm);
+
+            }else{
+                console.error('edit choice container not found.');
+            }
+
+        });
+
+    }else{
+        console.error('add-choice-btn-edit not found.');
+    }
+
 }
 
 function selectTopicForQuestionToEdit(){
@@ -1166,11 +1231,52 @@ function loadQuestionsToEdit(selectedSubtopicId){
                 edit_question_msg.innerHTML = '';
             }
             clearMessages();
-            displayMessage('There are no available question for the chosen subtopic', 'info');
+            displayMessage('There are no available questions for the chosen subtopic', 'info');
             return;    
         } 
 
     })
+}
+
+function editQuestionAndChoices(){
+    const route = `/management/portal/edit_question_and_choices`;
+
+    // Retrieve the django CSRF token from the form
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // Retrieve the add choice forms (must be at least two)
+    let choices = [];
+    const choiceForms = document.querySelectorAll('.choice-form');
+
+    choiceForms.forEach((choiceForm, index) => {
+        let choiceTextInput = choiceForm.querySelector(`[name="${index}-text"]`);
+        let isCorrectInput = choiceForm.querySelector(`[name="${index}-is_correct"]`);
+                
+        let choiceText = choiceTextInput.value;
+        let isCorrect = isCorrectInput.checked;
+        choices.push({
+            'text': choiceText,
+            'is_correct': isCorrect
+        });       
+    });
+
+    fetch(route, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+            // question form values
+            
+            question_text : document.getElementById('question-text').value,  
+            
+            // choice forms
+            choices : choices
+        })
+    })   
+    .then(response => response.json())
+
 }
 
 function selectTopicForAllQuestionsToEdit(){
@@ -1295,6 +1401,10 @@ function selectQuestionToEdit(){
             // Insert the form HTML into the management container
             const managementContainer = document.getElementById('management-container');
             managementContainer.innerHTML = data.edit_question_and_choices_form_html;
+
+            // Set the hidden question_id field
+            //document.getElementById('question_id').value = questionId;
+
             document.getElementById('topic_name').value = topicName;
             document.getElementById('subtopic_name').value = subtopicName;
             document.getElementById('question_name').value = data.question.question_type.name;
@@ -1306,7 +1416,6 @@ function selectQuestionToEdit(){
                 document.querySelector(`#edit-choice-${index + 1} input[name$="is_correct"]`).checked = choice.is_correct;
             });
 
-            console.log(data.question.question_type.name);
             // Can't change the value of True and False
             if (data.question.question_type.name === 'True/False'){                
                 document.getElementById('id_0-text').readOnly = true;
@@ -1315,7 +1424,9 @@ function selectQuestionToEdit(){
                 // 'read-only' class will be used to gray out the choice text field 
                 document.getElementById('id_0-text').classList.add('read-only');               
                 document.getElementById('id_1-text').classList.add('read-only');
-            }
+            }else{
+                addChoiceToEditForm();
+            }           
             
         }else{
             // errors

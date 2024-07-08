@@ -20,7 +20,7 @@
 
         <form id="edit-question-and-choices-form" data-fetch="true" method="post" action="#">
             {% csrf_token %}
-
+            <input type="hidden" id="question_id" name="question_id" value="{{ question_id }}">
             <div id="edit-question-container">
                 <div class="edit-question-and-choice-fields">   
                     
@@ -49,6 +49,8 @@
             <div id="edit-choices-container">
                 {% for edit_choice_form in edit_choice_forms %}
                     <div class="choice-form" id="edit-choice-{{ forloop.counter }}">
+                        <input type="hidden" id="choice_id_{{ forloop.counter }}" 
+                            name="choice_id_{{ forloop.counter }}" value="{{ edit_choice_form.instance.id }}">
                         <div class="edit-choice-fields">
                             {{ edit_choice_form.text.label_tag }}
                             {{ edit_choice_form.text }}
@@ -60,7 +62,7 @@
             </div>
 
             <div class="btn-group" role="group">
-                <button class="btn btn-secondary" id="add-choice-btn" type="button" >
+                <button class="btn btn-secondary" id="add-choice-btn-edit" type="button" >
                     Add Another Choice
                 </button>
                 
