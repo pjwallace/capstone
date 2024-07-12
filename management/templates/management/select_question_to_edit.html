@@ -22,7 +22,7 @@
 
         <form id="edit-question-form" data-fetch="true" method="post" action="#">
             {% csrf_token %}
-
+            <input type="hidden" id="subtopic-id" name="subtopic-id" value="">
             <div id="edit-question-container">
                 <div class="edit-question-fields">
                     <div class="form-group">

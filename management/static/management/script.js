@@ -1268,14 +1268,27 @@ function editQuestionAndChoices(){
         },
         body: JSON.stringify({
             // question form values
-            
+            question_id : document.getElementById('question-id').value,
             question_text : document.getElementById('question-text').value,  
-            
+            subtopic_id : document.getElementById('subtopic-id').value,
+            question_name : document.getElementById('question-name').value,
+            question_type_id : document.getElementById('question-type-id').value,
             // choice forms
             choices : choices
         })
     })   
     .then(response => response.json())
+    .then(data => {
+        if (data.success){
+            console.log('success');
+        }else{
+            // errors
+            clearMessages();
+            let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
+            edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+        }
+    })
+    .catch(error => console.error('Error', error));
 
 }
 
@@ -1405,10 +1418,12 @@ function selectQuestionToEdit(){
             // Set the hidden question_id field
             //document.getElementById('question_id').value = questionId;
 
-            document.getElementById('topic_name').value = topicName;
-            document.getElementById('subtopic_name').value = subtopicName;
-            document.getElementById('question_name').value = data.question.question_type.name;
-            document.getElementById('question_text').value = data.question.text;
+            document.getElementById('topic-name').value = topicName;
+            document.getElementById('subtopic-name').value = subtopicName;
+            document.getElementById('subtopic-id').value = subtopicId;
+            document.getElementById('question-name').value = data.question.question_type.name;
+            document.getElementById('question-text').value = data.question.text;
+            document.getElementById('question-type-id').value = data.question.question_type.id;
 
             // iterate over the choice forms array and prepopulate the blank choice forms
             data.choices.forEach((choice, index) => {

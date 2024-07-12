@@ -331,11 +331,11 @@ class EditAllQuestionsForm(forms.ModelForm):
 
 class EditQuestionTextForm(forms.Form):
     topic = forms.CharField(label='Topic', max_length=30, 
-            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'topic_name', 'disabled': True}))
+            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'topic-name', 'disabled': True}))
     subtopic = forms.CharField(label='Subtopic', max_length=30, 
-            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'subtopic_name', 'disabled': True}))
+            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'subtopic-name', 'disabled': True}))
     question_type = forms.CharField(label='Question Type', max_length=25, 
-            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'question_name', 'disabled': True}))
+            widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'question-name', 'disabled': True}))
     text = forms.CharField(label='Question', 
-            widget=forms.Textarea(attrs={'rows':3, 'class': 'form-control', 'id': 'question_text'}))
+            widget=forms.Textarea(attrs={'rows':3, 'class': 'form-control', 'id': 'question-text'}))
 

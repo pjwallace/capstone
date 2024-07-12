@@ -12,6 +12,8 @@ from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopi
 from .forms import RenameSubtopicForm, AddQuestionForm, AddChoiceForm, EditQuestionForm, EditAllQuestionsForm
 from .forms import EditQuestionTextForm
 
+from .validation import validate_question_and_choices
+
 def management_portal(request): 
     # load topics for sidebar
     topics = Topic.objects.all()
@@ -363,7 +365,7 @@ def add_question_and_choices(request):
         except Subtopic.DoesNotExist:
             return JsonResponse({"success": False, 
                 "messages": [{"message": "Invalid subtopic selected.", "tags": "danger"}]}, status=400)
-        
+                
         # Make sure the question type exists
         try:
             question_type = QuestionType.objects.get(id=question_type_id)
@@ -373,20 +375,29 @@ def add_question_and_choices(request):
             return JsonResponse({"success": False, 
                 "messages": [{"message": "Invalid question type selected.", "tags": "danger"}]}, status=400)
         
-        # Subtopic/question text must be unique
-        if Question.objects.filter(subtopic=subtopic, text=question_text).exists():
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "This subtopic/question combination already exists.", "tags": "danger"}]}, status=400)
-
-        # Question can't be blank. Also must have a minimun length of 10
+            # Question can't be blank. 
         if not question_text:
             return JsonResponse({"success": False, 
                 "messages": [{"message": "Please enter a question.", "tags": "danger"}]}, status=400)
-        
+
+        # Question must be at least 10 characters long
         if len(question_text) < 10:
             return JsonResponse({"success": False, 
-                "messages": [{"message": "This question is too short. Please provide more details.", "tags": "danger"}]}, status=400)
-        
+                "messages": [{"message": "This question is too short. Please provide more details", "tags": "danger"}]}, 
+                    status=400)
+
+        # Question can't be greater than 255 characters
+        if len(question_text) > 255:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "This question is too long. Please shorten it.", "tags": "danger"}]},
+                     status=400)     
+            
+        # Subtopic/question text must be unique
+        if Question.objects.filter(subtopic=subtopic, text=question_text).exists():
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "This subtopic/question combination already exists.", "tags": "danger"}]}, 
+                    status=400)
+                                      
         # validate the choice forms           
 
         # every question type must have at least 2 choices
@@ -597,6 +608,7 @@ def load_questions(request, subtopic_id):
         return JsonResponse({"success": False,
                 "messages": [{"message": "An error occurred while retrieving questions.", "tags": "info"}]})
     
+@login_required(login_url='login')
 def get_all_questions_to_edit(request):
     if request.method == 'GET':
         edit_all_questions_form = EditAllQuestionsForm()
@@ -629,16 +641,43 @@ def get_subtopic_name(request, pk):
         return JsonResponse({"success": False,  
                 "messages": [{"message": "Subtopic Name not found.", "tags": "danger"}]}, status=404 )
     
-def edit_question_and_choices():
-    pass
-    
+@login_required(login_url='login')
+def edit_question_and_choices(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        question_id = int(data.get("question_id", ""))
+        question_text = data.get("question_text", "").strip()
+        choice_forms = data.get("choices", []) 
+        subtopic_id = int(data.get("subtopic_id", ""))
+        question_name = data.get("question_name", "")
+        question_type_id = data.get("question_type_id", "")
 
+        # Load the original question and choices from the database
+        original_question = Question.objects.get(id=question_id)
+        original_choices = list(Choice.objects.filter(question=original_question))
 
+        original_choices_text = [] 
+        new_choices = []  
+        
+        # check if additional answer choices have been included
+        if len(choice_forms) > len(original_choices):
+                
+            for original_choice in original_choices:
+                original_choices_text.append(original_choice.text)
 
-            
+            for choice_form in choice_forms:
+                if choice_form['text'] not in original_choices_text:
+                    new_choices.append(choice_form)
+        print(new_choices)
 
-     
-            
-
-
-
+        # Call the validation function
+        errors = validate_question_and_choices(subtopic_id, question_type_id, question_text, choice_forms, original_question, original_choices)
+       
+        if errors:
+            return JsonResponse({"success": False, "messages": errors}, status=400)
+        else:
+            # update the question table
+            # update answer choices table
+            # add additional answer choices (if any)
+            return JsonResponse({"success": True})   
+        
