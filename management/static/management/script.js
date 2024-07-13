@@ -1249,12 +1249,20 @@ function editQuestionAndChoices(){
     const choiceForms = document.querySelectorAll('.choice-form');
 
     choiceForms.forEach((choiceForm, index) => {
+        let choiceIdInput = choiceForm.querySelector(`[name="choice-id-${index + 1}"]`);
         let choiceTextInput = choiceForm.querySelector(`[name="${index}-text"]`);
         let isCorrectInput = choiceForm.querySelector(`[name="${index}-is_correct"]`);
-                
+
+        let choiceId = '';
+        if (choiceIdInput){
+            choiceId = choiceIdInput.value;
+        }
+         
+              
         let choiceText = choiceTextInput.value;
         let isCorrect = isCorrectInput.checked;
         choices.push({
+            'id': choiceId,
             'text': choiceText,
             'is_correct': isCorrect
         });       
@@ -1279,16 +1287,37 @@ function editQuestionAndChoices(){
     })   
     .then(response => response.json())
     .then(data => {
+        clearMessages();
+        let messageContainer = document.querySelector('.error-msg');
+        //document.getElementById('add-topic-form').reset(); // reset the form
         if (data.success){
             console.log('success');
+            if (data.messages){
+                data.messages.forEach(message =>{
+                    let msgDiv = document.createElement('div');
+                    msgDiv.className = `alert alert-${message.tags}`;
+                    msgDiv.role = 'alert';
+                    msgDiv.textContent = message.message;
+                    messageContainer.appendChild(msgDiv);
+                });
+            }
+                       
         }else{
             // errors
-            clearMessages();
-            let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
-            edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            console.error('Form submission failed:', data.messages);
+            if (data.messages){
+                data.messages.forEach(message =>{
+                    let msgDiv = document.createElement('div');
+                    msgDiv.className = `alert alert-${message.tags}`;
+                    msgDiv.role = 'alert';
+                    msgDiv.textContent = message.message;
+                    messageContainer.appendChild(msgDiv);
+                });
+            }
+            
         }
     })
-    .catch(error => console.error('Error', error));
+    .catch(error => console.error('Error submitting the form', error));
 
 }
 
