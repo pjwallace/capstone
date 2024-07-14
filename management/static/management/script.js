@@ -172,7 +172,7 @@ function loadSuptopicsForTopic(){
 
                             editQuestionOption.addEventListener('click', function(e) {
                                 e.preventDefault();
-                                editQuestion(subtopic.id);
+                                getQuestionToEditDynamically();
                             });
                             
                             sidebarMenu.appendChild(addQuestionOption);
@@ -1289,18 +1289,10 @@ function editQuestionAndChoices(){
     .then(data => {
         clearMessages();
         let messageContainer = document.querySelector('.error-msg');
-        //document.getElementById('add-topic-form').reset(); // reset the form
+        
         if (data.success){
             console.log('success');
-            if (data.messages){
-                data.messages.forEach(message =>{
-                    let msgDiv = document.createElement('div');
-                    msgDiv.className = `alert alert-${message.tags}`;
-                    msgDiv.role = 'alert';
-                    msgDiv.textContent = message.message;
-                    messageContainer.appendChild(msgDiv);
-                });
-            }
+            getQuestionToEditDynamically(data.messages);
                        
         }else{
             // errors
@@ -1319,6 +1311,38 @@ function editQuestionAndChoices(){
     })
     .catch(error => console.error('Error submitting the form', error));
 
+}
+
+function getQuestionToEditDynamically(messages=[]){
+    const route = `/management/portal/get_question_to_edit_dynamically`;
+
+    fetch(route)
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        if (data.success){
+            const managementContainer = document.getElementById('management-container');
+            managementContainer.innerHTML = '';
+            managementContainer.innerHTML = data.edit_question_form_html;
+
+            let messageContainer = document.querySelector('.error-msg');
+            if (messages){
+                messages.forEach(message =>{
+                    let msgDiv = document.createElement('div');
+                    msgDiv.className = `alert alert-${message.tags}`;
+                    msgDiv.role = 'alert';
+                    msgDiv.textContent = message.message;
+                    messageContainer.appendChild(msgDiv);
+                });
+            }
+
+            // load the edit question form
+            selectTopicForQuestionToEdit();
+            
+        }
+    })
+    .catch(error => console.error('Error loading the form', error));
+    
 }
 
 function selectTopicForAllQuestionsToEdit(){

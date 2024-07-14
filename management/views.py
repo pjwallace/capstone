@@ -543,6 +543,17 @@ def get_question_to_edit(request):
         })
     
 @login_required(login_url='login')    
+def get_question_to_edit_dynamically(request):
+    if request.method == 'GET':
+        edit_question_form = EditQuestionForm()
+        context = {'edit_question_form': edit_question_form}
+        edit_question_form_html = render_to_string('management/select_question_to_edit_dynamically.html',
+            context, request=request)
+        
+        return JsonResponse({"success": True, 'edit_question_form_html': edit_question_form_html})
+
+    
+@login_required(login_url='login')    
 def load_question_to_edit(request, question_id):
     '''
         This function takes the selected question as a parameter.
@@ -727,8 +738,8 @@ def edit_question_and_choices(request):
                 errors.append({"message": "An error occurred while saving this form. Please try again.", "tags": "danger"})
                 
             if errors:
-                return JsonResponse({"success": False, "messages": errors}, status=500)
-        print(success_msg)   
+                return JsonResponse({"success": False, "messages": errors})
+           
         return JsonResponse({"success": True, "messages": success_msg})
                 
         
