@@ -39,10 +39,15 @@ document.addEventListener('DOMContentLoaded', function(){
                 selectQuestionToEdit();
             }
 
-            // submit edited question and choiced
+            // submit edited question and choices
             if (e.target.id === 'edit-question-and-choices-form'){
                 editQuestionAndChoices();
             }
+
+            // load form to select topic/subtopic for question review/edit
+            //if (e.target.id === 'get-all-questions-form'){
+            //    getAllQuestionsToEdit();
+            //}
         }
     });
 
@@ -1346,8 +1351,8 @@ function getQuestionToEditDynamically(messages=[]){
 }
 
 function selectTopicForAllQuestionsToEdit(){
-    const topicMenu = document.getElementById('topic-for-edit-all-questions');
-    const subtopicMenu = document.getElementById('subtopic-for-edit-all_questions');
+    const topicMenu = document.getElementById('topic-for-get-all-questions');
+    const subtopicMenu = document.getElementById('subtopic-for-get-all-questions');
     
     if (topicMenu){
         // must be at least one valid topic
@@ -1398,7 +1403,7 @@ function getSubtopicsForAllQuestionsToEdit(selectedTopicId, subtopicMenu){
             const validSubtopicOptions = subtopicMenu.options.length > 1;
 
             if (!validSubtopicOptions){
-                let edit_all_questions_msg = document.getElementById('edit-all-questions-msg');
+                let edit_all_questions_msg = document.getElementById('get-all-questions-msg');
                 if (edit_all_questions_msg){
                     edit_all_questions_msg.innerHTML = '';
                 }
@@ -1408,7 +1413,7 @@ function getSubtopicsForAllQuestionsToEdit(selectedTopicId, subtopicMenu){
             }
                 
         }else{
-            let edit_all_questions_msg = document.getElementById('edit-all-questions-msg');
+            let edit_all_questions_msg = document.getElementById('get-all-questions-msg');
             if (edit_all_questions_msg){
                 edit_all_questions_msg.innerHTML = '';
             }
@@ -1468,9 +1473,6 @@ function selectQuestionToEdit(){
             const managementContainer = document.getElementById('management-container');
             managementContainer.innerHTML = data.edit_question_and_choices_form_html;
 
-            // Set the hidden question_id field
-            //document.getElementById('question_id').value = questionId;
-
             document.getElementById('topic-name').value = topicName;
             document.getElementById('subtopic-name').value = subtopicName;
             document.getElementById('subtopic-id').value = subtopicId;
@@ -1505,6 +1507,35 @@ function selectQuestionToEdit(){
     }) 
     .catch(error => console.error('Error loading the form:', error));
 }
+/*
+function getAllQuestionsToEdit(){
+    //retrieve form values
+    topicId = document.getElementById('topic-for-get-all-questions').value;
+    subtopicId = document.getElementById('subtopic-for-get-all-questions').value;
+
+    // retrieve all questions for topic/subtopic
+    const route = `/management/portal/load_questions/${subtopicId}`;
+
+    fetch(route)
+    .then(response => response.json())
+    .then(data =>{
+        if (data.success){
+            console.log('success');
+            console.log(data.questions);
+            data.questions.forEach(question =>{
+                console.log(question.id);
+            })
+
+        }else{
+            console.log('failure');
+
+        }
+    })
+    .catch(error => console.error('Error loading the form:', error));
+       
+}
+*/
+
 
 
 

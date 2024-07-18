@@ -6,10 +6,11 @@ from django.contrib import messages
 import json
 from django.http import JsonResponse
 from django.template.loader import render_to_string
+from django.core.paginator import Paginator
 
 from .models import Topic, Subtopic, Question, QuestionType, Choice, Explanation
 from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopicForm, RenameTopicForm
-from .forms import RenameSubtopicForm, AddQuestionForm, AddChoiceForm, EditQuestionForm, EditAllQuestionsForm
+from .forms import RenameSubtopicForm, AddQuestionForm, AddChoiceForm, EditQuestionForm, GetAllQuestionsForm
 from .forms import EditQuestionTextForm
 
 from .validation import validate_question_and_choices
@@ -630,11 +631,11 @@ def load_questions(request, subtopic_id):
 @login_required(login_url='login')
 def get_all_questions_to_edit(request):
     if request.method == 'GET':
-        edit_all_questions_form = EditAllQuestionsForm()
+        get_all_questions_form = GetAllQuestionsForm()
          # load topics for sidebar
         topics = Topic.objects.all()
-        return render(request, 'management/edit_all_questions.html', { 
-            'edit_all_questions_form' : edit_all_questions_form,
+        return render(request, 'management/get_all_questions.html', { 
+            'get_all_questions_form' : get_all_questions_form,
             'topics' : topics,
         })
 
@@ -661,7 +662,7 @@ def get_subtopic_name(request, pk):
                 "messages": [{"message": "Subtopic Name not found.", "tags": "danger"}]}, status=404 )
     
 @login_required(login_url='login')
-def edit_question_and_choices(request):
+def edit_question_and_choices(request):    
     if request.method == 'POST':
         data = json.loads(request.body)
         question_id = int(data.get("question_id", ""))
@@ -741,5 +742,88 @@ def edit_question_and_choices(request):
                 return JsonResponse({"success": False, "messages": errors})
            
         return JsonResponse({"success": True, "messages": success_msg})
+    
+def edit_all_questions_and_choices(request):
+    
+    if request.method == 'GET':
+        # get topic + subtopic name for information display in the form
+        
+        topic_id = request.GET.get('topic')
+        topic = get_object_or_404(Topic, id=topic_id)
+        topic_name = topic.name
+        subtopic_id = request.GET.get('subtopic')
+        subtopic = get_object_or_404(Subtopic, id=subtopic_id)
+        subtopic_name = subtopic.name
+
+        # load topics for sidebar
+        topics = Topic.objects.all()
+
+        # load all the questions for the topic/subtopic
+        questions = Question.objects.filter(subtopic=subtopic).order_by('id')
+
+        # list to hold all the question/choice forms
+        question_forms = []
+        choice_forms = []
+        
+        for question in questions:
+            initial_data = {
+                'topic': topic_name,
+                'subtopic': subtopic_name,
+                'question_type': question.question_type.name,
+                'text': question.text,
+            }
+
+            edit_question_text_form = EditQuestionTextForm(initial=initial_data)
+
+            choices = Choice.objects.filter(question=question)
+            choices_data = [{"id": choice.id, "text": choice.text, "is_correct": choice.is_correct} for choice in choices]
+
+            #load the answer choice forms
+            edit_choice_forms = [AddChoiceForm(prefix=str(i), instance=choices[i]) for i in range(len(choices_data))] 
+            question_forms.append(edit_question_text_form)
+            choice_forms.append(edit_choice_forms)  
+        
+        print(f'question forms = {question_forms}')
+        print(f'choice forms = {choice_forms}')
+
+        paginator = Paginator(question_forms, 1)  # Display one question per page
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        page_range = pagination(page_obj, paginator)
+
+        context = {
+            #'edit_question_text_form': edit_question_text_form,
+            #'edit_choice_forms': edit_choice_forms,
+            'question_forms': question_forms,
+            'choice_forms': choice_forms,
+            'topics': topics,
+            'page_obj': page_obj,
+            'page_range': page_range
+        }
+
+        return render(request, 'management/edit_all_questions_and_choices.html', context)
+
+    #elif request.method == 'POST':
+
+
+def pagination(page_obj, paginator):
+    # get the page range for the bootstrap html
+
+    # get the page range for the bootstrap html (zero-indexed)
+    index = page_obj.number - 1
+    max_index = len(paginator.page_range) - 1
+
+    # show 3 pages: current page, previous page (when possible), next page (when possible)
+    # calculate the start index and end index for the page range
+    start_index = index - 1 if index > 0 else 0
+    end_index = index + 2 if index < max_index else index + 1
+
+    # adjust the start index and end index if near the end of their ranges
+    if end_index - start_index < 3:
+        start_index = max(0, end_index - 3)
+        end_index = min(start_index + 3, max_index + 1)
+
+    page_range = paginator.page_range[start_index:end_index] 
+    return page_range
                 
         
