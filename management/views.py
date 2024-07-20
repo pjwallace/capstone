@@ -761,42 +761,41 @@ def edit_all_questions_and_choices(request):
         # load all the questions for the topic/subtopic
         questions = Question.objects.filter(subtopic=subtopic).order_by('id')
 
-        # list to hold all the question/choice forms
-        question_forms = []
-        choice_forms = []
-        
-        for question in questions:
-            initial_data = {
-                'topic': topic_name,
-                'subtopic': subtopic_name,
-                'question_type': question.question_type.name,
-                'text': question.text,
-            }
+        if not questions:
+            messages.info(request, "There are no questions for this Topic/Subtopic combination")
+            return redirect("get_all_questions_to_edit")
 
-            edit_question_text_form = EditQuestionTextForm(initial=initial_data)
 
-            choices = Choice.objects.filter(question=question)
-            choices_data = [{"id": choice.id, "text": choice.text, "is_correct": choice.is_correct} for choice in choices]
-
-            #load the answer choice forms
-            edit_choice_forms = [AddChoiceForm(prefix=str(i), instance=choices[i]) for i in range(len(choices_data))] 
-            question_forms.append(edit_question_text_form)
-            choice_forms.append(edit_choice_forms)  
-        
-        print(f'question forms = {question_forms}')
-        print(f'choice forms = {choice_forms}')
-
-        paginator = Paginator(question_forms, 1)  # Display one question per page
+        paginator = Paginator(questions, 1)  # Display one question per page
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         page_range = pagination(page_obj, paginator)
 
+        # Get the current question
+        question = page_obj.object_list[0]
+                
+        
+        initial_data = {
+            'topic': topic_name,
+            'subtopic': subtopic_name,
+            'question_type': question.question_type.name,
+            'text': question.text,
+        }
+
+        edit_question_text_form = EditQuestionTextForm(initial=initial_data)
+
+        choices = Choice.objects.filter(question=question)
+        choices_data = [{"id": choice.id, "text": choice.text, "is_correct": choice.is_correct} for choice in choices]
+
+        #load the answer choice forms
+        edit_choice_forms = [AddChoiceForm(prefix=str(i), instance=choices[i]) for i in range(len(choices_data))]                 
+
         context = {
-            #'edit_question_text_form': edit_question_text_form,
-            #'edit_choice_forms': edit_choice_forms,
-            'question_forms': question_forms,
-            'choice_forms': choice_forms,
+            'edit_question_text_form': edit_question_text_form,
+            'edit_choice_forms': edit_choice_forms,
             'topics': topics,
+            'topic': topic,
+            'subtopic': subtopic,
             'page_obj': page_obj,
             'page_range': page_range
         }

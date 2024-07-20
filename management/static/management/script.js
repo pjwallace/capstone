@@ -73,6 +73,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // select subtopics for edited question
     selectTopicForAllQuestionsToEdit();
+
+    // add another choice form for edit all questions
+    addAnotherChoiceForEditAllQuestions();
         
 }); 
 
@@ -1113,6 +1116,10 @@ function addChoiceToEditForm(){
         console.error('add-choice-btn-edit not found.');
     }
 
+}
+
+function addAnotherChoiceForEditAllQuestions(){
+    addChoiceToEditForm();
 }
 
 function selectTopicForQuestionToEdit(){
