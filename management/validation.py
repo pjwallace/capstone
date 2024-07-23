@@ -50,7 +50,7 @@ def validate_question_and_choices(subtopic_id, question_type_id, question_text, 
 
     # answer choices can't be blank
     if any(len(choice_text.strip()) == 0 for choice_text in choice_texts):
-        errors.append({"message": "Answer choices cannot be empty..", "tags": "danger"})
+        errors.append({"message": "Answer choices cannot be empty.", "tags": "danger"})
         
     # each answer choice must be unique       
     if len(choice_texts) != len(set(choice_texts)): # sets don't have duplicate members
@@ -64,7 +64,7 @@ def validate_question_and_choices(subtopic_id, question_type_id, question_text, 
     
     # validate the is_correct field        
     choice_answers = [choice_form['is_correct'] for choice_form in choice_forms]
-        
+            
     # Each question must have at least one correct answer
     if choice_answers.count(False) == len(choice_answers):
         errors.append({"message": "You haven't chosen a correct answer.", "tags": "danger"})

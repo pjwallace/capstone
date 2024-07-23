@@ -19,14 +19,14 @@
         </div>
 
         <h2>Edit Question and Answer Choices</h2><br>
-
-        
+                
             <form id="edit-all-questions-and-choices-form"  method="post" 
                     action="{% url 'edit_all_questions_and_choices' %}">
                 {% csrf_token %}
                 <input type="hidden" id="question-id" name="question-id" value="{{ page_obj.object_list.0.id }}">
                 <input type="hidden" id="subtopic-id" name="subtopic-id" value="{{ subtopic.id }}">
-                <input type="hidden" id="question-type-id" name="question-type-id" value="">
+                <input type="hidden" id="question-type-id" name="question-type-id" value="{{ question_type_id }}">
+                <input type="hidden" id="question-type" name="question-type" value="{{ question_type }}">
                 <div id="edit-question-container">
                     <div class="edit-question-and-choice-fields">   
                         
@@ -68,9 +68,11 @@
                 </div>
 
                 <div class="btn-group" role="group">
-                    <button class="btn btn-secondary" id="add-choice-btn-edit" type="button" >
-                        Add Another Choice
-                    </button>
+                    {% if question_type != 'True/False' %}
+                        <button class="btn btn-secondary" id="add-choice-btn-edit" type="button" >
+                            Add Another Choice
+                        </button>
+                    {% endif %}
                     
                     <button class="btn btn-primary" id="edit-all-questions-and-choices-btn" type="submit" >
                         Submit Your Changes

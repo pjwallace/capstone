@@ -772,12 +772,11 @@ def edit_all_questions_and_choices(request):
         page_range = pagination(page_obj, paginator)
 
         # Get the current question
-        question = page_obj.object_list[0]
-                
+        question = page_obj.object_list[0]    
         
         initial_data = {
-            'topic': topic_name,
-            'subtopic': subtopic_name,
+            'topic': question.subtopic.topic.name,
+            'subtopic': question.subtopic.name,
             'question_type': question.question_type.name,
             'text': question.text,
         }
@@ -788,7 +787,15 @@ def edit_all_questions_and_choices(request):
         choices_data = [{"id": choice.id, "text": choice.text, "is_correct": choice.is_correct} for choice in choices]
 
         #load the answer choice forms
-        edit_choice_forms = [AddChoiceForm(prefix=str(i), instance=choices[i]) for i in range(len(choices_data))]                 
+        edit_choice_forms = [AddChoiceForm(prefix=str(i), instance=choices[i]) for i in range(len(choices_data))]
+
+        # can't modify the text field for True/False questions
+        if question.question_type.name == 'True/False':
+           
+            edit_choice_forms[0].fields['text'].widget.attrs['value'] = 'True'
+            edit_choice_forms[0].fields['text'].widget.attrs['readonly'] = 'readonly'
+            edit_choice_forms[1].fields['text'].widget.attrs['value'] = 'False'
+            edit_choice_forms[1].fields['text'].widget.attrs['readonly'] = 'readonly'                 
 
         context = {
             'edit_question_text_form': edit_question_text_form,
@@ -796,13 +803,112 @@ def edit_all_questions_and_choices(request):
             'topics': topics,
             'topic': topic,
             'subtopic': subtopic,
+            'question_type': question.question_type.name,
+            'question_type_id': question.question_type.id,
             'page_obj': page_obj,
             'page_range': page_range
         }
-
+       
         return render(request, 'management/edit_all_questions_and_choices.html', context)
 
-    #elif request.method == 'POST':
+    elif request.method == 'POST':
+        # load topics for sidebar
+        topics = Topic.objects.all()
+
+        question_id = request.POST.get('question-id')
+        question_text = request.POST.get('text').strip()
+        subtopic_id = request.POST.get('subtopic-id')
+        
+        subtopic = get_object_or_404(Subtopic, id=subtopic_id)
+        question_type = request.POST.get('question-type')
+        question_type_id = request.POST.get('question-type-id')
+
+        question = get_object_or_404(Question, id=question_id)
+
+
+        # load all the questions for the topic/subtopic
+        questions = Question.objects.filter(subtopic=subtopic).order_by('id')
+        paginator = Paginator(questions, 1)  # Display one question per page
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        page_range = pagination(page_obj, paginator)
+
+        # Initialize the form with POST data and initial data
+        initial_data = {
+            'topic': question.subtopic.topic.name,
+            'subtopic': question.subtopic.name,
+            'question_type': question_type,
+            'text': question_text,
+        }
+        edit_question_text_form = EditQuestionTextForm(request.POST, initial=initial_data)
+
+
+        # load the answer choices into a list for validation and database updating
+        choice_forms = []
+        
+        for key, value in request.POST.items():
+            if key.endswith('-text'):
+                index = key.split('-')[0]
+                choice_id = request.POST.get(f'choice-id-{int(index)+1}', None)
+                choice_text = value
+                is_correct = request.POST.get(f'{index}-is_correct', False) == 'on'
+                choice_forms.append({
+                    'id': choice_id,
+                    'text': choice_text,
+                    'is_correct': is_correct,
+                })
+
+        #load the answer choice forms
+        choices = Choice.objects.filter(question=question)
+        edit_choice_forms = [AddChoiceForm(prefix=str(i), instance=choices[i]) for i in range(len(choice_forms))]
+        # can't modify the text field for True/False questions
+        if question_type == 'True/False':
+           
+            edit_choice_forms[0].fields['text'].widget.attrs['value'] = 'True'
+            edit_choice_forms[0].fields['text'].widget.attrs['readonly'] = 'readonly'
+            edit_choice_forms[1].fields['text'].widget.attrs['value'] = 'False'
+            edit_choice_forms[1].fields['text'].widget.attrs['readonly'] = 'readonly'
+        
+        # Load the original question and choices from the database
+        original_question = Question.objects.get(id=question_id)
+        original_choices = list(Choice.objects.filter(question=original_question))
+                
+        original_choices_text = [] 
+        new_choices = []
+
+        # check if additional answer choices have been included
+        if len(choice_forms) > len(original_choices):
+                
+            for original_choice in original_choices:
+                original_choices_text.append(original_choice.text)
+
+            for choice_form in choice_forms:
+                if choice_form['text'] not in original_choices_text:
+                    new_choices.append(choice_form)
+        
+        # Call the validation function
+        errors = validate_question_and_choices(subtopic_id, question_type_id, question_text, choice_forms, original_question, original_choices) 
+        for error in errors:
+            messages.add_message(request, messages.ERROR, error['message'])
+
+        context = {
+            'edit_question_text_form': edit_question_text_form,
+            'edit_choice_forms': edit_choice_forms,
+            'topic': question.subtopic.topic.name,
+            'subtopic': question.subtopic.name,
+            'question_type': question.question_type.name,
+            'question_type_id': question.question_type.id,
+            'topics': topics,
+            'page_obj': page_obj,
+            'page_range': page_range,
+            
+            
+        }
+        
+        if errors:
+            return render(request, 'management/edit_all_questions_and_choices.html', context)
+
+        return render(request, 'management/edit_all_questions_and_choices.html')
 
 
 def pagination(page_obj, paginator):
