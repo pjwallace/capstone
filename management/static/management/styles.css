@@ -188,8 +188,19 @@
     appearance: menulist;
 }
 
-/* 'grays out read only fields */
+/* grays out read only fields */
 .read-only{
     background-color: #f0f0f0; /* Light gray background */
     cursor: not-allowed;      
+}
+
+.readonly-field {
+    background-color: #e9ecef;  /* Bootstrap gray background */
+    color: #6c757d;            /* Bootstrap gray text */
+    cursor: not-allowed;
+}
+
+#topic-name, #subtopic-name, #question-name{
+    background-color: #f0f0f0; /* Light gray background */
+    cursor: not-allowed;     
 }

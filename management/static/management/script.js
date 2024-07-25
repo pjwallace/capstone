@@ -182,6 +182,18 @@ function loadSuptopicsForTopic(){
                                 e.preventDefault();
                                 getQuestionToEditDynamically();
                             });
+
+                            // display edit/review all questions
+                            const editAllQuestionsOption = document.createElement('a');
+                            editAllQuestionsOption.setAttribute('class', 'dropdown-item');
+                            editAllQuestionsOption.setAttribute('id', 'dropdown-edit-all-questions');
+                            editAllQuestionsOption.setAttribute('href', '#');
+                            editAllQuestionsOption.textContent = 'Edit/Review All Questions';
+
+                            editAllQuestionsOption.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                getAllQuestionsToEditDynamically();
+                            });
                             
                             sidebarMenu.appendChild(addQuestionOption);
                             if (badgeValue > 0){
@@ -1112,8 +1124,6 @@ function addChoiceToEditForm(){
 
         });
 
-    }else{
-        console.error('add-choice-btn-edit not found.');
     }
 
 }

@@ -6,7 +6,7 @@
         {% if page_obj.has_previous %}
             <li class="page-item">
                 <a class="page-link"
-                    href="?page={{ page_obj.previous_page_number }}&topic={{ topic.id }}&subtopic={{ subtopic.id }}">&laquo;
+                    href="?page={{ page_obj.previous_page_number }}&topic={{ topic_id }}&subtopic={{ subtopic_id }}">&laquo;
                 </a>
             </li>
         {% else %}
@@ -25,7 +25,7 @@
             {% else %}
                 <li class="page-item">
                     <a class="page-link"
-                        href = "?page={{ i }}&topic={{ topic.id }}&subtopic={{ subtopic.id }}">{{ i }}
+                        href = "?page={{ i }}&topic={{ topic_id }}&subtopic={{ subtopic_id }}">{{ i }}
                     </a>
                 </li>
             {% endif %}
@@ -34,7 +34,7 @@
         {% if page_obj.has_next %}
             <li class="page-item">
                 <a class="page-link"
-                    href="?page={{ page_obj.next_page_number }}&topic={{ topic.id }}&subtopic={{ subtopic.id }}">&raquo;
+                    href="?page={{ page_obj.next_page_number }}&topic={{ topic_id }}&subtopic={{ subtopic_id }}">&raquo;
                 </a>
             </li>
         {% else %}

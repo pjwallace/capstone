@@ -70,9 +70,13 @@ def validate_question_and_choices(subtopic_id, question_type_id, question_text, 
         errors.append({"message": "You haven't chosen a correct answer.", "tags": "danger"})
     
     # True/False and multiple choice questions can have only one correct answer checked
-    if question_type_name == 'True/False' or question_type_name == 'Multiple Choice':
-        if choice_answers.count(True) != 1:
-            errors.append({"message": f"{question_type_name} questions can only have one correct answer.", "tags": "danger"})
+    #print(question_type_name)
+    #print(choice_answers.count(True))
+    #print(choice_forms)
+    if question_type_name == 'True/False' and choice_answers.count(True) > 1:    
+        errors.append({"message": f"{question_type_name} questions can only have one correct answer.", "tags": "danger"})
+    if question_type_name == 'Multiple Choice' and choice_answers.count(True) > 1:
+        errors.append({"message": f"{question_type_name} questions can only have one correct answer.", "tags": "danger"})
                                
     # Multiple answer questions must have at least 2 correct answers
     if question_type_name == 'Multiple Answer' and choice_answers.count(True) < 2:

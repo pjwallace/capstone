@@ -703,7 +703,6 @@ def edit_question_and_choices(request):
                     # only update if question text has changed
                     success_msg = []
                     
-
                     if original_question.text != question_text:
                         original_question.text = question_text
                         original_question.modified_by = request.user
@@ -788,31 +787,38 @@ def edit_all_questions_and_choices(request):
 
         #load the answer choice forms
         edit_choice_forms = [AddChoiceForm(prefix=str(i), instance=choices[i]) for i in range(len(choices_data))]
+                
 
         # can't modify the text field for True/False questions
         if question.question_type.name == 'True/False':
            
             edit_choice_forms[0].fields['text'].widget.attrs['value'] = 'True'
             edit_choice_forms[0].fields['text'].widget.attrs['readonly'] = 'readonly'
+            edit_choice_forms[0].fields['text'].widget.attrs['class'] = 'form-control readonly-field'
             edit_choice_forms[1].fields['text'].widget.attrs['value'] = 'False'
-            edit_choice_forms[1].fields['text'].widget.attrs['readonly'] = 'readonly'                 
+            edit_choice_forms[1].fields['text'].widget.attrs['readonly'] = 'readonly' 
+            edit_choice_forms[1].fields['text'].widget.attrs['class'] = 'form-control readonly-field'                
 
         context = {
             'edit_question_text_form': edit_question_text_form,
             'edit_choice_forms': edit_choice_forms,
             'topics': topics,
             'topic': topic,
+            'topic_id': topic_id,
             'subtopic': subtopic,
+            'subtopic_id': subtopic.id,
             'question_type': question.question_type.name,
             'question_type_id': question.question_type.id,
             'page_obj': page_obj,
-            'page_range': page_range
+            'page_range': page_range,
+            'page_number': page_number,
         }
        
         return render(request, 'management/edit_all_questions_and_choices.html', context)
 
     elif request.method == 'POST':
         # load topics for sidebar
+        print('POST data:', request.POST)
         topics = Topic.objects.all()
 
         question_id = request.POST.get('question-id')
@@ -825,13 +831,15 @@ def edit_all_questions_and_choices(request):
 
         question = get_object_or_404(Question, id=question_id)
 
-
         # load all the questions for the topic/subtopic
         questions = Question.objects.filter(subtopic=subtopic).order_by('id')
-        paginator = Paginator(questions, 1)  # Display one question per page
-        page_number = request.GET.get('page')
+        
+        # set up pagination
+        paginator = Paginator(questions, 1)  # Display one question per page       
+        page_number = request.POST.get('page')
         page_obj = paginator.get_page(page_number)
         page_range = pagination(page_obj, paginator)
+        
 
         # Initialize the form with POST data and initial data
         initial_data = {
@@ -842,7 +850,6 @@ def edit_all_questions_and_choices(request):
         }
         edit_question_text_form = EditQuestionTextForm(request.POST, initial=initial_data)
 
-
         # load the answer choices into a list for validation and database updating
         choice_forms = []
         
@@ -851,7 +858,7 @@ def edit_all_questions_and_choices(request):
                 index = key.split('-')[0]
                 choice_id = request.POST.get(f'choice-id-{int(index)+1}', None)
                 choice_text = value
-                is_correct = request.POST.get(f'{index}-is_correct', False) == 'on'
+                is_correct = f'{index}-is_correct' in request.POST
                 choice_forms.append({
                     'id': choice_id,
                     'text': choice_text,
@@ -860,14 +867,17 @@ def edit_all_questions_and_choices(request):
 
         #load the answer choice forms
         choices = Choice.objects.filter(question=question)
-        edit_choice_forms = [AddChoiceForm(prefix=str(i), instance=choices[i]) for i in range(len(choice_forms))]
+        edit_choice_forms = [AddChoiceForm(prefix=str(i), initial=choice_forms[i]) for i in range(len(choice_forms))]
+
         # can't modify the text field for True/False questions
         if question_type == 'True/False':
            
             edit_choice_forms[0].fields['text'].widget.attrs['value'] = 'True'
             edit_choice_forms[0].fields['text'].widget.attrs['readonly'] = 'readonly'
+            edit_choice_forms[0].fields['text'].widget.attrs['class'] = 'form-control readonly-field'
             edit_choice_forms[1].fields['text'].widget.attrs['value'] = 'False'
             edit_choice_forms[1].fields['text'].widget.attrs['readonly'] = 'readonly'
+            edit_choice_forms[1].fields['text'].widget.attrs['class'] = 'form-control readonly-field'
         
         # Load the original question and choices from the database
         original_question = Question.objects.get(id=question_id)
@@ -895,25 +905,70 @@ def edit_all_questions_and_choices(request):
             'edit_question_text_form': edit_question_text_form,
             'edit_choice_forms': edit_choice_forms,
             'topic': question.subtopic.topic.name,
+            'topic_id': question.subtopic.topic.id,
             'subtopic': question.subtopic.name,
+            'subtopic_id': question.subtopic.id,
             'question_type': question.question_type.name,
             'question_type_id': question.question_type.id,
             'topics': topics,
             'page_obj': page_obj,
-            'page_range': page_range,
-            
-            
+            'page_range': page_range,       
+            'page_number': page_number,
         }
         
         if errors:
             return render(request, 'management/edit_all_questions_and_choices.html', context)
+        
+        else:
+            success_msgs = [] 
+           
+            # update the data base
+            try:
+                with transaction.atomic(): # if any save operation fails, database will be rolled back
+                    # update the question table
+                    # only update if question text has changed
+                                      
+                    if original_question.text != question_text:
+                        original_question.text = question_text
+                        original_question.modified_by = request.user
+                        original_question.save()
+                        success_msgs.append({"message": "Question text successfully updated", "tags": "success"})
 
-        return render(request, 'management/edit_all_questions_and_choices.html')
+                    # update answer choices table if any changes
+                    modified = 'no'
+                    for choice_form in choice_forms:
+                        if choice_form['id']:
+                            original_choice = Choice.objects.get(id=choice_form['id'])
+                            if choice_form['text'] != original_choice.text or choice_form['is_correct'] != original_choice.is_correct:
+                                original_choice.text = choice_form['text']
+                                original_choice.is_correct = choice_form['is_correct']
+                                original_choice.modified_by = request.user
+                                original_choice.save()
+                                modified = 'yes'      
+                    
+                    if modified == 'yes':
+                        success_msgs.append({"message": "Answer choices successfully updated", "tags": "success"})   
+
+                    # add additional answer choices (if any)
+                    if new_choices:
+                        for new_choice in new_choices:
+                            new_choice = Choice(question=original_question, text=new_choice['text'], is_correct=new_choice['is_correct'],
+                                    created_by=request.user, modified_by=request.user)
+                            new_choice.save()
+                        success_msgs.append({"message": "New choices successfully added", "tags": "success"})
+                            
+
+            except IntegrityError:
+                messages.error(request,  "An error occurred while saving this form. Please try again.")
+        
+        for success_msg in success_msgs:
+            messages.add_message(request, messages.SUCCESS, success_msg['message'])
+
+        return render(request, 'management/edit_all_questions_and_choices.html', context)
 
 
 def pagination(page_obj, paginator):
-    # get the page range for the bootstrap html
-
+    
     # get the page range for the bootstrap html (zero-indexed)
     index = page_obj.number - 1
     max_index = len(paginator.page_range) - 1

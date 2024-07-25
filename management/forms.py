@@ -235,9 +235,10 @@ class AddQuestionForm(forms.ModelForm):
         ])
 
 class AddChoiceForm(forms.ModelForm):
+    id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     class Meta:
         model = Choice
-        fields = ['text', 'is_correct']
+        fields = ['id', 'text', 'is_correct']
         widgets = {
             'text' : forms.TextInput(attrs={
                 'class' : 'form-control',
