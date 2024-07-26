@@ -1,7 +1,7 @@
 
 .sidebar{
     height: calc(100% - 55px);
-    width: 200px;
+    width: 230px;
     position: fixed;
     z-index: 1;
     top: 55px;
@@ -14,7 +14,7 @@
 .sidebar a {
     padding: 6px, 8px, 6px, 16px;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 14px;
     color: #818181;
     display: block;
     border: none;
@@ -84,7 +84,7 @@
 
 #management-container{
     height: 100vh;
-    margin-left: 200px;
+    margin-left: 230px;
     padding: 0px, 10px;
     display: flex;
     justify-content: center;
@@ -95,7 +95,7 @@
 
 .form-container{
     
-    width: 90%;
+    width: 100%;
     margin: auto;
     
     padding-top: 5px;
@@ -170,7 +170,7 @@
 }
 
 
-#topic-name, #rename-topic, #topic-to-delete, #topic-to-choose, #subtopic-to-choose{
+#topic-name-subtopic, #rename-topic, #topic-to-delete, #topic-to-choose, #subtopic-to-choose{
     -webkit-appearance: menulist; /* Safari and Chrome */
     -moz-appearance: menulist; /* Firefox */
     appearance: menulist;

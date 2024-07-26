@@ -264,7 +264,9 @@ function addQuestion(topicId, subtopic_id){
             getSubtopics(topicId, subtopicMenu, function(){
                 // subtopic menu won't be initialized until the menu has finished loading
                 subtopicMenu.value = subtopic_id;
-            });           
+            });
+            selectQuestionType(); 
+            addAnotherChoice();          
 
         }else{
             console.error('Failed to load the form.');
@@ -491,7 +493,7 @@ function addSubtopic(){
             'X-CSRFToken': csrftoken,
         },
         body: JSON.stringify({
-            topic : document.getElementById('topic-name').value,
+            topic : document.getElementById('topic-name-subtopic').value,
             name : document.getElementById('new-subtopic').value,
                 
         })
@@ -515,7 +517,7 @@ function addSubtopic(){
                 // enable the subtopics container and display the up caret
                 subtopicsContainer.style.display = 'block'; 
                 upIcon.style.display = 'block'; 
-                downIcon.style.display = 'none';                
+                //downIcon.style.display = 'none';                
             }
 
             const subtopicATag = document.createElement('a');
@@ -973,6 +975,14 @@ function selectQuestionType(){
                             document.getElementById('id_3-text').disabled = true;
                             document.getElementById('id_3-is_correct').disabled = true;
                         }
+                        if (document.getElementById('id_4-text')) {
+                            document.getElementById('id_4-text').disabled = true;
+                            document.getElementById('id_4-is_correct').disabled = true;
+                        }
+                        if (document.getElementById('id_5-text')) {
+                            document.getElementById('id_5-text').disabled = true;
+                            document.getElementById('id_5-is_correct').disabled = true;
+                        }
                         
                         // Hide the add choice button
                         addChoiceButton.style.display = 'none';
@@ -984,7 +994,7 @@ function selectQuestionType(){
                         document.getElementById('id_1-text').value = "";
                         document.getElementById('id_1-text').readOnly = false;
 
-                        // disable the additional choice fields
+                        // enable the additional choice fields
                         if (document.getElementById('id_2-text')) {
                             document.getElementById('id_2-text').disabled = false;
                             document.getElementById('id_2-is_correct').disabled = false;
@@ -992,6 +1002,14 @@ function selectQuestionType(){
                         if (document.getElementById('id_3-text')) {
                             document.getElementById('id_3-text').disabled = false;
                             document.getElementById('id_3-is_correct').disabled = false;
+                        }
+                        if (document.getElementById('id_4-text')) {
+                            document.getElementById('id_4-text').disabled = false;
+                            document.getElementById('id_4-is_correct').disabled = false;
+                        }
+                        if (document.getElementById('id_5-text')) {
+                            document.getElementById('id_5-text').disabled = false;
+                            document.getElementById('id_5-is_correct').disabled = false;
                         }
 
                         // enable the add choice button for the other question types

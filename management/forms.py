@@ -79,7 +79,7 @@ class AddSubtopicForm(forms.ModelForm):
         queryset = Topic.objects.all(),
         widget=forms.Select(attrs={
             'class' : 'form-control',
-            'id' : 'topic-name'
+            'id' : 'topic-name-subtopic'
         }),
         label='Select a Topic'
         
@@ -100,7 +100,7 @@ class AddSubtopicForm(forms.ModelForm):
     def clean_topic(self):
         topic = self.cleaned_data.get('topic')
         if not topic:
-            raise forms.ValidationError("Please select a valid topic.")
+           raise forms.ValidationError("Please select a valid topic.")
         return topic
     
 class RenameSubtopicForm(forms.ModelForm):
