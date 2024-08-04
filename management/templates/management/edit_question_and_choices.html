@@ -21,6 +21,7 @@
         <form id="edit-question-and-choices-form" data-fetch="true" method="post" action="#">
             {% csrf_token %}
             <input type="hidden" id="question-id" name="question-id" value="{{ question_id }}">
+            <input type="hidden" id="question-name" name="question-name" value="{{ question_type }}">
             <input type="hidden" id="subtopic-id" name="subtopic-id" value="">
             <input type="hidden" id="question-type-id" name="question-type-id" value="">
             <div id="edit-question-container">
@@ -64,12 +65,18 @@
             </div>
 
             <div class="btn-group" role="group">
-                <button class="btn btn-secondary" id="add-choice-btn-edit" type="button" >
-                    Add Another Choice
-                </button>
+                {% if question_type != 'True/False' %}
+                    <button class="btn btn-secondary" id="add-choice-btn-edit" type="button" >
+                        Add Another Choice
+                    </button>
+                {% endif %}
                 
                 <button class="btn btn-primary" id="edit-question-and-choices-btn" type="submit" >
-                    Submit Your Changes
+                    Modify This Question
+                </button>
+
+                <button class="btn btn-danger" id="delete-question-btn" type="button" >
+                    Delete This Question
                 </button>
             </div>
 

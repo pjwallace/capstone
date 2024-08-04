@@ -1,5 +1,12 @@
 
 document.addEventListener('DOMContentLoaded', function(){
+    
+    initializePage();       
+}); 
+
+let currentOpenMenu = null; // keeps track of currently open sidebar menu
+
+function initializePage(){
     // load subtopics for the chosen topic in the sidebar
     loadSuptopicsForTopic();
 
@@ -35,21 +42,23 @@ document.addEventListener('DOMContentLoaded', function(){
             }
 
             // edit question and choices
-            if (e.target.id === 'edit-question-form'){
+            if (e.target.id === 'edit-question-form') {
                 selectQuestionToEdit();
+            }
+
+            // submit edited question and choices
+            if (e.target.id === 'edit-question-and-choices-form') {
+                editQuestionAndChoices();
             }
 
             // submit edited question and choices
             if (e.target.id === 'edit-question-and-choices-form'){
                 editQuestionAndChoices();
             }
-
-            // load form to select topic/subtopic for question review/edit
-            //if (e.target.id === 'get-all-questions-form'){
-            //    getAllQuestionsToEdit();
-            //}
-        }
-    });
+        }              
+           
+        });
+       
 
     // delete topic
     setupSelectTopicToDelete();
@@ -76,10 +85,15 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // add another choice form for edit all questions
     addAnotherChoiceForEditAllQuestions();
-        
-}); 
 
-let currentOpenMenu = null; // keeps track of currently open sidebar menu
+    // delete question
+    deleteQuestion();
+
+    // deleteAllQuestions
+    deleteAllQuestions();
+
+
+}
 
 function loadSuptopicsForTopic(){
     // add event listener to each topic in the sidebar
@@ -176,11 +190,11 @@ function loadSuptopicsForTopic(){
                             editQuestionOption.setAttribute('class', 'dropdown-item');
                             editQuestionOption.setAttribute('id', 'dropdown-edit-question');
                             editQuestionOption.setAttribute('href', '#');
-                            editQuestionOption.textContent = 'Edit Question/Choices';
+                            editQuestionOption.textContent = 'Edit/Delete Question';
 
                             editQuestionOption.addEventListener('click', function(e) {
                                 e.preventDefault();
-                                getQuestionToEditDynamically();
+                                getQuestionToEditFromSidebar(topicId, subtopic.id);
                             });
 
                             // display edit/review all questions
@@ -268,6 +282,40 @@ function addQuestion(topicId, subtopic_id){
             selectQuestionType(); 
             addAnotherChoice();          
 
+        }else{
+            console.error('Failed to load the form.');
+        }
+
+    })
+    .catch(error => console.error('Error loading the form:', error));
+}
+
+function getQuestionToEditFromSidebar(topicId, subtopicId, messages=[]){
+    /*
+        This function will load the EditQuestion form dynamically.
+        The topic subtopic, and questions will be preloaded.
+    */
+
+    const route = `/management/portal/get_question_to_edit_dynamically`;
+    fetch(route)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success){
+            // Insert the form HTML into the management container
+            const managementContainer = document.getElementById('management-container');
+            managementContainer.innerHTML = data.edit_question_form_html;
+            
+            // populate the topic and subtopic form fields
+            document.getElementById('topic-for-edit-question').value = topicId;
+            subtopicMenu = document.getElementById('subtopic-for-edit-question');
+            getSubtopics(topicId, subtopicMenu, function(){
+                // subtopic menu won't be initialized until the menu has finished loading
+                subtopicMenu.value = subtopicId;
+                
+            });
+
+            loadQuestionsToEdit(subtopicId);
+            selectTopicForQuestionToEdit();
         }else{
             console.error('Failed to load the form.');
         }
@@ -517,7 +565,7 @@ function addSubtopic(){
                 // enable the subtopics container and display the up caret
                 subtopicsContainer.style.display = 'block'; 
                 upIcon.style.display = 'block'; 
-                //downIcon.style.display = 'none';                
+                downIcon.style.display = 'none';                
             }
 
             const subtopicATag = document.createElement('a');
@@ -593,11 +641,6 @@ function deleteSubtopic(){
     setupSelectSubtopicToDelete();
     setupSubtopicToDeleteButton(); 
 }
-
-function delete_question(){
-    //pass
-}
-
 
 function setupSelectSubtopicToRename(){
     const renameSubtopicButton = document.getElementById('rename-subtopic-btn');
@@ -1034,7 +1077,7 @@ function addAnotherChoice(){
    
     addChoicesContainer = document.getElementById('add-choices-container');
     
-    const addChoiceButton = document.getElementById('add-choice-btn'); 
+    const addChoiceButton = document.getElementById('add-choice-btn');
 
     if (addChoiceButton){
         addChoiceButton.addEventListener('click', function(e){
@@ -1183,7 +1226,6 @@ function selectTopicForQuestionToEdit(){
 function getSubtopicsForQuestionToEdit(selectedTopicId, subtopicMenu){
     // get the subtopics for the chosen topic to populate the subtopics dropdown menu
     const route = `/management/portal/get_subtopics/${selectedTopicId}`;
-    
     fetch(route)
     .then(response => response.json())
     .then(data =>{
@@ -1465,6 +1507,7 @@ function selectQuestionToEdit(){
     subtopicId = document.getElementById('subtopic-for-edit-question').value;
     questionId = document.getElementById('question-to-edit').value;
 
+   
     // retrieve the topic name from the topic id
     let topicName = '';
     const route1 = `/management/portal/get_topic_name/${topicId}`;
@@ -1489,6 +1532,7 @@ function selectQuestionToEdit(){
     .then(data =>{
         if (data.success){
             subtopicName = data.subtopic_name;
+            
         }else{
             // errors
             let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
@@ -1531,7 +1575,8 @@ function selectQuestionToEdit(){
                 document.getElementById('id_1-text').classList.add('read-only');
             }else{
                 addChoiceToEditForm();
-            }           
+            }
+            deleteQuestion();           
             
         }else{
             // errors
@@ -1542,37 +1587,102 @@ function selectQuestionToEdit(){
     }) 
     .catch(error => console.error('Error loading the form:', error));
 }
-/*
-function getAllQuestionsToEdit(){
-    //retrieve form values
-    topicId = document.getElementById('topic-for-get-all-questions').value;
-    subtopicId = document.getElementById('subtopic-for-get-all-questions').value;
 
-    // retrieve all questions for topic/subtopic
-    const route = `/management/portal/load_questions/${subtopicId}`;
+function deleteQuestion(){  
+        
+    const deleteQuestionButton = document.getElementById('delete-question-btn');
+    
+    if (deleteQuestionButton){
+        const questionId = document.getElementById('question-id').value;
+        const route = `/management/portal/delete_question/${questionId}`;
+        deleteQuestionButton.addEventListener('click', function(e){
+            e.preventDefault();
+            
+            const confirmDelete = confirm("Are you sure? This operation can't be undone.");
+            if (!confirmDelete) return;
 
-    fetch(route)
-    .then(response => response.json())
-    .then(data =>{
-        if (data.success){
-            console.log('success');
-            console.log(data.questions);
-            data.questions.forEach(question =>{
-                console.log(question.id);
+            // Retrieve the django CSRF token from the form
+            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+            fetch(route, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({
+                    question_id : questionId,
+                    subtopic_id : document.getElementById('subtopic-id').value,   
+                })
             })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success){
+                    console.log('success');
+                    getQuestionToEditDynamically(data.messages);
 
-        }else{
-            console.log('failure');
+                }else{
+                    // errors
+                    let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
+                    edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+                }
+            })
+            .catch(error => console.error('Deletion failed:', error));
+        })     
 
-        }
-    })
-    .catch(error => console.error('Error loading the form:', error));
-       
+    }
+    
+}  
+
+function deleteAllQuestions(){
+    const deleteAllQuestionsButton = document.getElementById('delete-all-questions-btn');
+    
+    if (deleteAllQuestionsButton){
+        const questionId = document.getElementById('question-id').value;
+        const subtopicId = document.getElementById('subtopic-id').value;
+        const pageNumber = document.getElementById('page').value;
+        const route = `/management/portal/delete_question/${questionId}`;
+
+        deleteAllQuestionsButton.addEventListener('click', function(e){
+            e.preventDefault();
+            
+            const confirmDelete = confirm("Are you sure? This operation can't be undone.");
+            if (!confirmDelete) return;
+
+            // Retrieve the django CSRF token from the form
+            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+            fetch(route, {
+                method: 'DELETE',
+                headers: {
+
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({
+                    question_id : questionId,
+                    subtopic_id : document.getElementById('subtopic-id').value, 
+                    page: pageNumber,  
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success){
+                    console.log('success');
+                    updatePagination(data.new_page_number)
+
+                }else{
+                    // errors
+                    let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
+                    edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+                }
+            })
+            .catch(error => console.error('Deletion failed:', error));
+        })     
+
+    }
+
 }
-*/
-
-
-
 
 // Helper functions
 
@@ -1653,4 +1763,20 @@ function clearMessages(){
         // Clear any existing messages
         messageContainer.innerHTML = '';
     }
+}
+
+function updatePagination(newPageNumber){
+    const topicId = document.getElementById('topic-id').value;
+    const subtopicId = document.getElementById('subtopic-id').value;
+    const pageNumber = newPageNumber || document.getElementById('page').value; // Use new page number if provided;
+    const route = `/management/portal/edit_all_questions_and_choices/?topic=${topicId}&subtopic=${subtopicId}&page=${pageNumber}`;
+
+    fetch(route)
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('edit-all-questions-and-choices-container').innerHTML = html;
+        initializePage(); // Re-initialize the page after loading new content
+    })
+    .catch(error => console.error('Error loading updated content:', error));
+
 }

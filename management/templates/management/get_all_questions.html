@@ -18,7 +18,7 @@
             {% endif %}
         </div>
 
-        <h2>Review/Edit all questions for topic/subtopic</h2><br>
+        <h2>Review/Edit/Delete all questions for topic/subtopic</h2><br>
 
         <form id="get-all-questions-form"  method="get" action="{% url 'edit_all_questions_and_choices' %}">
             {% csrf_token %}
@@ -26,7 +26,7 @@
 
                         
             <button class="btn btn-primary" id="get-edit-all-questions-btn" type="submit" >
-                Review/Edit All Questions
+                Review/Edit/Delete All Questions
             </button>
            
         </form>

@@ -279,7 +279,7 @@ class EditQuestionForm(forms.ModelForm):
             'class' : 'form-control',
             'id' : 'question-to-edit'
         }),
-        label='Select a Question to edit'
+        label='Select a Question to edit or delete'
     )
 
     class Meta:

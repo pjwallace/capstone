@@ -535,9 +535,12 @@ def get_question_type_name(request, pk):
 def get_question_to_edit(request):
     
     if request.method == 'GET':
+        
         edit_question_form = EditQuestionForm()
+
          # load topics for sidebar
         topics = Topic.objects.all()
+
         return render(request, 'management/select_question_to_edit.html', { 
             'edit_question_form' : edit_question_form,
             'topics' : topics,
@@ -603,7 +606,8 @@ def load_question_to_edit(request, question_id):
         context = {
         'edit_question_text_form': edit_question_text_form,
         'edit_choice_forms': edit_choice_forms,
-        'question_id': question_id
+        'question_id': question_id,
+        'question_type': question.question_type.name
         }
         
         edit_question_and_choices_form_html = render_to_string('management/edit_question_and_choices.html', 
@@ -741,7 +745,8 @@ def edit_question_and_choices(request):
                 return JsonResponse({"success": False, "messages": errors})
            
         return JsonResponse({"success": True, "messages": success_msg})
-    
+
+@login_required(login_url='login')
 def edit_all_questions_and_choices(request):
     
     if request.method == 'GET':
@@ -818,7 +823,6 @@ def edit_all_questions_and_choices(request):
 
     elif request.method == 'POST':
         # load topics for sidebar
-        print('POST data:', request.POST)
         topics = Topic.objects.all()
 
         question_id = request.POST.get('question-id')
@@ -966,7 +970,36 @@ def edit_all_questions_and_choices(request):
 
         return render(request, 'management/edit_all_questions_and_choices.html', context)
 
+@login_required(login_url='login')    
+def delete_question(request, question_id):
+    data = json.loads(request.body)
+    subtopic_id = data.get('subtopic-id')
+    #page_number = int(data.get('page'))
+   
+    if request.method == 'DELETE':
+        try:
+            question = Question.objects.get(pk=question_id)
+        except Question.DoesNotExist:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "Question does not exist.", "tags": "danger"}]}, status=404)
+     
+        try:
+            question.delete()
+            # Check the number of remaining questions after deletion
+            #remaining_questions = Question.objects.filter(subtopic_id=subtopic_id).count()
 
+            # Calculate the new page number if necessary
+            #if page_number > remaining_questions:
+                #page_number = max(1, page_number - 1)
+
+            return JsonResponse({"success": True,
+                "messages": [{"message": "Question and answer choices have been successfully deleted.", "tags": "success"}]})
+        
+        except Exception as e:
+            # Catch any other exceptions and return a generic error response
+            return JsonResponse({"success": False,
+                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=404)
+            
 def pagination(page_obj, paginator):
     
     # get the page range for the bootstrap html (zero-indexed)
