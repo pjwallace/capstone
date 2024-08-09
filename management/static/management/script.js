@@ -81,16 +81,16 @@ function initializePage(){
     selectTopicForQuestionToEdit();
 
     // select subtopics for edited question
-    selectTopicForAllQuestionsToEdit();
+    //selectTopicForAllQuestionsToEdit();
 
     // add another choice form for edit all questions
-    addAnotherChoiceForEditAllQuestions();
+    //addAnotherChoiceForEditAllQuestions();
 
     // delete question
     deleteQuestion();
 
     // deleteAllQuestions
-    deleteAllQuestions();
+    //deleteAllQuestions();
 
 
 }
@@ -185,6 +185,7 @@ function loadSuptopicsForTopic(){
 
                             // Display edit/review questions menu option if question count > 0
                             let badgeValue = parseInt(badge.textContent, 10);
+
                             
                             const editQuestionOption = document.createElement('a');
                             editQuestionOption.setAttribute('class', 'dropdown-item');
@@ -196,7 +197,7 @@ function loadSuptopicsForTopic(){
                                 e.preventDefault();
                                 getQuestionToEditFromSidebar(topicId, subtopic.id);
                             });
-
+                            /*
                             // display edit/review all questions
                             const editAllQuestionsOption = document.createElement('a');
                             editAllQuestionsOption.setAttribute('class', 'dropdown-item');
@@ -206,14 +207,16 @@ function loadSuptopicsForTopic(){
 
                             editAllQuestionsOption.addEventListener('click', function(e) {
                                 e.preventDefault();
-                                getAllQuestionsToEditDynamically();
+                                getAllQuestionsToEditFromSidebar(topicId, subtopic.id);
                             });
+                            */
                             
                             sidebarMenu.appendChild(addQuestionOption);
+                            
                             if (badgeValue > 0){
                                 sidebarMenu.appendChild(editQuestionOption);
-                            }
-                            //sidebarMenu.appendChild(deleteQuestionOption);
+                                //sidebarMenu.appendChild(editAllQuestionsOption);
+                            }                           
 
                             // Append the menu to the subtopic link
                             subtopicATag.appendChild(sidebarMenu);
@@ -279,6 +282,7 @@ function addQuestion(topicId, subtopic_id){
                 // subtopic menu won't be initialized until the menu has finished loading
                 subtopicMenu.value = subtopic_id;
             });
+            SelectSubtopicsForQuestion();
             selectQuestionType(); 
             addAnotherChoice();          
 
@@ -322,6 +326,10 @@ function getQuestionToEditFromSidebar(topicId, subtopicId, messages=[]){
 
     })
     .catch(error => console.error('Error loading the form:', error));
+}
+
+function getAllQuestionsToEditFromSidebar(topicId, subtopicId){
+
 }
 
 function addTopic(){
@@ -1375,6 +1383,7 @@ function editQuestionAndChoices(){
         if (data.success){
             console.log('success');
             getQuestionToEditDynamically(data.messages);
+            
                        
         }else{
             // errors
@@ -1397,6 +1406,7 @@ function editQuestionAndChoices(){
 
 function getQuestionToEditDynamically(messages=[]){
     const route = `/management/portal/get_question_to_edit_dynamically`;
+    console.log('here at getQuestionToEditDynamiclly');
 
     fetch(route)
     .then(response => response.json())

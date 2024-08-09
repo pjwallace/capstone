@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, transaction, OperationalError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 import json
+import time
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
@@ -14,6 +15,9 @@ from .forms import RenameSubtopicForm, AddQuestionForm, AddChoiceForm, EditQuest
 from .forms import EditQuestionTextForm
 
 from .validation import validate_question_and_choices
+
+MAX_RETRIES = 5
+RETRY_DELAY = 1  # Delay in seconds
 
 def management_portal(request): 
     # load topics for sidebar
@@ -668,82 +672,100 @@ def get_subtopic_name(request, pk):
 @login_required(login_url='login')
 def edit_question_and_choices(request):    
     if request.method == 'POST':
-        data = json.loads(request.body)
-        question_id = int(data.get("question_id", ""))
-        question_text = data.get("question_text", "").strip()
-        choice_forms = data.get("choices", []) 
-        subtopic_id = int(data.get("subtopic_id", ""))
-        question_name = data.get("question_name", "")
-        question_type_id = data.get("question_type_id", "")
+        try:
+            data = json.loads(request.body)
+            question_id = int(data.get("question_id", ""))
+            question_text = data.get("question_text", "").strip()
+            choice_forms = data.get("choices", []) 
+            subtopic_id = int(data.get("subtopic_id", ""))
+            question_name = data.get("question_name", "")
+            question_type_id = data.get("question_type_id", "")
 
-        # Load the original question and choices from the database
-        original_question = Question.objects.get(id=question_id)
-        original_choices = list(Choice.objects.filter(question=original_question))
+            # Load the original question and choices from the database
+            original_question = Question.objects.get(id=question_id)
+            original_choices = list(Choice.objects.filter(question=original_question))
+            
+            original_choices_text = [] 
+            new_choices = [] 
         
-        original_choices_text = [] 
-        new_choices = []  
         
-        # check if additional answer choices have been included
-        if len(choice_forms) > len(original_choices):
-                
-            for original_choice in original_choices:
-                original_choices_text.append(original_choice.text)
-
-            for choice_form in choice_forms:
-                if choice_form['text'] not in original_choices_text:
-                    new_choices.append(choice_form)
-        
-        # Call the validation function
-        errors = validate_question_and_choices(subtopic_id, question_type_id, question_text, choice_forms, original_question, original_choices)
-       
-        if errors:
-            return JsonResponse({"success": False, "messages": errors}, status=400)
-        
-        #after validation, update the database tables
-        else:
-            try:
-                with transaction.atomic(): # if any save operation fails, database will be rolled back
-                    # update the question table
-                    # only update if question text has changed
-                    success_msg = []
+            # check if additional answer choices have been included
+            if len(choice_forms) > len(original_choices):
                     
-                    if original_question.text != question_text:
-                        original_question.text = question_text
-                        original_question.modified_by = request.user
-                        original_question.save()
-                        success_msg.append({"message": "Question text successfully updated", "tags": "success"})
+                for original_choice in original_choices:
+                    original_choices_text.append(original_choice.text)
 
-                    # update answer choices table if any changes
-                    modified = 'no'
-                    for choice_form in choice_forms:
-                        if choice_form['id']:
-
-                            original_choice = Choice.objects.get(id=choice_form['id'])
-                            if choice_form['text'] != original_choice.text or choice_form['is_correct'] != original_choice.is_correct:
-                                original_choice.text = choice_form['text']
-                                original_choice.is_correct = choice_form['is_correct']
-                                original_choice.modified_by = request.user
-                                original_choice.save()
-                                modified = 'yes'      
-                    
-                    if modified == 'yes':
-                        success_msg.append({"message": "Answer choices successfully updated", "tags": "success"})   
-
-                    # add additional answer choices (if any)
-                    if new_choices:
-                        for new_choice in new_choices:
-                            new_choice = Choice(question=original_question, text=new_choice['text'], is_correct=new_choice['is_correct'],
-                                    created_by=request.user, modified_by=request.user)
-                            new_choice.save()
-                        success_msg.append({"message": "New choices successfully added", "tags": "success"})
-                            
-
-            except IntegrityError:
-                errors.append({"message": "An error occurred while saving this form. Please try again.", "tags": "danger"})
-                
+                for choice_form in choice_forms:
+                    if choice_form['text'] not in original_choices_text:
+                        new_choices.append(choice_form)
+        
+            # Call the validation function
+            errors = validate_question_and_choices(subtopic_id, question_type_id, question_text, choice_forms, original_question, original_choices)
+        
             if errors:
-                return JsonResponse({"success": False, "messages": errors})
-           
+                return JsonResponse({"success": False, "messages": errors}, status=400)
+        
+            #after validation, update the database tables
+            else:
+                
+                try:
+                    success_msg = [] 
+                    
+                    for retry in range(MAX_RETRIES):
+                        with transaction.atomic(): # if any save operation fails, database will be rolled back
+                            # update the question table
+                            # only update if question text has changed
+                        
+                            
+                            if original_question.text != question_text:
+                                original_question.text = question_text
+                                original_question.modified_by = request.user
+                                original_question.save()
+                                success_msg.append({"message": "Question text successfully updated", "tags": "success"})
+
+                            # update answer choices table if any changes
+                            modified = 'no'
+                            for choice_form in choice_forms:
+                                if choice_form['id']:
+
+                                    original_choice = Choice.objects.get(id=choice_form['id'])
+                                    if choice_form['text'] != original_choice.text or choice_form['is_correct'] != original_choice.is_correct:
+                                        original_choice.text = choice_form['text']
+                                        original_choice.is_correct = choice_form['is_correct']
+                                        original_choice.modified_by = request.user
+                                        original_choice.save()
+                                        modified = 'yes'      
+                            
+                            if modified == 'yes':
+                                success_msg.append({"message": "Answer choices successfully updated", "tags": "success"})   
+                                print('answer choice updated successfully')
+                            # add additional answer choices (if any)
+                            if new_choices:
+                                for new_choice in new_choices:
+                                    new_choice = Choice(question=original_question, text=new_choice['text'], is_correct=new_choice['is_correct'],
+                                            created_by=request.user, modified_by=request.user)
+                                    new_choice.save()
+                                success_msg.append({"message": "New choices successfully added", "tags": "success"})
+                        break   
+
+                except IntegrityError:
+                    errors.append({"message": "An error occurred while saving this form. Please try again.", "tags": "danger"})
+                    return JsonResponse({"success": False, "messages": errors}, status=500)
+                except OperationalError as e:
+                    if 'database is locked' in str(e):
+                        if retry < MAX_RETRIES - 1:
+                            time.sleep(RETRY_DELAY)  # Wait before retrying
+                        else:
+                            errors.append({"message": f"OperationalError: {str(e)}", "tags": "danger"})
+                            return JsonResponse({"success": False, "messages": errors}, status=500)
+                    else:
+                        errors.append({"message": f"OperationalError: {str(e)}", "tags": "danger"})
+                        return JsonResponse({"success": False, "messages": errors}, status=500)
+                
+        except Exception as e:
+            errors.append({"message": f"An unexpected error occurred: {str(e)}", "tags": "danger"})
+            return JsonResponse({"success": False, "messages": errors}, status=500)    
+        print('returning success response')
         return JsonResponse({"success": True, "messages": success_msg})
 
 @login_required(login_url='login')
