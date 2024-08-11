@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 from .models import Topic, Subtopic, Question, QuestionType, Choice, Explanation
 from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopicForm, RenameTopicForm
 from .forms import RenameSubtopicForm, AddQuestionForm, AddChoiceForm, EditQuestionForm, GetAllQuestionsForm
-from .forms import EditQuestionTextForm
+from .forms import EditQuestionTextForm, AddExplanationForm
 
 from .validation import validate_question_and_choices
 
@@ -1021,6 +1021,46 @@ def delete_question(request, question_id):
             # Catch any other exceptions and return a generic error response
             return JsonResponse({"success": False,
                 "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=404)
+
+@login_required(login_url='login')        
+def add_explanation(request):
+    if request.method == 'GET':
+        add_explanation_form = AddExplanationForm()
+
+         # load topics for sidebar
+        topics = Topic.objects.all()
+
+        return render(request, 'management/add_explanation.html', { 
+            'add_explanation_form' : add_explanation_form,
+            'topics' : topics,
+        })
+    
+    elif request.method == 'POST':
+        data = json.loads(request.body)
+        question_id = data.get('question_id')
+        explanation_text = data.get('explanation_text')
+        
+        try:
+            question = Question.objects.get(pk=question_id)
+            if hasattr(question, 'explanation'):
+                return JsonResponse({"success": False,
+                    "messages": [{"message": "This question already has an explanation.", "tags": "danger"}]}, status=400)
+            else:    
+                explanation = Explanation(question = question, text = explanation_text, 
+                                created_by = request.user, modified_by = request.user)
+                explanation.save()
+
+        except Question.DoesNotExist:
+            return JsonResponse({"success": False,
+                "messages": [{"message": f"Question with id {question_id} does not exist.", "tags": "danger"}]}, status=400)    
+       
+        except Exception as e:
+            return JsonResponse({"success": False,
+                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=400)
+        
+        return JsonResponse({"success": True,
+            "messages": [{"message": "Explanation has been successfully added.", "tags": "success"}]})
+
             
 def pagination(page_obj, paginator):
     

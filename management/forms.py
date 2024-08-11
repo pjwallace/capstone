@@ -340,3 +340,57 @@ class EditQuestionTextForm(forms.Form):
     text = forms.CharField(label='Question', 
             widget=forms.Textarea(attrs={'rows':3, 'class': 'form-control', 'id': 'question-text'}))
 
+class AddExplanationForm(forms.ModelForm):
+    topic = forms.ModelChoiceField(
+        queryset= Topic.objects.all(),
+        widget=forms.Select(attrs={
+            'class' : 'form-control',
+            'id' : 'topic-for-add-explanation'
+        }),
+        label='Select a Topic'     
+    )
+
+    subtopic = forms.ModelChoiceField(
+        queryset = Subtopic.objects.none(),
+        widget=forms.Select(attrs={
+            'class' : 'form-control',
+            'id' : 'subtopic-for-add-explanation'
+        }),
+        label='Select a Subtopic'     
+    )
+
+    question = forms.ModelChoiceField(
+        queryset = Question.objects.none(),
+        widget=forms.Select(attrs={
+            'class' : 'form-control',
+            'id' : 'question-for-add-explanation'
+        }),
+        label='Select a Question'
+    )
+
+    text = forms.CharField(
+        label="",
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'id': 'text-for-add-explanation',
+            'placeholder': 'Explanation',
+            'rows': 5,
+        })
+    )
+
+    class Meta:
+        model = Explanation
+        fields = ['question', 'text']
+
+    def __init__(self, *args, **kwargs):
+        super(AddExplanationForm, self).__init__(*args, **kwargs)
+
+        # Reorder the fields
+        self.fields = OrderedDict([
+            ('topic', self.fields['topic']),
+            ('subtopic', self.fields['subtopic']),
+            ('question', self.fields['question']),
+            ('text', self.fields['text']),
+            
+        ])
+

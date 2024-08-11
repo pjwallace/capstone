@@ -169,6 +169,19 @@
     margin-left: 5px;
 }
 
+#add-explanation-form{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.add-explanation-fields{
+    display: flex;
+    align-items: center; /* Align items vertically centered */
+    gap: 75px; /* Adds space between the fields */
+    margin-left: 5px;
+}
+
 
 #topic-name-subtopic, #rename-topic, #topic-to-delete, #topic-to-choose, #subtopic-to-choose{
     -webkit-appearance: menulist; /* Safari and Chrome */
@@ -186,6 +199,12 @@
     -webkit-appearance: menulist; /* Safari and Chrome */
     -moz-appearance: menulist; /* Firefox */
     appearance: menulist;
+}
+
+#topic-for-add-explanation, #subtopic-for-add-explanation, #question-for-add-explanation{
+    -webkit-appearance: menulist; /* Safari and Chrome */
+    -moz-appearance: menulist; /* Firefox */
+    appearance: menulist;    
 }
 
 /* grays out read only fields */

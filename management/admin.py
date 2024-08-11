@@ -28,6 +28,11 @@ class ChoiceAdmin(admin.ModelAdmin):
     search_fields = ('question', 'text',)
     list_filter = ('question', 'is_correct')
     readonly_fields = ('date_created', 'date_modified')
+
+class ExplanationAdmin(admin.ModelAdmin):
+    list_display = ('question', 'text', 'date_created', 'created_by', 'date_modified', 
+                    'modified_by')
+    readonly_fields = ('date_created', 'date_modified')
     
 
 # Register your models here.
@@ -35,5 +40,5 @@ admin.site.register(Topic, TopicAdmin)
 admin.site.register(Subtopic, SubtopicAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Choice, ChoiceAdmin)
-admin.site.register(Explanation)
+admin.site.register(Explanation, ExplanationAdmin)
 admin.site.register(QuestionType, QuestionTypeAdmin)
