@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 from .models import Topic, Subtopic, Question, QuestionType, Choice, Explanation
 from .forms import AddTopicForm, DeleteTopicForm, AddSubtopicForm, DeleteSubtopicForm, RenameTopicForm
 from .forms import RenameSubtopicForm, AddQuestionForm, AddChoiceForm, EditQuestionForm, GetAllQuestionsForm
-from .forms import EditQuestionTextForm, AddExplanationForm
+from .forms import EditQuestionTextForm, AddExplanationForm, EditExplanationForm
 
 from .validation import validate_question_and_choices
 
@@ -1007,13 +1007,7 @@ def delete_question(request, question_id):
      
         try:
             question.delete()
-            # Check the number of remaining questions after deletion
-            #remaining_questions = Question.objects.filter(subtopic_id=subtopic_id).count()
-
-            # Calculate the new page number if necessary
-            #if page_number > remaining_questions:
-                #page_number = max(1, page_number - 1)
-
+            
             return JsonResponse({"success": True,
                 "messages": [{"message": "Question and answer choices have been successfully deleted.", "tags": "success"}]})
         
@@ -1038,7 +1032,7 @@ def add_explanation(request):
     elif request.method == 'POST':
         data = json.loads(request.body)
         question_id = data.get('question_id')
-        explanation_text = data.get('explanation_text')
+        explanation_text = data.get('explanation_text').strip()
         
         try:
             question = Question.objects.get(pk=question_id)
@@ -1060,6 +1054,55 @@ def add_explanation(request):
         
         return JsonResponse({"success": True,
             "messages": [{"message": "Explanation has been successfully added.", "tags": "success"}]})
+    
+@login_required(login_url='login')     
+def edit_explanation(request):
+    if request.method == 'GET':
+        edit_explanation_form = EditExplanationForm()
+
+         # load topics for sidebar
+        topics = Topic.objects.all()
+
+        return render(request, 'management/edit_explanation.html', { 
+            'edit_explanation_form' : edit_explanation_form,
+            'topics' : topics,
+        })
+    
+    elif request.method == 'POST':
+        data = json.loads(request.body)
+        explanation_id = data.get('explanation_id')
+        explanation_text = data.get('explanation_text').strip()
+        
+        try:
+            explanation = Explanation.objects.get(pk=explanation_id)
+            explanation.text = explanation_text
+            explanation.modified_by = request.user
+            explanation.save()
+
+        except Exception as e:
+            return JsonResponse({"success": False,
+                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=400)
+
+        return JsonResponse({"success": True,
+            "messages": [{"message": "Explanation has been successfully edited.", "tags": "success"}]})
+    
+def get_explanation(request, question_id):
+    question = Question.objects.get(pk=question_id)
+    explanation = Explanation.objects.get(question=question)
+
+    if not explanation:
+        return JsonResponse({"success": False,
+                "messages": [{"message": f"There is no explanation for this question {question_id}.", "tags": "danger"}]}, status=400)  
+
+    else:
+        explanation_text = explanation.text
+        explanation_id = explanation.id
+        
+        return JsonResponse({"success": True, 
+                "explanation_text": explanation_text, "explanation_id": explanation_id})   
+
+def delete_explanation(request, explanation_id):
+    pass
 
             
 def pagination(page_obj, paginator):

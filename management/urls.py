@@ -37,5 +37,8 @@ urlpatterns = [
           name="edit_all_questions_and_choices"),
      path("delete_question/<int:question_id>", views.delete_question, name="delete_question"),
      path("add_explanation", views.add_explanation, name="add_explanation"),
+     path("edit_explanation", views.edit_explanation, name="edit_explanation"),
+     path("get_explanation/<int:question_id>", views.get_explanation, name="get_explanation"),
+     path("delete_explanation/<int:explanation_id>", views.delete_explanation, name="delete_explanation"),
 
 ]

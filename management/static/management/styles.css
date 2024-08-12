@@ -169,13 +169,13 @@
     margin-left: 5px;
 }
 
-#add-explanation-form{
+#add-explanation-form, #edit-explanation-form{
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.add-explanation-fields{
+.add-explanation-fields, .edit-explanation-fields{
     display: flex;
     align-items: center; /* Align items vertically centered */
     gap: 75px; /* Adds space between the fields */
@@ -202,6 +202,12 @@
 }
 
 #topic-for-add-explanation, #subtopic-for-add-explanation, #question-for-add-explanation{
+    -webkit-appearance: menulist; /* Safari and Chrome */
+    -moz-appearance: menulist; /* Firefox */
+    appearance: menulist;    
+}
+
+#topic-for-edit-explanation, #subtopic-for-edit-explanation, #question-for-edit-explanation{
     -webkit-appearance: menulist; /* Safari and Chrome */
     -moz-appearance: menulist; /* Firefox */
     appearance: menulist;    
