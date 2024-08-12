@@ -996,8 +996,7 @@ def edit_all_questions_and_choices(request):
 def delete_question(request, question_id):
     data = json.loads(request.body)
     subtopic_id = data.get('subtopic-id')
-    #page_number = int(data.get('page'))
-   
+       
     if request.method == 'DELETE':
         try:
             question = Question.objects.get(pk=question_id)
@@ -1102,7 +1101,23 @@ def get_explanation(request, question_id):
                 "explanation_text": explanation_text, "explanation_id": explanation_id})   
 
 def delete_explanation(request, explanation_id):
-    pass
+    if request.method == 'DELETE':
+        try:
+            explanation = Explanation.objects.get(pk=explanation_id)
+        except Explanation.DoesNotExist:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "Explanation does not exist.", "tags": "danger"}]}, status=404)
+     
+        try:
+            explanation.delete()
+            
+            return JsonResponse({"success": True,
+                "messages": [{"message": "Explanation has been successfully deleted.", "tags": "success"}]})
+        
+        except Exception as e:
+            # Catch any other exceptions and return a generic error response
+            return JsonResponse({"success": False,
+                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=404)
 
             
 def pagination(page_obj, paginator):

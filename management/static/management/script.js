@@ -2074,16 +2074,21 @@ function editExplanation(){
 function deleteExplanation(){  
         
     const deleteExplanationButton = document.getElementById('delete-explanation-btn');
+    console.log(deleteExplanationButton);
     
     if (deleteExplanationButton){
         const explanationId = document.getElementById('explanation-id').value;
-        const route = `/management/portal/delete_explanation/${explanationId}`;
+        
         deleteExplanationButton.addEventListener('click', function(e){
             e.preventDefault();
-            
+            // Fetch the explanation ID at the time of button click
+            const explanationId = document.getElementById('explanation-id').value;
+            console.log("Explanation ID for deletion:", explanationId);
+                        
             const confirmDelete = confirm("Are you sure? This operation can't be undone.");
             if (!confirmDelete) return;
 
+            const route = `/management/portal/delete_explanation/${explanationId}`;
             // Retrieve the django CSRF token from the form
             var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     
@@ -2101,7 +2106,6 @@ function deleteExplanation(){
             .then(data => {
                 document.getElementById('edit-explanation-form').reset(); // reset the form
                 if (data.success){
-                    console.log('successful explanation deletion');
                     clearMessages();
                     document.getElementById('text-for-edit-explanation').innerHTML = '';
             
