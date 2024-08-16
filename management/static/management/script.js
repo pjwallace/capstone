@@ -2019,13 +2019,9 @@ function getExplanationForQuestion(selectedQuestionId){
             explanationId.value = data.explanation_id;
             
         }else{
+            // errors
             let edit_explanation_msg = document.getElementById('edit-explanation-msg');
-            if (edit_explanation_msg){
-                edit_explanation_msg.innerHTML = '';
-            }
-            clearMessages();
-            displayMessage('There is no explanation for the chosen question', 'info');
-            return;  
+            edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
 
         }
     })
@@ -2081,46 +2077,58 @@ function deleteExplanation(){
         
         deleteExplanationButton.addEventListener('click', function(e){
             e.preventDefault();
-            // Fetch the explanation ID at the time of button click
-            const explanationId = document.getElementById('explanation-id').value;
-            console.log("Explanation ID for deletion:", explanationId);
-                        
-            const confirmDelete = confirm("Are you sure? This operation can't be undone.");
-            if (!confirmDelete) return;
+            //const confirmDelete = confirm("Are you sure? This operation can't be undone.");
+            //if (!confirmDelete) return;
 
-            const route = `/management/portal/delete_explanation/${explanationId}`;
-            // Retrieve the django CSRF token from the form
-            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    
-            fetch(route, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken,
-                },
-                body: JSON.stringify({
-                    explanation_id : explanationId,
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('edit-explanation-form').reset(); // reset the form
-                if (data.success){
-                    clearMessages();
-                    document.getElementById('text-for-edit-explanation').innerHTML = '';
+            // show the confirmation modal
+            let confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'), {});
+            confirmDeleteModal.show();
+
+            // modal delete button logic
+            confirmDeleteButton = document.getElementById('confirmDeleteButton')
+            confirmDeleteButton.addEventListener('click', function(){           
+
+                // Fetch the explanation ID at the time of button click
+                const explanationId = document.getElementById('explanation-id').value;                                  
             
-                    // display success message
-                    let edit_explanation_msg = document.getElementById('edit-explanation-msg');
-                    edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-                    
-                }else{
-                    // errors
-                    let edit_explanation_msg = document.getElementById('edit-explanation-msg');
-                    edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-                }
-            })
-            .catch(error => console.error('Deletion failed:', error));
-        })     
+                const route = `/management/portal/delete_explanation/${explanationId}`;
+                // Retrieve the django CSRF token from the form
+                var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+                fetch(route, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: JSON.stringify({
+                        explanation_id : explanationId,
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('edit-explanation-form').reset(); // reset the form
+                    if (data.success){
+                        clearMessages();
+                        document.getElementById('text-for-edit-explanation').innerHTML = '';
+                
+                        // display success message
+                        let edit_explanation_msg = document.getElementById('edit-explanation-msg');
+                        edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+                        
+                    }else{
+                        // errors
+                        let edit_explanation_msg = document.getElementById('edit-explanation-msg');
+                        edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+                    }
+
+                    // Close the modal
+                    confirmDeleteModal.hide();
+                })
+                .catch(error => console.error('Deletion failed:', error));
+                
+            });
+        });     
 
     }
     

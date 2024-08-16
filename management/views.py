@@ -1087,18 +1087,18 @@ def edit_explanation(request):
     
 def get_explanation(request, question_id):
     question = Question.objects.get(pk=question_id)
-    explanation = Explanation.objects.get(question=question)
-
-    if not explanation:
-        return JsonResponse({"success": False,
-                "messages": [{"message": f"There is no explanation for this question {question_id}.", "tags": "danger"}]}, status=400)  
-
-    else:
+    try:
+        explanation = Explanation.objects.get(question=question)
         explanation_text = explanation.text
         explanation_id = explanation.id
-        
-        return JsonResponse({"success": True, 
-                "explanation_text": explanation_text, "explanation_id": explanation_id})   
+
+    except Explanation.DoesNotExist:
+        return JsonResponse({"success": False,
+                "messages": [{"message": f"There is no explanation for this question {question_id}.", "tags": "danger"}]}, status=400)
+
+            
+    return JsonResponse({"success": True, 
+            "explanation_text": explanation_text, "explanation_id": explanation_id})   
 
 def delete_explanation(request, explanation_id):
     if request.method == 'DELETE':
