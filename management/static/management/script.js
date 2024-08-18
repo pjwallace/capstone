@@ -66,9 +66,8 @@ function initializePage(){
        
 
     // delete topic
-    setupSelectTopicToDelete();
-    setupTopicToDeleteButton(); 
-
+    setupDeleteTopicModal();
+    
     // rename subtopic
     setupSelectSubtopicToRename();
 
@@ -462,6 +461,102 @@ function updateTopicSelectMenu(){
 
 }
 
+function setupDeleteTopicModal(){
+    // form select menu event listener
+    const selectTopicToDelete = document.getElementById('topic-to-delete');
+    const deleteTopicButton = document.getElementById('delete-topic-btn');
+    // instantiate the confirmation modal
+    const confirmDeleteTopicModal = new bootstrap.Modal(document.getElementById('confirm-delete-topic-modal'), {});
+
+    // Check if the delete button exists before setting properties
+    if (!deleteTopicButton) {
+        return;  // Early exit to avoid further errors
+    }   
+        
+    if (selectTopicToDelete){
+        // at least one valid topic available
+        const validOptions = selectTopicToDelete.options.length > 1;
+
+        if (!validOptions) {
+            displayMessage('There are no topics to delete.', 'info');  
+            return;  // No further setup needed if there are no valid topics
+        }else{
+            // Show the modal when the delete button is clicked
+            deleteTopicButton.addEventListener('click', function() {
+                confirmDeleteTopicModal.show();
+            });                        
+            
+        }
+       
+    }else{
+        displayMessage('There are no topics to delete.', 'info');  
+        return;  
+    }
+    // Call deleteTopic and pass the modal instance
+    deleteTopic(confirmDeleteTopicModal);
+
+}
+
+function deleteTopic(confirmDeleteTopicModal){
+    // modal delete button logic
+    const confirmDeleteTopicButton = document.getElementById('confirm-delete-topic-button');
+    
+    confirmDeleteTopicButton.addEventListener('click', function(){           
+        const selectTopicToDelete = document.getElementById('topic-to-delete');
+        const selectedTopicId = selectTopicToDelete.value;                                  
+    
+        const route = `/management/portal/delete_topic/${selectedTopicId}`;
+        // Retrieve the django CSRF token from the form
+        var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        fetch(route, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            //body: JSON.stringify({
+            //    explanation_id : explanationId,
+            //})
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('delete-topic-form').reset(); // reset the form
+            if (data.success){
+                // Remove the deleted topic from the sidebar
+                const topicElement = document.getElementById(`topic-${selectedTopicId}`);
+                const subtopicsContainer = document.getElementById(`subtopicscontainer-${selectedTopicId}`);
+                
+                if (topicElement) {
+                    topicElement.remove();  
+                }
+                
+                if (subtopicsContainer) {
+                    subtopicsContainer.remove();  
+                }
+
+                clearMessages();
+                                
+                // display success message
+                let delete_topic_msg = document.getElementById('delete-topic-msg');
+                delete_topic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+                
+            }else{
+                // errors
+                let delete_topic_msg = document.getElementById('delete-topic-msg');
+                delete_topic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            }
+
+            // Close the modal
+            confirmDeleteTopicModal.hide();
+            
+        })
+        .catch(error => console.error('Deletion failed:', error));
+        
+    });
+
+}
+
 function setupSelectTopicToDelete(){
     // form select menu event listener
     const selectTopicToDelete = document.getElementById('topic-to-delete');
@@ -480,7 +575,7 @@ function setupSelectTopicToDelete(){
         const validOptions = selectTopicToDelete.options.length > 1;
 
         if (!validOptions) {
-            displayMessage('There are no more topics to delete.', 'info');  
+            displayMessage('There are no topics to delete.', 'info');  
             return;  // No further setup needed if there are no valid topics
         }
 
@@ -2070,8 +2165,7 @@ function editExplanation(){
 function deleteExplanation(){  
         
     const deleteExplanationButton = document.getElementById('delete-explanation-btn');
-    console.log(deleteExplanationButton);
-    
+        
     if (deleteExplanationButton){
         const explanationId = document.getElementById('explanation-id').value;
         

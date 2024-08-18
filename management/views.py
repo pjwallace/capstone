@@ -161,24 +161,33 @@ def delete_topic_cancel(request):
 @login_required(login_url='login')
 def delete_topic(request, topic_id):
     
-    if request.method == 'POST':
-        topic = get_object_or_404(Topic, pk=topic_id)
+    if request.method == 'DELETE':
+        try:
+            topic = Topic.objects.get(pk=topic_id)
+        except Topic.DoesNotExist:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "Topic does not exist.", "tags": "danger"}]}, status=400)
             
         try:
-            topic.delete()                
-            
-            messages.success(request, f"{topic} has been successfully deleted.")
-            return redirect('delete_topic_form')
+            topic.delete() 
+            return JsonResponse({"success": True,
+                "messages": [{"message": f"{topic} has been successfully deleted.", "tags": "success"}]})               
+        
+        #messages.success(request, f"{topic} has been successfully deleted.")
+        #return redirect('delete_topic_form')
         
         except Exception as e:
-            
-            messages.error(request, "An error occurred while deleting this topic.")
-            return redirect('delete_topic_form')
+            return JsonResponse({"success": False,
+                "messages": [{"message": f"An error occurred while deleting this topic: {str(e)}", "tags": "danger"}]}, status=400)
+        #messages.error(request, "An error occurred while deleting this topic.")
+        #return redirect('delete_topic_form')
         
     else:
         # Handle non-POST requests 
-        messages.error(request, "Invalid request method for deleting a topic.")
-        return redirect('delete_topic_form')  
+        #messages.error(request, "Invalid request method for deleting a topic.")
+        #return redirect('delete_topic_form') 
+        return JsonResponse({"success": False,
+                "messages": [{"message": "Invalid request method for deleting a topic.", "tags": "danger"}]}, status=400) 
     
 @login_required(login_url='login')  
 def get_topics(request):
@@ -1117,7 +1126,7 @@ def delete_explanation(request, explanation_id):
         except Exception as e:
             # Catch any other exceptions and return a generic error response
             return JsonResponse({"success": False,
-                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=404)
+                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=400)
 
             
 def pagination(page_obj, paginator):
