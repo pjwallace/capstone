@@ -167,25 +167,18 @@ def delete_topic(request, topic_id):
         except Topic.DoesNotExist:
             return JsonResponse({"success": False,  
                 "messages": [{"message": "Topic does not exist.", "tags": "danger"}]}, status=400)
-            
+                  
         try:
             topic.delete() 
             return JsonResponse({"success": True,
                 "messages": [{"message": f"{topic} has been successfully deleted.", "tags": "success"}]})               
-        
-        #messages.success(request, f"{topic} has been successfully deleted.")
-        #return redirect('delete_topic_form')
-        
+                        
         except Exception as e:
             return JsonResponse({"success": False,
                 "messages": [{"message": f"An error occurred while deleting this topic: {str(e)}", "tags": "danger"}]}, status=400)
-        #messages.error(request, "An error occurred while deleting this topic.")
-        #return redirect('delete_topic_form')
-        
+                
     else:
         # Handle non-POST requests 
-        #messages.error(request, "Invalid request method for deleting a topic.")
-        #return redirect('delete_topic_form') 
         return JsonResponse({"success": False,
                 "messages": [{"message": "Invalid request method for deleting a topic.", "tags": "danger"}]}, status=400) 
     
@@ -326,28 +319,26 @@ def delete_subtopic_cancel(request):
 
 @login_required(login_url='login')
 def delete_subtopic(request, subtopic_id):
-    if request.method == 'POST':
-        subtopic = get_object_or_404(Subtopic, pk=subtopic_id)
-
-        # clear old messages
-        storage = messages.get_messages(request)
-        storage.used = True
-            
+    if request.method == 'DELETE':
         try:
-            subtopic.delete()                
-            
-            messages.success(request, f"{subtopic} has been successfully deleted.")
-            return redirect('delete_subtopic_form')
-        
+            subtopic = Subtopic.objects.get(pk=subtopic_id)
+        except Subtopic.DoesNotExist:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "Subopic does not exist.", "tags": "danger"}]}, status=400)
+                  
+        try:
+            subtopic.delete() 
+            return JsonResponse({"success": True,
+                "messages": [{"message": f"{subtopic} has been successfully deleted.", "tags": "success"}]})               
+                        
         except Exception as e:
-            
-            messages.error(request, "An error occurred while deleting this subtopic.")
-            return redirect('delete_subtopic_form')
-        
+            return JsonResponse({"success": False,
+                "messages": [{"message": f"An error occurred while deleting this subtopic: {str(e)}", "tags": "danger"}]}, status=400)
+                
     else:
         # Handle non-POST requests 
-        messages.error(request, "Invalid request method for deleting a subtopic.")
-        return redirect('delete_subtopic_form')
+        return JsonResponse({"success": False,
+                "messages": [{"message": "Invalid request method for deleting a subtopic.", "tags": "danger"}]}, status=400) 
     
 @login_required(login_url='login')
 def add_question_and_choices(request):

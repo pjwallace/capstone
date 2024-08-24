@@ -72,7 +72,7 @@ function initializePage(){
     setupSelectSubtopicToRename();
 
     // delete subtopic
-    deleteSubtopic(); 
+    setupDeleteSubtopicModal(); 
     
     // select subtopics for question
     SelectSubtopicsForQuestion();
@@ -97,10 +97,10 @@ function initializePage(){
     //addAnotherChoiceForEditAllQuestions();
 
     // delete question
-    deleteQuestion();
+    
 
     // delete explanation
-    deleteExplanation();
+    setupDeleteExplanationModal();
 
 }
 
@@ -465,35 +465,40 @@ function setupDeleteTopicModal(){
     // form select menu event listener
     const selectTopicToDelete = document.getElementById('topic-to-delete');
     const deleteTopicButton = document.getElementById('delete-topic-btn');
-    // instantiate the confirmation modal
-    const confirmDeleteTopicModal = new bootstrap.Modal(document.getElementById('confirm-delete-topic-modal'), {});
+    const modalElement = document.getElementById('confirm-delete-topic-modal');
+    
+    if (modalElement){
+        // instantiate the confirmation modal
+        const confirmDeleteTopicModal = new bootstrap.Modal(document.getElementById('confirm-delete-topic-modal'), {});
 
-    // Check if the delete button exists before setting properties
-    if (!deleteTopicButton) {
-        return;  // Early exit to avoid further errors
-    }   
+        // Check if the delete button exists before setting properties
+        if (!deleteTopicButton) {
+            return;  // Early exit to avoid further errors
+        }   
         
-    if (selectTopicToDelete){
-        // at least one valid topic available
-        const validOptions = selectTopicToDelete.options.length > 1;
+        if (selectTopicToDelete){
+            // at least one valid topic available
+            const validOptions = selectTopicToDelete.options.length > 1;
 
-        if (!validOptions) {
-            displayMessage('There are no topics to delete.', 'info');  
-            return;  // No further setup needed if there are no valid topics
-        }else{
-            // Show the modal when the delete button is clicked
-            deleteTopicButton.addEventListener('click', function() {
-                confirmDeleteTopicModal.show();
-            });                        
-            
-        }
+            if (!validOptions) {
+                displayMessage('There are no topics to delete.', 'info');  
+                return;  // No further setup needed if there are no valid topics
+            }else{
+                // Show the modal when the delete button is clicked
+                deleteTopicButton.addEventListener('click', function() {
+                    confirmDeleteTopicModal.show();
+                });                        
+                
+            }
        
-    }else{
-        displayMessage('There are no topics to delete.', 'info');  
-        return;  
+        }else{
+            displayMessage('There are no topics to delete.', 'info');  
+            return;  
+        }
+        // Call deleteTopic and pass the modal instance
+        deleteTopic(confirmDeleteTopicModal);
+
     }
-    // Call deleteTopic and pass the modal instance
-    deleteTopic(confirmDeleteTopicModal);
 
 }
 
@@ -526,7 +531,7 @@ function deleteTopic(confirmDeleteTopicModal){
                 // Remove the deleted topic from the sidebar
                 const topicElement = document.getElementById(`topic-${selectedTopicId}`);
                 const subtopicsContainer = document.getElementById(`subtopicscontainer-${selectedTopicId}`);
-                
+
                 if (topicElement) {
                     topicElement.remove();  
                 }
@@ -542,6 +547,7 @@ function deleteTopic(confirmDeleteTopicModal){
                 delete_topic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
                 
             }else{
+                clearMessages();
                 // errors
                 let delete_topic_msg = document.getElementById('delete-topic-msg');
                 delete_topic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
@@ -556,7 +562,7 @@ function deleteTopic(confirmDeleteTopicModal){
     });
 
 }
-
+/*
 function setupSelectTopicToDelete(){
     // form select menu event listener
     const selectTopicToDelete = document.getElementById('topic-to-delete');
@@ -640,6 +646,7 @@ function displayTopicDeleteConfirmation(topicId){
         })
         .catch(error => console.error('Error loading the confirmation:', error));
 }
+*/
          
 function addSubtopic(){
     const route = `/management/portal/add_subtopic`;
@@ -750,10 +757,6 @@ function renameSubtopic(){
     
 }
 
-function deleteSubtopic(){
-    setupSelectSubtopicToDelete();
-    setupSubtopicToDeleteButton(); 
-}
 
 function setupSelectSubtopicToRename(){
     const renameSubtopicButton = document.getElementById('rename-subtopic-btn');
@@ -830,6 +833,11 @@ function getSubtopicsToRename(selectedTopicId, selectSubtopicToRename){
 
 }
 
+function setupDeleteSubtopicModal(){
+    setupSelectSubtopicToDelete();
+    setupSubtopicToDeleteButton(); 
+}
+
 function setupSelectSubtopicToDelete(){
     const deleteSubtopicButton = document.getElementById('delete-subtopic-btn');
     const selectTopic = document.getElementById('topic-to-choose');
@@ -863,26 +871,10 @@ function setupSelectSubtopicToDelete(){
 
 }
 
-function setupSubtopicToDeleteButton(){
-    const deleteSubtopicButton = document.getElementById('delete-subtopic-btn');
-    
-    // add event listener
-    if (deleteSubtopicButton){
-        deleteSubtopicButton.addEventListener('click', function(e){
-            e.preventDefault();
-            const topicId = this.getAttribute('data-topic-id');
-            const subtopicId = this.getAttribute('data-subtopic-id');
-            displaySubtopicDeleteConfirmation(topicId, subtopicId)
-        })
-        
-    }
-}
-
-
 function getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicButton){
     // get the subtopics for the chosen topic to populate the subtopics dropdown menu
     const route = `/management/portal/get_subtopics/${selectedTopicId}`;
-
+   
     fetch(route)
     .then(response => response.json())
     .then(data => {
@@ -916,8 +908,9 @@ function getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicBut
                         displayMessage('There are no available subtopics for the chosen topic', 'info');
                         return;
                     } else {
-                        deleteSubtopicButton.disabled = false;
                         deleteSubtopicButton.setAttribute('data-subtopic-id', selectedSubtopicId);
+                        console.log(deleteSubtopicButton.getAttribute('data-subtopic-id'));
+
                     }
                 })
             }
@@ -927,6 +920,88 @@ function getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicBut
         }      
 
     })
+}
+
+function setupSubtopicToDeleteButton(){
+    const deleteSubtopicButton = document.getElementById('delete-subtopic-btn');
+    const modalElement = document.getElementById('confirm-delete-subtopic-modal');  
+
+    // Check if the delete button exists before setting properties
+    if (!deleteSubtopicButton) {
+        return;  // Early exit to avoid further errors
+    }       
+    
+    if (modalElement){
+        // instantiate the confirmation modal
+        const confirmDeleteSubtopicModal = new bootstrap.Modal(document.getElementById('confirm-delete-subtopic-modal'), {});
+
+        // add event listener
+        if (deleteSubtopicButton){
+            deleteSubtopicButton.addEventListener('click', function(e){
+                e.preventDefault();
+                confirmDeleteSubtopicModal.show();
+                
+            })
+            
+        }
+        deleteSubtopic(deleteSubtopicButton, confirmDeleteSubtopicModal);
+    }   
+    
+}
+
+function deleteSubtopic(deleteSubtopicButton, confirmDeleteSubtopicModal){
+    // modal delete button logic
+    const confirmDeleteSubtopicButton = document.getElementById('confirm-delete-subtopic-button');
+    if (confirmDeleteSubtopicButton){
+        confirmDeleteSubtopicButton.addEventListener('click', function(){
+            const topicId = deleteSubtopicButton.getAttribute('data-topic-id');
+            const subtopicId = deleteSubtopicButton.getAttribute('data-subtopic-id');
+            
+            const route = `/management/portal/delete_subtopic/${subtopicId}`;
+            // Retrieve the django CSRF token from the form
+            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch(route, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('delete-subtopic-form').reset(); // reset the form
+                if (data.success){
+                    // Remove the deleted subtopic from the sidebar
+                    //const topicElement = document.getElementById(`topic-${selectedTopicId}`);
+                    const subtopicsContainer = document.getElementById(`subtopicscontainer-${topicId}`);
+                    const subtopicElement = document.getElementById(`subtopic-${subtopicId}`);
+                                          
+                    if (subtopicsContainer) {
+                        subtopicElement.remove();  
+                    }
+    
+                    clearMessages();                                   
+                    // display success message
+                    let delete_subtopic_msg = document.getElementById('delete-subtopic-msg');
+                    delete_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+                    
+                }else{
+                    clearMessages();
+                    // errors
+                    let delete_subtopic_msg = document.getElementById('delete-subtopic-msg');
+                    delete_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+                }
+    
+                // Close the modal
+                confirmDeleteSubtopicModal.hide();
+                
+            })
+            .catch(error => console.error('Subtopc deletion failed:', error));
+
+        }) 
+    }
 }
 
 function displaySubtopicDeleteConfirmation(topicId, subtopicId){
@@ -2162,68 +2237,94 @@ function editExplanation(){
     .catch(error => console.error('Error submitting the form', error));
 }
 
-function deleteExplanation(){  
-        
+function setupDeleteExplanationModal(){
+    const selectExplanationToDelete = document.getElementById('text-for-edit-explanation');
     const deleteExplanationButton = document.getElementById('delete-explanation-btn');
-        
-    if (deleteExplanationButton){
-        const explanationId = document.getElementById('explanation-id').value;
-        
-        deleteExplanationButton.addEventListener('click', function(e){
-            e.preventDefault();
-            //const confirmDelete = confirm("Are you sure? This operation can't be undone.");
-            //if (!confirmDelete) return;
+    const modalElement = document.getElementById('confirm-delete-explanation-modal');
+    console.log(deleteExplanationButton);
 
-            // show the confirmation modal
-            let confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'), {});
-            confirmDeleteModal.show();
+    if (!selectExplanationToDelete){
+        displayMessage('There is no explanation for this question.', 'info');  
+        return;  // No further setup needed if there is no explanation               
+    } 
 
-            // modal delete button logic
-            confirmDeleteButton = document.getElementById('confirmDeleteButton')
-            confirmDeleteButton.addEventListener('click', function(){           
+    // Check if the delete button exists before setting properties
+    if (!deleteExplanationButton) {
+        return;  // Early exit to avoid further errors
+    }  
 
-                // Fetch the explanation ID at the time of button click
-                const explanationId = document.getElementById('explanation-id').value;                                  
+    if (modalElement){
+        // instantiate the confirmation modal
+        const confirmDeleteExplanationModal = new bootstrap.Modal(document.getElementById('confirm-delete-explanation-modal'), {});
+                         
+        console.log(modalElement);
+        // Show the modal when the delete button is clicked
+        deleteExplanationButton.addEventListener('click', function() {
             
-                const route = `/management/portal/delete_explanation/${explanationId}`;
-                // Retrieve the django CSRF token from the form
-                var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            confirmDeleteExplanationModal.show();
+            
+        }); 
+        console.log(confirmDeleteExplanationModal);                              
+        deleteExplanation(confirmDeleteExplanationModal);  
+        
+
+    }else {
+        console.log('Modal element not found.');
+    }
+}
+
+
+function deleteExplanation(confirmDeleteExplanationModal){    
+    // modal delete button logic
+    const confirmDeleteExplanationButton = document.getElementById('confirm-delete-explanation-button');
+    console.log(confirmDeleteExplanationModal);   
+    if (confirmDeleteExplanationButton){
+                
+        confirmDeleteExplanationButton.addEventListener('click', function(e){
+            e.preventDefault();           
+            
+            // Fetch the explanation ID at the time of button click
+            const explanationId = document.getElementById('explanation-id').value;                                  
+        
+            const route = `/management/portal/delete_explanation/${explanationId}`;
+            // Retrieve the django CSRF token from the form
+            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     
-                fetch(route, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken,
-                    },
-                    body: JSON.stringify({
-                        explanation_id : explanationId,
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('edit-explanation-form').reset(); // reset the form
-                    if (data.success){
-                        clearMessages();
-                        document.getElementById('text-for-edit-explanation').innerHTML = '';
+            fetch(route, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
                 
-                        // display success message
-                        let edit_explanation_msg = document.getElementById('edit-explanation-msg');
-                        edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-                        
-                    }else{
-                        // errors
-                        let edit_explanation_msg = document.getElementById('edit-explanation-msg');
-                        edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-                    }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('edit-explanation-form').reset(); // reset the form
+                if (data.success){
+                    clearMessages();
+                    document.getElementById('text-for-edit-explanation').innerHTML = '';
+            
+                    // display success message
+                    let edit_explanation_msg = document.getElementById('edit-explanation-msg');
+                    edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+                    
+                }else{
+                    // errors
+                    let edit_explanation_msg = document.getElementById('edit-explanation-msg');
+                    edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+                }
 
-                    // Close the modal
-                    confirmDeleteModal.hide();
-                })
-                .catch(error => console.error('Deletion failed:', error));
+                // Close the modal
+                console.log(confirmDeleteExplanationModal);
+                confirmDeleteExplanationModal.hide();
+            })
+            .catch(error => console.error('Explanation deletion failed:', error));
                 
-            });
-        });     
+        });
 
+    }else {
+        console.log('Delete explanation button not found.');
     }
     
 }  
