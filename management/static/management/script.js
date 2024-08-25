@@ -1003,6 +1003,7 @@ function deleteSubtopic(deleteSubtopicButton, confirmDeleteSubtopicModal){
         }) 
     }
 }
+/*
 
 function displaySubtopicDeleteConfirmation(topicId, subtopicId){
     topicId = parseInt(topicId); 
@@ -1024,6 +1025,7 @@ function displaySubtopicDeleteConfirmation(topicId, subtopicId){
         })
         .catch(error => console.error('Error loading the confirmation:', error));   
 }
+*/
 
 function addQuestionAndChoices(){
     const route = `/management/portal/add_question_and_choices`;
@@ -1765,7 +1767,7 @@ function selectQuestionToEdit(){
             }else{
                 addChoiceToEditForm();
             }
-            deleteQuestion();           
+            setupDeleteQuestionModal();           
             
         }else{
             // errors
@@ -1777,19 +1779,40 @@ function selectQuestionToEdit(){
     .catch(error => console.error('Error loading the form:', error));
 }
 
-function deleteQuestion(){  
-        
-    const deleteQuestionButton = document.getElementById('delete-question-btn');
+function setupDeleteQuestionModal(){
+    const deleteQuestionButton = document.getElementById('delete-question-button');
+    const modalElement = document.getElementById('confirm-delete-question-modal');  
     
-    if (deleteQuestionButton){
+    if (modalElement){
+        // Check if the delete button exists before setting properties
+        if (!deleteQuestionButton) {
+            return;  // Early exit to avoid further errors
+        }  
+
+        // instantiate the confirmation modal
+        const confirmDeleteQuestionModal = new bootstrap.Modal(document.getElementById('confirm-delete-question-modal'), {});
+                         
+        // Show the modal when the delete button is clicked
+        deleteQuestionButton.addEventListener('click', function() {            
+            confirmDeleteQuestionModal.show();           
+        }); 
+                                      
+        deleteQuestion(confirmDeleteQuestionModal);
+
+    }
+}
+
+function deleteQuestion(confirmDeleteQuestionModal){  
+        
+    // modal delete button logic
+    const confirmDeleteQuestionButton = document.getElementById('confirm-delete-question-button');
+    
+    if (confirmDeleteQuestionButton){
         const questionId = document.getElementById('question-id').value;
         const route = `/management/portal/delete_question/${questionId}`;
-        deleteQuestionButton.addEventListener('click', function(e){
+        confirmDeleteQuestionButton.addEventListener('click', function(e){
             e.preventDefault();
             
-            const confirmDelete = confirm("Are you sure? This operation can't be undone.");
-            if (!confirmDelete) return;
-
             // Retrieve the django CSRF token from the form
             var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     
@@ -1815,8 +1838,10 @@ function deleteQuestion(){
                     let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
                     edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
                 }
+                // Close the modal
+                confirmDeleteQuestionModal.hide();
             })
-            .catch(error => console.error('Deletion failed:', error));
+            .catch(error => console.error('Question deletion failed:', error));
         })     
 
     }
@@ -2023,7 +2048,7 @@ function addExplanation(){
                 
         if (data.success){  
             clearMessages();
-            console.log('Explanation successfully added');
+            
             // display success message
             let add_explanation_msg = document.getElementById('add-explanation-msg');
             add_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
@@ -2241,43 +2266,36 @@ function setupDeleteExplanationModal(){
     const selectExplanationToDelete = document.getElementById('text-for-edit-explanation');
     const deleteExplanationButton = document.getElementById('delete-explanation-btn');
     const modalElement = document.getElementById('confirm-delete-explanation-modal');
-    console.log(deleteExplanationButton);
-
-    if (!selectExplanationToDelete){
-        displayMessage('There is no explanation for this question.', 'info');  
-        return;  // No further setup needed if there is no explanation               
-    } 
-
-    // Check if the delete button exists before setting properties
-    if (!deleteExplanationButton) {
-        return;  // Early exit to avoid further errors
-    }  
 
     if (modalElement){
+        if (!selectExplanationToDelete){
+            displayMessage('There is no explanation for this question.', 'info');  
+            return;  // No further setup needed if there is no explanation               
+        } 
+        // Check if the delete button exists before setting properties
+        if (!deleteExplanationButton) {
+            return;  // Early exit to avoid further errors
+        }  
+
         // instantiate the confirmation modal
         const confirmDeleteExplanationModal = new bootstrap.Modal(document.getElementById('confirm-delete-explanation-modal'), {});
                          
-        console.log(modalElement);
         // Show the modal when the delete button is clicked
-        deleteExplanationButton.addEventListener('click', function() {
-            
-            confirmDeleteExplanationModal.show();
-            
+        deleteExplanationButton.addEventListener('click', function() {            
+            confirmDeleteExplanationModal.show();           
         }); 
-        console.log(confirmDeleteExplanationModal);                              
+                                      
         deleteExplanation(confirmDeleteExplanationModal);  
         
-
-    }else {
-        console.log('Modal element not found.');
     }
+
 }
 
 
 function deleteExplanation(confirmDeleteExplanationModal){    
     // modal delete button logic
     const confirmDeleteExplanationButton = document.getElementById('confirm-delete-explanation-button');
-    console.log(confirmDeleteExplanationModal);   
+       
     if (confirmDeleteExplanationButton){
                 
         confirmDeleteExplanationButton.addEventListener('click', function(e){
@@ -2316,7 +2334,6 @@ function deleteExplanation(confirmDeleteExplanationModal){
                 }
 
                 // Close the modal
-                console.log(confirmDeleteExplanationModal);
                 confirmDeleteExplanationModal.hide();
             })
             .catch(error => console.error('Explanation deletion failed:', error));
