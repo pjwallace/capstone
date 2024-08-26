@@ -90,14 +90,11 @@ function initializePage(){
     // select topic, subtopic, question for editing an explanation
     selectTopicForEditExplanation();
 
-    // select subtopics for edited question
-    //selectTopicForAllQuestionsToEdit();
+    // select topic/subtopic to review all questions
+    selectTopicForAllQuestionsToEdit();
 
     // add another choice form for edit all questions
-    //addAnotherChoiceForEditAllQuestions();
-
-    // delete question
-    
+    addAnotherChoiceForEditAllQuestions();  
 
     // delete explanation
     setupDeleteExplanationModal();
@@ -1592,7 +1589,7 @@ function getQuestionToEditDynamically(messages=[]){
     fetch(route)
     .then(response => response.json())
     .then(data => {
-        console.log(data);
+        
         if (data.success){
             const managementContainer = document.getElementById('management-container');
             managementContainer.innerHTML = '';
@@ -1697,8 +1694,7 @@ function selectQuestionToEdit(){
     topicId = document.getElementById('topic-for-edit-question').value;
     subtopicId = document.getElementById('subtopic-for-edit-question').value;
     questionId = document.getElementById('question-to-edit').value;
-
-   
+  
     // retrieve the topic name from the topic id
     let topicName = '';
     const route1 = `/management/portal/get_topic_name/${topicId}`;
@@ -1780,9 +1776,9 @@ function selectQuestionToEdit(){
 }
 
 function setupDeleteQuestionModal(){
-    const deleteQuestionButton = document.getElementById('delete-question-button');
-    const modalElement = document.getElementById('confirm-delete-question-modal');  
-    
+    const deleteQuestionButton = document.getElementById('delete-question-btn');
+    const modalElement = document.getElementById('confirm-delete-question-modal'); 
+        
     if (modalElement){
         // Check if the delete button exists before setting properties
         if (!deleteQuestionButton) {
@@ -1793,7 +1789,8 @@ function setupDeleteQuestionModal(){
         const confirmDeleteQuestionModal = new bootstrap.Modal(document.getElementById('confirm-delete-question-modal'), {});
                          
         // Show the modal when the delete button is clicked
-        deleteQuestionButton.addEventListener('click', function() {            
+        deleteQuestionButton.addEventListener('click', function() {  
+                      
             confirmDeleteQuestionModal.show();           
         }); 
                                       
@@ -1809,6 +1806,7 @@ function deleteQuestion(confirmDeleteQuestionModal){
     
     if (confirmDeleteQuestionButton){
         const questionId = document.getElementById('question-id').value;
+        const subtopicId = document.getElementById('subtopic-id').value;
         const route = `/management/portal/delete_question/${questionId}`;
         confirmDeleteQuestionButton.addEventListener('click', function(e){
             e.preventDefault();
@@ -1823,14 +1821,19 @@ function deleteQuestion(confirmDeleteQuestionModal){
                     'X-CSRFToken': csrftoken,
                 },
                 body: JSON.stringify({
-                    question_id : questionId,
-                    subtopic_id : document.getElementById('subtopic-id').value,   
+                    subtopic_id : subtopicId, 
+                     
                 })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success){
-                    console.log('success');
+                    
+                    // update sidebar menu with new question count
+                    badge = document.getElementById(`badge-${subtopicId}`);
+                    badge.textContent = data.question_count;
+
+                    // reload the form
                     getQuestionToEditDynamically(data.messages);
 
                 }else{

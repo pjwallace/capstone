@@ -993,10 +993,11 @@ def edit_all_questions_and_choices(request):
         return render(request, 'management/edit_all_questions_and_choices.html', context)
 
 @login_required(login_url='login')    
-def delete_question(request, question_id):
+def delete_question(request, question_id): 
     data = json.loads(request.body)
-    subtopic_id = data.get('subtopic-id')
-       
+    subtopic_id = int(data.get("subtopic_id", ""))
+    subtopic = get_object_or_404(Subtopic, id=subtopic_id)
+
     if request.method == 'DELETE':
         try:
             question = Question.objects.get(pk=question_id)
@@ -1006,8 +1007,11 @@ def delete_question(request, question_id):
      
         try:
             question.delete()
-            
-            return JsonResponse({"success": True,
+
+            # get question count for updating the sidebar menu
+            question_count = subtopic.questions.count()
+
+            return JsonResponse({"success": True, "question_count": question_count,
                 "messages": [{"message": "Question and answer choices have been successfully deleted.", "tags": "success"}]})
         
         except Exception as e:
