@@ -31,7 +31,7 @@ class RenameTopicForm(forms.ModelForm):
     )
 
     new_topic_name = forms.CharField(
-        max_length=30,
+        max_length=40,
         label="",
         widget=forms.TextInput(attrs={
             'class': 'form-control',

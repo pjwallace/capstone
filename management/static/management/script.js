@@ -408,7 +408,7 @@ function renameTopic(){
         
         if (data.success){  
             // update the topic select menu to reflect the name change
-            updateTopicSelectMenu(); 
+            updateTopicSelectMenu('rename-topic'); 
             
             // update the sidebar with the new topic name
             const aTag = document.getElementById(`topic-${data.topic_id}`);
@@ -428,7 +428,7 @@ function renameTopic(){
     .catch(error => console.error('Error loading the form:', error)); 
 }
 
-function updateTopicSelectMenu(){
+function updateTopicSelectMenu(formTopicId){
     const route = `/management/portal/get_topics`;
     fetch(route)
     .then(response => response.json())
@@ -436,7 +436,7 @@ function updateTopicSelectMenu(){
         
         if (data.success){
             
-            const selectTopics = document.getElementById('rename-topic');
+            const selectTopics = document.getElementById(formTopicId);
             // clear the existing subtopic options
             selectTopics.innerHTML = '',  
             
@@ -517,14 +517,14 @@ function deleteTopic(confirmDeleteTopicModal){
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrftoken,
             },
-            //body: JSON.stringify({
-            //    explanation_id : explanationId,
-            //})
         })
         .then(response => response.json())
         .then(data => {
             document.getElementById('delete-topic-form').reset(); // reset the form
             if (data.success){
+                // update the topic select menu to reflect the name change
+                updateTopicSelectMenu('topic-to-delete'); 
+
                 // Remove the deleted topic from the sidebar
                 const topicElement = document.getElementById(`topic-${selectedTopicId}`);
                 const subtopicsContainer = document.getElementById(`subtopicscontainer-${selectedTopicId}`);
@@ -905,9 +905,7 @@ function getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicBut
                         displayMessage('There are no available subtopics for the chosen topic', 'info');
                         return;
                     } else {
-                        deleteSubtopicButton.setAttribute('data-subtopic-id', selectedSubtopicId);
-                        console.log(deleteSubtopicButton.getAttribute('data-subtopic-id'));
-
+                        deleteSubtopicButton.setAttribute('data-subtopic-id', selectedSubtopicId);                        
                     }
                 })
             }
@@ -970,13 +968,14 @@ function deleteSubtopic(deleteSubtopicButton, confirmDeleteSubtopicModal){
             .then(data => {
                 document.getElementById('delete-subtopic-form').reset(); // reset the form
                 if (data.success){
-                    // Remove the deleted subtopic from the sidebar
-                    //const topicElement = document.getElementById(`topic-${selectedTopicId}`);
+                    // Remove the deleted subtopic from the sidebar                   
                     const subtopicsContainer = document.getElementById(`subtopicscontainer-${topicId}`);
                     const subtopicElement = document.getElementById(`subtopic-${subtopicId}`);
-                                          
+                                        
                     if (subtopicsContainer) {
-                        subtopicElement.remove();  
+                        if (subtopicElement){
+                            subtopicElement.remove(); 
+                        }
                     }
     
                     clearMessages();                                   
@@ -995,7 +994,7 @@ function deleteSubtopic(deleteSubtopicButton, confirmDeleteSubtopicModal){
                 confirmDeleteSubtopicModal.hide();
                 
             })
-            .catch(error => console.error('Subtopc deletion failed:', error));
+            .catch(error => console.error('Subtopic deletion failed:', error));
 
         }) 
     }

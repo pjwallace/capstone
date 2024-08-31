@@ -70,7 +70,7 @@ def add_topic(request):
                 "messages": [{"message": "Please enter a valid topic name.", "tags": "danger"}]})
                
         try:
-            topic = Topic(name = name, created_by = request.user)
+            topic = Topic(name = name, created_by = request.user, modified_by=request.user)
             topic.save()
             
         except IntegrityError as e:

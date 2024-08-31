@@ -1,12 +1,17 @@
+body, html {
+    overflow: hidden; /* Prevent scrolling on the body */
+    height: 100%; /* Ensure the body and html elements take up the full viewport height */
+}
 
 .sidebar{
     height: calc(100% - 55px);
-    width: 240px;
+    width: 280px;
     position: fixed;
     z-index: 1;
     top: 55px;
     left: 0;
     background-color: #111;
+    overflow-y: auto;
     overflow-x: hidden;
     padding-top: 20px;
 }
@@ -14,7 +19,7 @@
 .sidebar a {
     padding: 6px, 8px, 6px, 16px;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 12px;
     color: #818181;
     display: block;
     border: none;
@@ -83,21 +88,19 @@
 }
 
 #management-container{
-    height: 100vh;
-    margin-left: 240px;
-    padding: 0px, 10px;
+    height: calc(100vh - 55px); 
+    margin-left: 280px;
+    padding: 10px;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start; 
     flex-direction: column;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-.form-container{
-    
+.form-container{    
     width: 100%;
-    margin: auto;
-    
+    margin: 0;    
     padding-top: 5px;
     background-color: aliceblue;
     border: solid 1px green;

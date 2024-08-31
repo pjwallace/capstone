@@ -37,7 +37,7 @@ class Topic(models.Model):
 # Each quiz topic may have multiple subtopics
 class Subtopic(models.Model):
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='subtopics')
-    name = models.CharField(max_length=40) #100
+    name = models.CharField(max_length=60) 
     date_created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, 
         null=True, related_name='created_subtopics')
