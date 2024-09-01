@@ -381,7 +381,7 @@ function addTopic(){
         }
                              
     })
-    .catch(error => console.error('Error loading the form:', error));   
+    .catch(error => console.error('Error loading the add topic form:', error));   
 
 }
 
@@ -405,7 +405,8 @@ function renameTopic(){
     .then(response => response.json())
     .then(data =>{
         document.getElementById('rename-topic-form').reset(); // reset the form
-        
+        clearMessages();
+
         if (data.success){  
             // update the topic select menu to reflect the name change
             updateTopicSelectMenu('rename-topic'); 
@@ -425,7 +426,7 @@ function renameTopic(){
         }
         
     })
-    .catch(error => console.error('Error loading the form:', error)); 
+    .catch(error => console.error('Error loading the rename topic form:', error)); 
 }
 
 function updateTopicSelectMenu(formTopicId){
@@ -494,7 +495,6 @@ function setupDeleteTopicModal(){
         }
         // Call deleteTopic and pass the modal instance
         deleteTopic(confirmDeleteTopicModal);
-
     }
 
 }
@@ -554,97 +554,10 @@ function deleteTopic(confirmDeleteTopicModal){
             confirmDeleteTopicModal.hide();
             
         })
-        .catch(error => console.error('Deletion failed:', error));
-        
+        .catch(error => console.error('Topic deletion failed:', error));       
     });
-
 }
-/*
-function setupSelectTopicToDelete(){
-    // form select menu event listener
-    const selectTopicToDelete = document.getElementById('topic-to-delete');
-    const deleteTopicButton = document.getElementById('delete-topic-btn');
-
-    // Check if the delete button exists before setting properties
-    if (!deleteTopicButton) {
-        return;  // Early exit to avoid further errors
-    }
-    
-    // Ensure the delete button is initially disabled
-    deleteTopicButton.disabled = true;
-    
-    if (selectTopicToDelete){
-        // at least one valid topic available
-        const validOptions = selectTopicToDelete.options.length > 1;
-
-        if (!validOptions) {
-            displayMessage('There are no topics to delete.', 'info');  
-            return;  // No further setup needed if there are no valid topics
-        }
-
-        selectTopicToDelete.addEventListener('change', function() {
-                    
-            const selectedTopicId = this.value; // Gets the selected option's value (topic ID)
-
-            if (!selectedTopicId) {
-                deleteTopicButton.disabled = true;  // If no valid topic, disable the button
-                displayMessage('There are no more topics to delete.', 'info');  
-                return; 
-
-            } else {
-                // Otherwise, enable the button and set the topic ID
-                deleteTopicButton.disabled = false;
-
-                // Update the deleteTopicButton with the topic.id to be deleted
-                deleteTopicButton.setAttribute('data-topic-id', selectedTopicId); 
-            }
-            
-        });
-    } 
-
-}
-
-function setupTopicToDeleteButton(){
-    const deleteTopicButton = document.getElementById('delete-topic-btn');
-
-    // form delete button event listeners
-    if (deleteTopicButton) {
-        deleteTopicButton.addEventListener('click', function(e) {
-            e.preventDefault(); // Prevent form submission when delete button is clicked
-
-            // data attribute is set in the setupSelectTopicToDelete function
-            const topicId = this.getAttribute('data-topic-id');
-            
-            if (topicId) {
-                // display topic delete confirmation screen               
-                displayTopicDeleteConfirmation(topicId);
-            }
-        });
-    }   
-
-}
-
-function displayTopicDeleteConfirmation(topicId){
-    topicId = parseInt(topicId);  
-    const route = `/management/portal/delete_topic_confirmation/${topicId}`;  
-    
-    fetch(route)
-        .then(response => response.text())
-        .then(html => {
-            const managementContainer = document.getElementById('management-container');
-            
-            if (managementContainer){
-                managementContainer.innerHTML = html;
-                managementContainer.style.display = 'block';
-                
-            } else{
-                console.error("delete-topic-confirm-container not found in the document.");
-            }                       
-        })
-        .catch(error => console.error('Error loading the confirmation:', error));
-}
-*/
-         
+        
 function addSubtopic(){
     const route = `/management/portal/add_subtopic`;
 
@@ -674,7 +587,15 @@ function addSubtopic(){
             const subtopicsContainer = document.getElementById('subtopicscontainer-' + topicId);
             const topicATag = document.getElementById('topic-' + topicId);
             let upIcon = document.getElementById('caretup-' + topicId);
-            let downIcon = document.getElementById('caretdown-' + topicId);            
+            let downIcon = document.getElementById('caretdown-' + topicId);  
+
+            // downIcon won't exist if there are no subtopics yet for the chosen topic
+            if (!downIcon){
+                downIcon = document.createElement('i');
+                downIcon.classList.add('fa', 'fa-caret-down');
+                downIcon.setAttribute('id', `caretdown-${topicId}`);
+                downIcon.style.display = 'none';
+            }      
 
             // if this is the first subtopic for the topic, enable the subtopics container and up caret
             if (subtopicsContainer.children.length == 0){
@@ -693,12 +614,36 @@ function addSubtopic(){
             subtopicATag.textContent = data.subtopic_name;
             subtopicsContainer.appendChild(subtopicATag); 
 
+            // create a span for the question icon and badge.
+            // This will display the number of questions for each subtopic
+            const iconSpan = document.createElement('span');
+            iconSpan.setAttribute('class', 'icon-with-badge');
+
+            // create the question mark icon
+            const questionIcon = document.createElement('i');
+            questionIcon.setAttribute('class', 'fas fa-question-circle');
+
+            // Create the badge element to display the number of questions
+            const badge = document.createElement('span');
+            badge.setAttribute('class', 'badge');
+            badge.setAttribute('id', `badge-${data.subtopic_id}`);
+            badge.textContent = 0;
+
+            // Append the question icon and badge to the icon span
+            iconSpan.appendChild(questionIcon);
+            iconSpan.appendChild(badge);
+
+            // Append the icon span to the subtopic link
+            subtopicATag.appendChild(iconSpan);
+
             // display success message
+            clearMessages();
             let add_subtopic_msg = document.getElementById('add-subtopic-msg');
             add_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
 
         } else {
             // errors
+            clearMessages();
             document.getElementById('new-subtopic').value = ''; // clear out the subtopic name field
             document.getElementById('new-subtopic').focus();
             let add_subtopic_msg = document.getElementById('add-subtopic-msg');
@@ -731,10 +676,10 @@ function renameSubtopic(){
     .then(response => response.json())
     .then(data =>{
         document.getElementById('rename-subtopic-form').reset(); // reset the form
+        clearMessages();
         
         if (data.success){  
-            clearMessages();
-
+            
             // update the sidebar
             const subtopicATag = document.getElementById(`subtopic-${data.subtopic_id}`);
             subtopicATag.textContent = data.new_subtopic_name;
@@ -879,7 +824,7 @@ function getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicBut
             // clear the existing subtopic options
             selectSubtopic.innerHTML = '',
 
-            // load the new subtopics, including the placeholder option
+            // load the subtopics, including the placeholder option
             selectSubtopic.innerHTML = '<option value="" selected ="">--------</option>';
             data.subtopics.forEach(subtopic => {
                 const option = document.createElement('option');
@@ -976,7 +921,21 @@ function deleteSubtopic(deleteSubtopicButton, confirmDeleteSubtopicModal){
                         if (subtopicElement){
                             subtopicElement.remove(); 
                         }
+                        
+                        // if the last subtopic was deleted, remove the up/down caret from the sidebar
+                        if (subtopicsContainer.children.length == 0){
+                            let upIcon = document.getElementById(`caretup-${topicId}`);
+                            let downIcon = document.getElementById(`caretdown-${topicId}`);
+                            if (upIcon){
+                                upIcon.style.display = 'none';
+                            }
+                            if (downIcon){
+                                downIcon.style.display = 'none';
+                            }
+                        }
                     }
+
+                    
     
                     clearMessages();                                   
                     // display success message

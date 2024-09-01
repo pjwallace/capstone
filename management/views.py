@@ -70,7 +70,7 @@ def add_topic(request):
                 "messages": [{"message": "Please enter a valid topic name.", "tags": "danger"}]})
                
         try:
-            topic = Topic(name = name, created_by = request.user, modified_by=request.user)
+            topic = Topic(name = name, created_by = request.user, modified_by = request.user)
             topic.save()
             
         except IntegrityError as e:
@@ -143,21 +143,7 @@ def delete_topic_form(request):
             'delete_topic_form' : delete_topic_form,
             'topics' : topics,
         })
-    
-@login_required(login_url='login')
-def delete_topic_confirmation(request, topic_id):
-    topic = get_object_or_404(Topic, id=topic_id)
-    
-    return render(request, 'management/delete_topic_confirm.html', {
-        'topic': topic,
-        'topic_id': topic_id
-    })
 
-@login_required(login_url='login')
-def delete_topic_cancel(request):
-    messages.info(request, "Topic deletion cancelled")
-    return redirect('delete_topic_form')
-   
 @login_required(login_url='login')
 def delete_topic(request, topic_id):
     
