@@ -280,29 +280,15 @@ def delete_subtopic_form(request):
 @login_required(login_url='login')  
 def get_subtopics(request, topic_id):
     subtopics = Subtopic.objects.filter(topic_id=topic_id).values('id', 'name')
+    subtopics_count = subtopics.count() # used for updating the sidebar up/down caret
+    
     if subtopics:
-        return JsonResponse({'success': True, 'subtopics': list(subtopics)}, safe=False)
+        return JsonResponse({'success': True, 'subtopics': list(subtopics), 'subtopics_count': subtopics_count},  
+                safe=False)
     else:
         return JsonResponse({"success": False,  
                 "messages": [{"message": "An error occurred while retrieving subtopics.", "tags": "info"}]}, status=500)
     
-@login_required(login_url='login')
-def delete_subtopic_confirmation(request, topic_id, subtopic_id):
-    topic = get_object_or_404(Topic, id=topic_id)
-    subtopic = get_object_or_404(Subtopic, id=subtopic_id)
-    
-    return render(request, 'management/delete_subtopic_confirmation.html', {
-        'subtopic': subtopic,
-        'subtopic_id': subtopic_id,
-        'topic_id' : topic_id,
-        'topic' : topic
-    })
-
-@login_required(login_url='login')
-def delete_subtopic_cancel(request):
-    messages.info(request, "Subtopic deletion cancelled")
-    return redirect('delete_subtopic_form')
-
 @login_required(login_url='login')
 def delete_subtopic(request, subtopic_id):
     if request.method == 'DELETE':
@@ -310,7 +296,7 @@ def delete_subtopic(request, subtopic_id):
             subtopic = Subtopic.objects.get(pk=subtopic_id)
         except Subtopic.DoesNotExist:
             return JsonResponse({"success": False,  
-                "messages": [{"message": "Subopic does not exist.", "tags": "danger"}]}, status=400)
+                "messages": [{"message": "Subtopic does not exist.", "tags": "danger"}]}, status=400)
                   
         try:
             subtopic.delete() 

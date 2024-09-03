@@ -26,8 +26,7 @@
             {% csrf_token %}
             {{ delete_topic_form.as_p }}
 
-            <input class="btn btn-danger" id="delete-topic-btn" type="button" 
-                data-bs-toggle="modal" data-bs-target="#confirm-delete-topic-modal" value="Delete Topic">
+            <input class="btn btn-danger" id="delete-topic-btn" type="button" value="Delete Topic">
         </form>
 
         <!-- Modal -->

@@ -247,6 +247,7 @@ function loadSuptopicsForTopic(){
                             });
 
                             subtopicsContainer.appendChild(subtopicATag); 
+                            
                         });
                         subtopicsContainer.style.display = 'block';
 
@@ -473,7 +474,7 @@ function setupDeleteTopicModal(){
         if (!deleteTopicButton) {
             return;  // Early exit to avoid further errors
         }   
-        
+        console.log(selectTopicToDelete);
         if (selectTopicToDelete){
             // at least one valid topic available
             const validOptions = selectTopicToDelete.options.length > 1;
@@ -482,9 +483,16 @@ function setupDeleteTopicModal(){
                 displayMessage('There are no topics to delete.', 'info');  
                 return;  // No further setup needed if there are no valid topics
             }else{
-                // Show the modal when the delete button is clicked
+                // Show the modal after confirming a topic has been selected when the delete button is clicked
                 deleteTopicButton.addEventListener('click', function() {
-                    confirmDeleteTopicModal.show();
+                    if (!selectTopicToDelete.value){
+                        // Display an error message if no topic is selected
+                        displayMessage('Please select a valid topic to delete.', 'danger');                        
+                        return;  // Stop here if validation fails
+                    }else{
+                        clearMessages();
+                        confirmDeleteTopicModal.show();
+                    }
                 });                        
                 
             }
@@ -695,8 +703,7 @@ function renameSubtopic(){
         }
         
     })
-    .catch(error => console.error('Error loading the form:', error)); 
-    
+    .catch(error => console.error('Error loading the form:', error));    
 }
 
 
@@ -727,7 +734,6 @@ function setupSelectSubtopicToRename(){
 
         })
     }
-
 }
 
 function getSubtopicsToRename(selectedTopicId, selectSubtopicToRename){
@@ -772,7 +778,6 @@ function getSubtopicsToRename(selectedTopicId, selectSubtopicToRename){
             return;    
         } 
     })
-
 }
 
 function setupDeleteSubtopicModal(){
@@ -797,9 +802,8 @@ function setupSelectSubtopicToDelete(){
 
         selectTopic.addEventListener('change', function(){
             const selectedTopicId = selectTopic.value;
-            
             if (!selectedTopicId){
-                deleteSubtopicButton.disabled = true;
+                //deleteSubtopicButton.disabled = true;
                 displayMessage('There are no topics to delete.', 'info');
                 return;
             } else{
@@ -810,7 +814,6 @@ function setupSelectSubtopicToDelete(){
         })
         
     }
-
 }
 
 function getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicButton){
@@ -846,14 +849,18 @@ function getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicBut
                     const selectedSubtopicId = this.value;
                     
                     if (!selectedSubtopicId){
-                        deleteSubtopicButton.disabled = true;
+                        //deleteSubtopicButton.disabled = true;
                         displayMessage('There are no available subtopics for the chosen topic', 'info');
                         return;
                     } else {
-                        deleteSubtopicButton.setAttribute('data-subtopic-id', selectedSubtopicId);                        
+                        deleteSubtopicButton.setAttribute('data-subtopic-id', selectedSubtopicId); 
+                        //setupSubtopicToDeleteButton(); 
+                                              
                     }
                 })
+                
             }
+            
         }else{
             displayMessage('There are no available subtopics for the chosen topic', 'info');
             return;    
@@ -865,7 +872,7 @@ function getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicBut
 function setupSubtopicToDeleteButton(){
     const deleteSubtopicButton = document.getElementById('delete-subtopic-btn');
     const modalElement = document.getElementById('confirm-delete-subtopic-modal');  
-
+        
     // Check if the delete button exists before setting properties
     if (!deleteSubtopicButton) {
         return;  // Early exit to avoid further errors
@@ -877,10 +884,26 @@ function setupSubtopicToDeleteButton(){
 
         // add event listener
         if (deleteSubtopicButton){
-            deleteSubtopicButton.addEventListener('click', function(e){
-                e.preventDefault();
-                confirmDeleteSubtopicModal.show();
+            deleteSubtopicButton.addEventListener('click', function(){
+                const topicId = deleteSubtopicButton.dataset.topicId;
+                const subtopicId = deleteSubtopicButton.dataset.subtopicId;
                 
+                if (!topicId){
+                    // Display an error message if no topic is selected
+                    clearMessages();
+                    displayMessage('Please select a topic.', 'danger');                        
+                    return;  // Stop here if validation fails
+                }
+
+                if (!subtopicId){
+                    clearMessages();
+                    // Display an error message if no topic is selected
+                    displayMessage('Please select a subtopic to delete.', 'danger');                        
+                    return;  // Stop here if validation fails
+                }
+                
+                clearMessages();
+                confirmDeleteSubtopicModal.show();                
             })
             
         }
@@ -896,91 +919,86 @@ function deleteSubtopic(deleteSubtopicButton, confirmDeleteSubtopicModal){
         confirmDeleteSubtopicButton.addEventListener('click', function(){
             const topicId = deleteSubtopicButton.getAttribute('data-topic-id');
             const subtopicId = deleteSubtopicButton.getAttribute('data-subtopic-id');
-            
-            const route = `/management/portal/delete_subtopic/${subtopicId}`;
-            // Retrieve the django CSRF token from the form
-            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-            fetch(route, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken,
-                },
-                
-            })
+            // get the remaining number of subtopics for the sidebar
+            const route1 = `/management/portal/get_subtopics/${topicId}`;
+            fetch(route1)
             .then(response => response.json())
-            .then(data => {
-                document.getElementById('delete-subtopic-form').reset(); // reset the form
-                if (data.success){
-                    // Remove the deleted subtopic from the sidebar                   
-                    const subtopicsContainer = document.getElementById(`subtopicscontainer-${topicId}`);
-                    const subtopicElement = document.getElementById(`subtopic-${subtopicId}`);
-                                        
-                    if (subtopicsContainer) {
-                        if (subtopicElement){
-                            subtopicElement.remove(); 
-                        }
+            .then(subtopicsData => {
+                if (subtopicsData.success){                   
+                    let remainingSubtopics = subtopicsData.subtopics_count;
+
+                    // delete the subtopic
+                    const route = `/management/portal/delete_subtopic/${subtopicId}`;
+                    // Retrieve the django CSRF token from the form
+                    let csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                    fetch(route, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken,
+                        },
                         
-                        // if the last subtopic was deleted, remove the up/down caret from the sidebar
-                        if (subtopicsContainer.children.length == 0){
-                            let upIcon = document.getElementById(`caretup-${topicId}`);
-                            let downIcon = document.getElementById(`caretdown-${topicId}`);
-                            if (upIcon){
-                                upIcon.style.display = 'none';
+                    })
+                    .then(response => response.json())
+                    .then(data => {                
+                        if (data.success){
+                            document.getElementById('delete-subtopic-form').reset(); // reset the form
+        
+                            // clear the delete button data attributes
+                            deleteSubtopicButton.setAttribute('data-topic-id', '');
+                            deleteSubtopicButton.setAttribute('data-subtopic-id', '');
+        
+                            // Remove the deleted subtopic from the sidebar                   
+                            //const subtopicsContainer = document.getElementById(`subtopicscontainer-${topicId}`);
+                            const subtopicElement = document.getElementById(`subtopic-${subtopicId}`);                                       
+                            
+                            if (subtopicElement){
+                                subtopicElement.remove();
+                                 
                             }
-                            if (downIcon){
-                                downIcon.style.display = 'none';
+                            remainingSubtopics = remainingSubtopics - 1;
+                            console.log(remainingSubtopics);
+                                                   
+                            // if the last subtopic was deleted, remove the up/down caret from the sidebar
+                            if (remainingSubtopics == 0){
+                                let upIcon = document.getElementById(`caretup-${topicId}`);
+                                let downIcon = document.getElementById(`caretdown-${topicId}`);
+                                console.log(upIcon);
+                                console.log(downIcon);
+                                if (upIcon){
+                                    upIcon.style.display = 'none';
+                                }
+                                if (downIcon){
+                                    downIcon.style.display = 'none';
+                                }
                             }
+                                
+                            clearMessages();                                   
+                            // display success message
+                            let delete_subtopic_msg = document.getElementById('delete-subtopic-msg');
+                            delete_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+                            
+                        }else{
+                            clearMessages();
+                            // errors
+                            let delete_subtopic_msg = document.getElementById('delete-subtopic-msg');
+                            delete_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
                         }
-                    }
-
-                    
-    
-                    clearMessages();                                   
-                    // display success message
-                    let delete_subtopic_msg = document.getElementById('delete-subtopic-msg');
-                    delete_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-                    
-                }else{
-                    clearMessages();
-                    // errors
-                    let delete_subtopic_msg = document.getElementById('delete-subtopic-msg');
-                    delete_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            
+                        // Close the modal
+                        confirmDeleteSubtopicModal.hide();
+                        
+                    })
+                    .catch(error => console.error('Subtopic deletion failed:', error));
                 }
-    
-                // Close the modal
-                confirmDeleteSubtopicModal.hide();
-                
             })
-            .catch(error => console.error('Subtopic deletion failed:', error));
-
+            .catch(error => console.error('Failed to retrieve subtopics:', error));          
+                      
         }) 
     }
 }
-/*
-
-function displaySubtopicDeleteConfirmation(topicId, subtopicId){
-    topicId = parseInt(topicId); 
-    subtopicId = parseInt(subtopicId);  
-    const route = `/management/portal/delete_subtopic_confirmation/${topicId}/${subtopicId}`;  
-    
-    fetch(route)
-        .then(response => response.text())
-        .then(html => {
-            const managementContainer = document.getElementById('management-container');
-            
-            if (managementContainer){
-                managementContainer.innerHTML = html;
-                managementContainer.style.display = 'block';
-                
-            } else{
-                console.error("delete-subtopic-confirm-container not found in the document.");
-            }                       
-        })
-        .catch(error => console.error('Error loading the confirmation:', error));   
-}
-*/
 
 function addQuestionAndChoices(){
     const route = `/management/portal/add_question_and_choices`;
@@ -2382,9 +2400,14 @@ function displayMessage(message, type) {
 
 function clearMessages(){
     const messageContainer = document.querySelector('.error-msg');
+    const messageDiv = document.querySelector('.msg-div');
     if (messageContainer) {
         // Clear any existing messages
         messageContainer.innerHTML = '';
+    }
+    if (messageDiv) {
+        // Clear any existing messages
+        messageDiv.innerHTML = '';
     }
 }
 
