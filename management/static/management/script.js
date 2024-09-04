@@ -959,14 +959,12 @@ function deleteSubtopic(deleteSubtopicButton, confirmDeleteSubtopicModal){
                                  
                             }
                             remainingSubtopics = remainingSubtopics - 1;
-                            console.log(remainingSubtopics);
-                                                   
+                                                                               
                             // if the last subtopic was deleted, remove the up/down caret from the sidebar
                             if (remainingSubtopics == 0){
                                 let upIcon = document.getElementById(`caretup-${topicId}`);
                                 let downIcon = document.getElementById(`caretdown-${topicId}`);
-                                console.log(upIcon);
-                                console.log(downIcon);
+                                
                                 if (upIcon){
                                     upIcon.style.display = 'none';
                                 }
