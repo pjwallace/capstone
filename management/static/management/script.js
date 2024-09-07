@@ -192,7 +192,7 @@ function loadSuptopicsForTopic(){
                             // Display edit/review questions menu option if question count > 0
                             let badgeValue = parseInt(badge.textContent, 10);
 
-                            
+                            // edit/delete a question
                             const editQuestionOption = document.createElement('a');
                             editQuestionOption.setAttribute('class', 'dropdown-item');
                             editQuestionOption.setAttribute('id', 'dropdown-edit-question');
@@ -1041,8 +1041,7 @@ function addQuestionAndChoices(){
     })   
     .then(response => response.json())
     .then(data => {
-        //document.getElementById('add-question-and-choices-form').reset(); // reset the form
-        
+                
         if (data.success){  
             // repopulate the topic, subtopic, and question type fields
             // since it's likely that a user will add multiple questions for the same topic/subtopic combo
@@ -1897,14 +1896,14 @@ function selectTopicForAddExplanation(){
                 return;
             } else{  
                          
-                getSubtopicsForAddExplanation(selectedTopicId, subtopicMenu);
+                getSubtopicsForAddExplanationForm(selectedTopicId, subtopicMenu);
             }
 
         })
     }    
 }
 
-function getSubtopicsForAddExplanation(selectedTopicId, subtopicMenu){
+function getSubtopicsForAddExplanationForm(selectedTopicId, subtopicMenu){
     // get the subtopics for the chosen topic to populate the subtopics dropdown menu
     const route = `/management/portal/get_subtopics/${selectedTopicId}`;
     fetch(route)
@@ -1938,7 +1937,7 @@ function getSubtopicsForAddExplanation(selectedTopicId, subtopicMenu){
                 // add event listener to subtopic menu
                 subtopicMenu.addEventListener('change', function(){
                     const selectedSubtopicId = subtopicMenu.value;
-                    loadQuestionsToAddExplanation(selectedSubtopicId);
+                    loadQuestionsToAddExplanationForm(selectedSubtopicId);
                 }) 
             }
                 
@@ -1954,7 +1953,7 @@ function getSubtopicsForAddExplanation(selectedTopicId, subtopicMenu){
     })   
 }
 
-function loadQuestionsToAddExplanation(selectedSubtopicId){
+function loadQuestionsToAddExplanationForm(selectedSubtopicId){
     const questionMenu = document.getElementById('question-for-add-explanation');
     
     // get all the questions for the chosen subtopic
@@ -1986,6 +1985,12 @@ function loadQuestionsToAddExplanation(selectedSubtopicId){
                 clearMessages();
                 displayMessage('There are no available questions for the chosen subtopic', 'info');
                 return;
+            }else{
+                // add event listener to question menu
+                questionMenu.addEventListener('change', function(){
+                    const selectedQuestionId = questionMenu.value;
+                    loadChoicesToAddExplanationForm(selectedQuestionId);
+                }) 
             }
 
         }else{
@@ -1999,6 +2004,39 @@ function loadQuestionsToAddExplanation(selectedSubtopicId){
         } 
 
     })
+}
+
+function loadChoicesToAddExplanationForm(selectedQuestionId){
+    // get all the questions for the chosen subtopic
+    const route = `/management/portal/load_choices/${selectedQuestionId}`;
+
+    fetch(route)
+    .then(response => response.json())
+    .then(data =>{
+        if (data.success){
+            choiceForms = data.choice_forms;
+            // Insert the choice forms HTML into the choices-container
+            document.getElementById('choices-container').innerHTML = data.choice_forms;
+
+            // choice fields should be noneditable
+            const choiceFields = document.querySelectorAll('.choice-fields input, .choice-fields select');
+    
+            choiceFields.forEach(function(field) {
+            field.setAttribute('disabled', true);  
+    });
+
+        }else{
+            let add_explanation_msg = document.getElementById('add-explanation-msg');
+            if (add_explanation_msg){
+                add_explanation_msg.innerHTML = '';
+            }
+            clearMessages();
+            displayMessage('There are no available choices for this question', 'info');
+            return
+
+        }
+    })
+
 }
 
 function addExplanation(){

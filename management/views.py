@@ -592,21 +592,21 @@ def load_question_to_edit(request, question_id):
         
         return JsonResponse({"success": True, 'question': question_data, 'choices': choices_data, 
                              'edit_question_and_choices_form_html': edit_question_and_choices_form_html})
-    
-        
+
 @login_required(login_url='login')
 def load_questions(request, subtopic_id):
     '''
     This function takes in a subtopic id and returns all the questions for this subtopic.
     The response object will be returned to the Javascript function loadQuestionsToEdit.
     '''
-    questions = Question.objects.filter(subtopic_id=subtopic_id).values('id', 'text', 'question_type')
+    if request.method == 'GET':
+        questions = Question.objects.filter(subtopic_id=subtopic_id).values('id', 'text', 'question_type')
 
-    if questions:
-        return JsonResponse({"success": True, "questions": list(questions)}, safe=False)
-    else:
-        return JsonResponse({"success": False,
-                "messages": [{"message": "An error occurred while retrieving questions.", "tags": "info"}]})
+        if questions:
+            return JsonResponse({"success": True, "questions": list(questions)}, safe=False)
+        else:
+            return JsonResponse({"success": False,
+                    "messages": [{"message": "An error occurred while retrieving questions.", "tags": "info"}]})
     
 @login_required(login_url='login')
 def get_all_questions_to_edit(request):
@@ -1029,6 +1029,38 @@ def add_explanation(request):
         
         return JsonResponse({"success": True,
             "messages": [{"message": "Explanation has been successfully added.", "tags": "success"}]})
+    
+@login_required(login_url='login')
+def load_choices(request, question_id):
+    if request.method == 'GET':
+        # make sure the question is valid
+        try:
+            question = Question.objects.get(id=question_id)
+            
+        except:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Invalid question selected.", "tags": "danger"}]}, status=400)
+       
+        # get the answer choices for the selected question
+        try:
+            choices = question.choices.all()
+            #choices_data = [{"id": choice.id, "text": choice.text, "is_correct": choice.is_correct} for choice in choices]
+            
+            #load the answer choice forms
+            choice_forms = [AddChoiceForm(prefix=str(i), instance=choices[i]) for i in range(len(choices))]
+            
+            # convert choice forms to a string
+            choice_forms_html = [render_to_string('management/choice_forms.html', {'choice_forms': choice_forms})]
+            print(choice_forms_html)
+            return JsonResponse({"success": True, "choice_forms": choice_forms_html}, safe=False)
+        
+        except Exception as e:
+            return JsonResponse({
+                "success": False, 
+                "messages": [{"message": f"Error retrieving choices: {str(e)}", "tags": "danger"}]
+            }, status=500)
+        
+        
     
 @login_required(login_url='login')     
 def edit_explanation(request):

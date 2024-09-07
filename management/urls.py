@@ -34,5 +34,6 @@ urlpatterns = [
      path("edit_explanation", views.edit_explanation, name="edit_explanation"),
      path("get_explanation/<int:question_id>", views.get_explanation, name="get_explanation"),
      path("delete_explanation/<int:explanation_id>", views.delete_explanation, name="delete_explanation"),
+     path("load_choices/<int:question_id>", views.load_choices, name="load_choices"),
 
 ]
