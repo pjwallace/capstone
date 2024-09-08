@@ -1051,16 +1051,14 @@ def load_choices(request, question_id):
             
             # convert choice forms to a string
             choice_forms_html = [render_to_string('management/choice_forms.html', {'choice_forms': choice_forms})]
-            print(choice_forms_html)
+            
             return JsonResponse({"success": True, "choice_forms": choice_forms_html}, safe=False)
         
         except Exception as e:
             return JsonResponse({
                 "success": False, 
                 "messages": [{"message": f"Error retrieving choices: {str(e)}", "tags": "danger"}]
-            }, status=500)
-        
-        
+            }, status=500)               
     
 @login_required(login_url='login')     
 def edit_explanation(request):
@@ -1102,7 +1100,7 @@ def get_explanation(request, question_id):
 
     except Explanation.DoesNotExist:
         return JsonResponse({"success": False,
-                "messages": [{"message": f"There is no explanation for this question {question_id}.", "tags": "danger"}]}, status=400)
+                "messages": [{"message": f"There is no explanation yet for this question.", "tags": "danger"}]}, status=400)
 
             
     return JsonResponse({"success": True, 

@@ -1890,7 +1890,7 @@ function selectTopicForAddExplanation(){
         // add event listeneer for the topic dropdown menu
         topicMenu.addEventListener('change', function(){
             const selectedTopicId = topicMenu.value;
-           
+            clearMessages();
             if (!selectedTopicId){
                 displayMessage('There are no topics available.', 'info');
                 return;
@@ -1983,7 +1983,7 @@ function loadQuestionsToAddExplanationForm(selectedSubtopicId){
                     add_explanation_msg.innerHTML = '';
                 }
                 clearMessages();
-                displayMessage('There are no available questions for the chosen subtopic', 'info');
+                displayMessage('There was a problem retrieving questions for the chosen subtopic', 'info');
                 return;
             }else{
                 // add event listener to question menu
@@ -2018,7 +2018,7 @@ function loadChoicesToAddExplanationForm(selectedQuestionId){
             // Insert the choice forms HTML into the choices-container
             document.getElementById('choices-container').innerHTML = data.choice_forms;
 
-            // choice fields should be noneditable
+            // choice fields shouldn't be editable
             const choiceFields = document.querySelectorAll('.choice-fields input, .choice-fields select');
     
             choiceFields.forEach(function(field) {
@@ -2060,6 +2060,7 @@ function addExplanation(){
     .then(response => response.json())
     .then(data => {
         document.getElementById('add-explanation-form').reset(); // reset the form
+        document.getElementById('choices-container').innerHTML = '';
                 
         if (data.success){  
             clearMessages();
@@ -2070,6 +2071,7 @@ function addExplanation(){
             
         } else {
             // errors
+            clearMessages();
             let add_explanation_msg = document.getElementById('add-explanation-msg');
             add_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
         }
@@ -2192,6 +2194,7 @@ function loadQuestionsToEditExplanation(selectedSubtopicId){
                 // add event listener to question menu
                 questionMenu.addEventListener('change', function(){
                     const selectedQuestionId = questionMenu.value;
+                    loadChoicesToEditExplanationForm(selectedQuestionId);
                     getExplanationForQuestion(selectedQuestionId);
                 }) 
 
@@ -2210,6 +2213,38 @@ function loadQuestionsToEditExplanation(selectedSubtopicId){
     })
 }
 
+function loadChoicesToEditExplanationForm(selectedQuestionId){
+    // get all the questions for the chosen subtopic
+    const route = `/management/portal/load_choices/${selectedQuestionId}`;
+
+    fetch(route)
+    .then(response => response.json())
+    .then(data =>{
+        if (data.success){
+            choiceForms = data.choice_forms;
+            // Insert the choice forms HTML into the choices-container
+            document.getElementById('choices-container').innerHTML = data.choice_forms;
+
+            // choice fields shouldn't be editable
+            const choiceFields = document.querySelectorAll('.choice-fields input, .choice-fields select');
+    
+            choiceFields.forEach(function(field) {
+            field.setAttribute('disabled', true);  
+    });
+
+        }else{
+            let edit_explanation_msg = document.getElementById('edit-explanation-msg');
+            if (edit_explanation_msg){
+                edit_explanation_msg.innerHTML = '';
+            }
+            clearMessages();
+            displayMessage('There was a problem retrieving choices for this question', 'info');
+            return;
+
+        }
+    })
+}
+
 function getExplanationForQuestion(selectedQuestionId){
     const explanationTextArea = document.getElementById('text-for-edit-explanation');
     
@@ -2220,16 +2255,24 @@ function getExplanationForQuestion(selectedQuestionId){
     .then(response => response.json())
     .then(data =>{
         if (data.success){
-            // clear the existing question menu options
+            // clear the textbox
+            document.getElementById('explanation-container').style.display = 'block';
             explanationTextArea.innerHTML = '';
 
             // load the textbox with the explanation
             explanationTextArea.textContent = data.explanation_text;
             const explanationId = document.getElementById('explanation-id');
             explanationId.value = data.explanation_id;
+
+            // enable the buttons
+            document.getElementById('edit-explanation-btn').disabled = false;
+            document.getElementById('delete-explanation-btn').disabled = false;
             
         }else{
             // errors
+            document.getElementById('explanation-container').style.display = 'none';
+            document.getElementById('edit-explanation-btn').disabled = true;
+            document.getElementById('delete-explanation-btn').disabled = true;
             let edit_explanation_msg = document.getElementById('edit-explanation-msg');
             edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
 
@@ -2259,11 +2302,14 @@ function editExplanation(){
     .then(response => response.json())
     .then(data => {
         document.getElementById('edit-explanation-form').reset(); // reset the form
+        document.getElementById('delete-explanation-btn').disabled = true;
                 
         if (data.success){  
             clearMessages();
             document.getElementById('text-for-edit-explanation').innerHTML = '';
+            document.getElementById('choices-container').innerHTML = '';
             
+
             // display success message
             let edit_explanation_msg = document.getElementById('edit-explanation-msg');
             edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
@@ -2337,13 +2383,15 @@ function deleteExplanation(confirmDeleteExplanationModal){
                 if (data.success){
                     clearMessages();
                     document.getElementById('text-for-edit-explanation').innerHTML = '';
-            
+                    document.getElementById('choices-container').innerHTML = '';
+                    document.getElementById('delete-explanation-btn').disabled = true;
                     // display success message
                     let edit_explanation_msg = document.getElementById('edit-explanation-msg');
                     edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
                     
                 }else{
                     // errors
+                    document.getElementById('delete-explanation-btn').disabled = true;
                     let edit_explanation_msg = document.getElementById('edit-explanation-msg');
                     edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
                 }

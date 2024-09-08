@@ -41,7 +41,11 @@
                     {{ edit_explanation_form.question}}
                 </div>
 
-                <div class="form-group"> 
+                <div id="choices-container">
+                    
+                </div>
+
+                <div class="form-group" id="explanation-container"> 
                     {{ edit_explanation_form.text.label_tag}}                  
                     {{ edit_explanation_form.text}}
                 </div>
@@ -53,7 +57,7 @@
                 </button>
 
                 <button class="btn btn-danger" id="delete-explanation-btn" type="button"
-                    data-bs-toggle="modal" data-bs-target="#confirm-delete-explanation-modal">
+                    data-bs-toggle="modal" data-bs-target="#confirm-delete-explanation-modal" disabled>
                     Delete Explanation
                 </button>
 
