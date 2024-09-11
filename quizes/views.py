@@ -4,7 +4,7 @@ from django.contrib import messages
 
 #from .models import User
 
-def quizes_home(request):
+def dashboard(request):
   
-    return render(request, 'quizes/home.html')
+    return render(request, 'quizes/dashboard.html')
 
