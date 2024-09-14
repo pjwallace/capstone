@@ -1,0 +1,30 @@
+body, html {
+    overflow: hidden; /* Prevent scrolling on the body */
+    height: 100%; /* Ensure the body and html elements take up the full viewport height */
+}
+
+#dashboard-container{
+    height: calc(100vh - 55px); 
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;  
+    border: solid 1px green; 
+}
+
+#choose-assessment{
+    text-indent: 30px;
+}
+
+.column-header{
+    background-color: #FFD700;
+    height: 40px;
+    align-items: center;
+}
+
+.topics-list{
+    padding-top: 10px;
+    font-size: larger;
+}

@@ -40,6 +40,44 @@
         <div class="body" id="dashboard-container"> 
 
             {% block body %}
+                <h2>My Dashboard</h2>
+                <p id="choose-assessment">Choose your assessment from the available topics:</p>
+
+                <!-- Bootstrap Grid-->
+                <div class="container">
+                    <!-- column header-->
+                    <div class="row column-header">                        
+                        <div class="col-md-3 col-sm-3" id="topic-header">
+                            <span class="header-span" id="topic">Topic</span>                                    
+                        </div>
+
+                        <div class="col-md-2 col-sm-2" id="status-header">
+                            <span class="header-span" id="status">Status</span>                            
+                        </div>
+
+                        <div class="col-md-2 col-sm-2" id="progress-header">
+                            <span class="header-span" id="progress">Progress</span>
+                        </div>
+
+                        <div class="col-md-2 col-sm-2" id="score-header">
+                            <span class="header-span" id="score">Score</span>                                                           
+                        </div>
+
+                        <div class="col-md-3 col-sm-3" id="review-header">
+                            <span class="header-span" id="review">Review</span>                                                            
+                        </div>                        
+                    </div>
+
+                    <!-- topic list-->
+                     <div class="row topics-list">
+                        {% for topic in topics %}
+                            <div class="col-md-12 col-sm-12" id="topic-{{ topic.id }}">
+                                <span><i class="fa fa-regular fa-plus" id="plus-{{ topic.id }}"></i></span>
+                                <span>{{ topic.name }}</span>                                    
+                            </div>                            
+                        {% endfor %}
+                     </div>
+                </div>
             {% endblock %}
         </div>
 

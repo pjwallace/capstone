@@ -40,7 +40,7 @@ def login_view(request):
             if user.is_superuser:
                 return redirect('management_portal')
             else:
-                return redirect('quizes_dashboard')
+                return redirect('dashboard')
         else:
             messages.error(request, "Your username and password didn't match. Please try again.")
             return render(request, "learners/index.html", context)
