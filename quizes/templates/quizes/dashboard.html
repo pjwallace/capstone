@@ -69,13 +69,17 @@
                     </div>
 
                     <!-- topic list-->
-                     <div class="row topics-list">
+                     <div class="row">
                         {% for topic in topics %}
-                            <div class="col-md-12 col-sm-12" id="topic-{{ topic.id }}">
+                            <div class="col-md-12 col-sm-12 topics-list topics" id="topic-{{ topic.id }}" data-topic-id="{{ topic.id }}">
                                 <span><i class="fa fa-regular fa-plus" id="plus-{{ topic.id }}"></i></span>
                                 <span>{{ topic.name }}</span>                                    
-                            </div>                            
-                        {% endfor %}
+                            </div>  
+                            
+                            <div class="subtopics" id="subtopicscontainer-{{ topic.id }}">
+                        
+                            </div>
+                        {% endfor %}                       
                      </div>
                 </div>
             {% endblock %}
