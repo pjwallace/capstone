@@ -33,8 +33,7 @@ body, html {
     background-color: #F5F5F5;
     border: solid 1px darkgray;
     cursor: pointer;
-    padding-left: 5px;
-    line-height: 60px;
+    padding-left: 5px;    
 }
 
 .topics-list span{
@@ -44,4 +43,35 @@ body, html {
 
 .topics-list:hover{
     background-color: lightgray;
+}
+/*
+.subtopics{
+    height: 40px;
+    background-color: #FFFFF0;
+    border: solid 1px darkgray;
+}
+*/
+
+.subtopics-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    
+    height: 50px;
+    background-color: #FFFFF0;
+    border-bottom: solid 1px lightgray;
+    padding-left: 5px;
+}
+
+.subtopics-row .status-column,
+.subtopics-row .progress-column,
+.subtopics-row .score-column,
+.subtopics-row .review-column {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.review-column {
+    gap: 10px; /* This will add 10px space between the review and reset buttons */
 }

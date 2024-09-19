@@ -40,6 +40,10 @@
         <div class="body" id="dashboard-container"> 
 
             {% block body %}
+                <div id="dashboard-msg" class="msg-div">
+                
+                </div>
+
                 <h2>My Dashboard</h2>
                 <p id="choose-assessment">Choose your assessment from the available topics:</p>
 
@@ -69,18 +73,27 @@
                     </div>
 
                     <!-- topic list-->
-                     <div class="row">
+                    <div class="row">
                         {% for topic in topics %}
-                            <div class="col-md-12 col-sm-12 topics-list topics" id="topic-{{ topic.id }}" data-topic-id="{{ topic.id }}">
-                                <span><i class="fa fa-regular fa-plus" id="plus-{{ topic.id }}"></i></span>
+                        
+                            <div class="col-md-12 col-sm-12 topics-list topics" id="topic-{{ topic.id }}" 
+                                    data-topic-id="{{ topic.id }}">
+                                    <span>
+                                        <i class="fa fa-regular fa-plus" id="plus-{{ topic.id }}"></i>
+                                        <i class="fa fa-regular fa-minus" id="minus-{{ topic.id }}" 
+                                                style="display: none;"></i>
+                                    </span>
                                 <span>{{ topic.name }}</span>                                    
-                            </div>  
-                            
-                            <div class="subtopics" id="subtopicscontainer-{{ topic.id }}">
+                            </div>
+                          
+                            <!-- subtopics list-->
+                            <div class="subtopics-list" id="subtopicscontainer-{{ topic.id }}">
                         
                             </div>
-                        {% endfor %}                       
-                     </div>
+                        
+                        {% endfor %} 
+                    </div>                      
+                     
                 </div>
             {% endblock %}
         </div>
