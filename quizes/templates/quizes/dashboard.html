@@ -44,14 +44,14 @@
                 
                 </div>
 
-                <h2>My Dashboard</h2>
+                <h2>{{ request.user}}'s Dashboard</h2>
                 <p id="choose-assessment">Choose your assessment from the available topics:</p>
 
                 <!-- Bootstrap Grid-->
                 <div class="container">
                     <!-- column header-->
                     <div class="row column-header">                        
-                        <div class="col-md-3 col-sm-3" id="topic-header">
+                        <div class="col-md-4 col-sm-4" id="topic-header">
                             <span class="header-span" id="topic">Topic</span>                                    
                         </div>
 
@@ -63,12 +63,12 @@
                             <span class="header-span" id="progress">Progress</span>
                         </div>
 
-                        <div class="col-md-2 col-sm-2" id="score-header">
-                            <span class="header-span" id="score">Score</span>                                                           
+                        <div class="col-md-2 col-sm-2 text-center" id="score-header">
+                            <span class="header-span score-header" id="score">Score</span>                                                           
                         </div>
 
-                        <div class="col-md-3 col-sm-3" id="review-header">
-                            <span class="header-span" id="review">Review</span>                                                            
+                        <div class="col-md-2 col-sm-2 text-center" id="review-header">
+                            <span class="header-span review-header" id="review">Review</span>                                                            
                         </div>                        
                     </div>
 

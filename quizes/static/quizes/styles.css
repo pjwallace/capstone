@@ -24,6 +24,10 @@ body, html {
     align-items: center;
 }
 
+.score-header, .review-header{
+    text-align: center;
+}
+
 .topics-list{
     display: flex;
     align-items: center;
@@ -44,13 +48,6 @@ body, html {
 .topics-list:hover{
     background-color: lightgray;
 }
-/*
-.subtopics{
-    height: 40px;
-    background-color: #FFFFF0;
-    border: solid 1px darkgray;
-}
-*/
 
 .subtopics-row {
     display: flex;
@@ -73,5 +70,47 @@ body, html {
 }
 
 .review-column {
-    gap: 10px; /* This will add 10px space between the review and reset buttons */
+    gap: 20px; /* This will add 10px space between the review and reset buttons */
 }
+
+.questions-text span{
+    display: block;
+    font-size: small;
+}
+
+.score-text{
+    font-size: small;
+}
+
+.score-label{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.score-label span {
+    width: 45%;
+    text-align: left; 
+    margin-right: 60px; 
+}
+
+.score-results{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.score-results span{
+    width: 45%;
+    text-align: left; 
+    margin-right: 60px;   
+}
+
+.score-results span:last-child {
+    margin-right: 0;  /* Remove margin for the last span */
+}
+
+.score-label span:last-child {
+    margin-right: 0;  /* Remove margin for the last span */
+}
+
