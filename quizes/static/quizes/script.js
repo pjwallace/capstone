@@ -48,24 +48,29 @@ function loadSubtopicsForQuizTopic(){
                             subtopicDiv.setAttribute('data-subtopic-id', subtopic.subtopic_id);
                             subtopicDiv.textContent = subtopic.subtopic_name;
                             subtopicRow.appendChild(subtopicDiv);
-                            let subtopicId = subtopic.subtopic_id;
+
+                            const subtopicId = subtopic.subtopic_id;
+                            const questionCount = subtopic.subtopic_question_count;
 
                             // retrieve user progress data
-                            data = getProgressData(subtopicId);
+                            getProgressData(subtopicId)
+                                .then(progressData =>{
+                                    console.log(progressData);
+                                    // set up the status column
+                                    statusColumn(subtopicRow, subtopicId, progressData, questionCount);
 
-                            // set up the status column
-                            statusColumn(subtopicRow, subtopicId, data);
+                                    // set up the progress column
+                                    progressColumn(subtopicRow, progressData, questionCount);
 
-                            // set up the progress column
-                            progressColumn(subtopicRow);
+                                    // set up the score column
+                                    scoreColumn(subtopicRow, progressData);
 
-                            // set up the score column
-                            scoreColumn(subtopicRow);
+                                    // set up the review column
+                                    reviewColumn(subtopicRow, subtopicId, progressData);
 
-                            // set up the result column
-                            reviewColumn(subtopicRow, subtopicId);
-
-                            subtopicsContainer.appendChild(subtopicRow);
+                                    subtopicsContainer.appendChild(subtopicRow);
+                                })
+                                .catch(error => console.error('Error retrieving progress data:', error));                                                                                                        
                         })
                     }else{
                         // errors
@@ -82,89 +87,91 @@ function loadSubtopicsForQuizTopic(){
 }
 
 function getProgressData(subtopicId){
-    console.log(subtopicId);
     route = `/quizes/home/get_progress_data/${subtopicId}`;
-                fetch(route)
-                .then(response => response.json())
-                .then(data =>{
-                    console.log(data.progress_exists);
-                    return data;
-
-                }) 
-                .catch(error => {
-                    console.error('Error fetching progress:', error);
-                });   
+    return fetch(route)
+        .then(response => response.json())
+        .then(progressData =>{
+            return progressData;
+        }) 
+        .catch(error => {
+            console.error('Error fetching progress data:', error);
+        });   
 }
 
-function statusColumn(subtopicRow, subtopicId, data){
+function statusColumn(subtopicRow, subtopicId, progressData, questionCount){
     const statusDiv = document.createElement('div');
     statusDiv.classList.add('col-md-2', 'col-sm-2', 'status-column');
+    console.log(questionCount);
+    // display start button if a quiz hasn't been attempted yet
+    if (progressData.progress_exists == 'no'){
+        const startButton = document.createElement('button');
+        startButton.type = 'button';
+        startButton.setAttribute('id', `start-${subtopicId}`);
+        startButton.classList.add('btn', 'btn-success');
+        startButton.setAttribute('data-subtopic-id', subtopicId);
+        startButton.textContent = 'Start Quiz';
+        statusDiv.append(startButton);
+        subtopicRow.append(statusDiv);
 
-    // start button
-    //const startButton = document.createElement('button');
-    //startButton.type = 'button';
-    //startButton.setAttribute('id', `start-${subtopicId}`);
-    //startButton.classList.add('btn', 'btn-success');
-    //startButton.setAttribute('data-subtopic-id', subtopicId);
-    //startButton.textContent = 'Start';
-    //statusDiv.append(startButton);
-    //subtopicRow.append(statusDiv);
+        // add event listener to start button
 
-    // add event listener to start button
+    // resume quiz button
+    }else if (progressData.progress_exists == 'yes' && questionCount != progressData.questions_answered){
+        const resumeButton = document.createElement('button');
+        resumeButton.type = 'button';
+        resumeButton.setAttribute('id', `review-${subtopicId}`);
+        resumeButton.classList.add('btn', 'btn-primary');
+        resumeButton.setAttribute('data-subtopic-id', subtopicId);
+        resumeButton.textContent = 'Resume Quiz';
+        statusDiv.append(resumeButton);
+        subtopicRow.append(statusDiv);
 
-    // resume button
-    //const resumeButton = document.createElement('button');
-    //resumeButton.type = 'button';
-    //resumeButton.setAttribute('id', `review-${subtopicId}`);
-    //resumeButton.classList.add('btn', 'btn-primary');
-    //resumeButton.setAttribute('data-subtopic-id', subtopicId);
-    //resumeButton.textContent = 'Resume';
-    //statusDiv.append(resumeButton);
-    //subtopicRow.append(statusDiv);
+        // add event listener to resume button
 
-    // add event listener to resume button
-
-    // complete span
-    const completeText = document.createElement('span');
-    completeText.textContent = 'Complete';
-    statusDiv.appendChild(completeText);
-    subtopicRow.append(statusDiv);
-
-
+    // Display quiz complete text
+    }else if (progressData.progress_exists == 'yes' && questionCount == progressData.questions_answered){
+        // complete span
+        const completeText = document.createElement('span');
+        completeText.textContent = 'Complete';
+        statusDiv.appendChild(completeText);
+        subtopicRow.append(statusDiv);
+    }
 }
 
-function progressColumn(subtopicRow, subtopicId){
+function progressColumn(subtopicRow, progressData, questionCount){
     const progressDiv = document.createElement('div');
     progressDiv.classList.add('col-md-2', 'col-sm-2', 'progress-column');
 
-    // no progress yet
-    const progressDash = document.createElement('span');
-    progressDash.textContent = 'Not Started';
-    progressDiv.appendChild(progressDash);
+    // Quiz not started yet
+    if (progressData.progress_exists == 'no'){
+        const progressDash = document.createElement('span');
+        progressDash.textContent = 'Not Started';
+        progressDiv.appendChild(progressDash);
 
-    // if progress
-    //const progressQuestionsText = document.createElement('div');
-    //progressQuestionsText.setAttribute('class', 'questions-text');
+    // quiz in progress or completed
+    }else if (progressData.progress_exists == 'yes'){
+        const progressQuestionsText = document.createElement('div');
+        progressQuestionsText.setAttribute('class', 'questions-text');
 
-    // create the first line 'Questions'
-    //const questionLabel = document.createElement('span');
-    //questionLabel.textContent = 'Questions';
-    //progressQuestionsText.appendChild(questionLabel);
+        // create the first line 'Questions'
+        const questionLabel = document.createElement('span');
+        questionLabel.textContent = 'Questions';
+        progressQuestionsText.appendChild(questionLabel);
 
-    // create the second line 'number answered of total questions'
-    //const questionsProgress = document.createElement('span');
-    //const numAnswered = 10;
-    //const totalQuestions = 20;
-    //questionsProgress.textContent = `${numAnswered} of ${totalQuestions}`;
-    //progressQuestionsText.appendChild(questionsProgress);
+        // create the second line 'number answered of total questions'
+        const questionsProgress = document.createElement('span');
+        //const numAnswered = 10;
+        //const totalQuestions = 20;
+        questionsProgress.textContent = `${progressData.questions_answered} of ${questionCount}`;
+        progressQuestionsText.appendChild(questionsProgress);
 
-    //progressDiv.appendChild(progressQuestionsText);
+        progressDiv.appendChild(progressQuestionsText);
 
+    }
     subtopicRow.appendChild(progressDiv);
-
 }
 
-function scoreColumn(subtopicRow){
+function scoreColumn(subtopicRow, progressData){
     const scoreDiv = document.createElement('div');
     scoreDiv.classList.add('col-md-2', 'col-sm-2', 'score-column');
 
@@ -207,7 +214,7 @@ function scoreColumn(subtopicRow){
 
 }
 
-function reviewColumn(subtopicRow, subtopicId){
+function reviewColumn(subtopicRow, subtopicId, progressData){
     const reviewDiv = document.createElement('div');
     reviewDiv.classList.add('col-md-2', 'col-sm-2', 'review-column');
 
