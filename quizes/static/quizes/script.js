@@ -63,10 +63,10 @@ function loadSubtopicsForQuizTopic(){
                                     progressColumn(subtopicRow, progressData, questionCount);
 
                                     // set up the score column
-                                    scoreColumn(subtopicRow, progressData);
+                                    scoreColumn(subtopicRow, progressData, questionCount);
 
                                     // set up the review column
-                                    reviewColumn(subtopicRow, subtopicId, progressData);
+                                    reviewColumn(subtopicRow, subtopicId, progressData, questionCount);
 
                                     subtopicsContainer.appendChild(subtopicRow);
                                 })
@@ -114,6 +114,10 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount){
         subtopicRow.append(statusDiv);
 
         // add event listener to start button
+        startButton.addEventListener('click', function(e){
+            e.preventDefault;
+            loadQuiz(subtopicId);
+        })
 
     // resume quiz button
     }else if (progressData.progress_exists == 'yes' && questionCount != progressData.questions_answered){
@@ -160,8 +164,7 @@ function progressColumn(subtopicRow, progressData, questionCount){
 
         // create the second line 'number answered of total questions'
         const questionsProgress = document.createElement('span');
-        //const numAnswered = 10;
-        //const totalQuestions = 20;
+        questionsProgress.setAttribute('id', 'questions-progress');
         questionsProgress.textContent = `${progressData.questions_answered} of ${questionCount}`;
         progressQuestionsText.appendChild(questionsProgress);
 
@@ -171,70 +174,103 @@ function progressColumn(subtopicRow, progressData, questionCount){
     subtopicRow.appendChild(progressDiv);
 }
 
-function scoreColumn(subtopicRow, progressData){
+function scoreColumn(subtopicRow, progressData, questionCount){
     const scoreDiv = document.createElement('div');
     scoreDiv.classList.add('col-md-2', 'col-sm-2', 'score-column');
 
-    // score container
-    const scoreText = document.createElement('div');
-    scoreText.setAttribute('class', 'score-text');
+    if (progressData.progress_exists == 'no' || progressData.questions_answered != questionCount){
+        // display 2 minus signs to indicate no score yet
+        const scoreDashes = document.createElement('div');
+        scoreDashes.setAttribute('class', 'score-dash');
 
-    // first line 'inital     Latest'
-    const scoreLabel = document.createElement('div');
-    scoreLabel.setAttribute('class', 'score-label'); 
+        initialMinus = document.createElement('i');
+        initialMinus.classList.add('fa', 'fa-solid', 'fa-minus', 'minus-bigger');
+        
+        latestMinus = document.createElement('i');
+        latestMinus.classList.add('fa', 'fa-solid', 'fa-minus', 'minus-bigger');
 
-    const initialLabel = document.createElement('span');
-    initialLabel.textContent = 'Initial';
+        scoreDashes.append(initialMinus);
+        scoreDashes.append(latestMinus);
+        scoreDiv.append(scoreDashes);
 
-    const latestLabel = document.createElement('span');
-    latestLabel.textContent = 'Latest';
+    }else if (progressData.progress_exists == 'yes' && progressData.questions_answered == questionCount ){
+        // score container
+        const scoreText = document.createElement('div');
+        scoreText.setAttribute('class', 'score-text');
 
-    scoreLabel.appendChild(initialLabel);
-    scoreLabel.appendChild(latestLabel);
-    scoreText.appendChild(scoreLabel);
-    
-    // second line
-    const scoreResults = document.createElement('div');
-    scoreResults.setAttribute('class', 'score-results');
+        // first line 'inital     Latest'
+        const scoreLabel = document.createElement('div');
+        scoreLabel.setAttribute('class', 'score-label'); 
 
-    const initialScore = document.createElement('span');
-    const initialScorePercent = 50;
-    initialScore.textContent = `${initialScorePercent}%`;
+        const initialLabel = document.createElement('span');
+        initialLabel.textContent = 'Initial';
 
-    const latestScore = document.createElement('span');
-    const latestScorePercent = 100;
-    latestScore.textContent = `${latestScorePercent}%`;
-    
-    scoreResults.appendChild(initialScore);
-    scoreResults.appendChild(latestScore);
-    scoreText.appendChild(scoreResults);
+        const latestLabel = document.createElement('span');
+        latestLabel.textContent = 'Latest';
 
-    scoreDiv.appendChild(scoreText);
+        scoreLabel.appendChild(initialLabel);
+        scoreLabel.appendChild(latestLabel);
+        scoreText.appendChild(scoreLabel);
+
+        // second line
+        const scoreResults = document.createElement('div');
+        scoreResults.setAttribute('class', 'score-results');
+
+        const initialScore = document.createElement('span');
+        const initialScorePercent = progressData.initial_score;
+        initialScore.textContent = `${initialScorePercent}%`;
+
+        const latestScore = document.createElement('span');
+        const latestScorePercent = progressData.latest_score;
+        latestScore.textContent = `${latestScorePercent}%`;
+
+        scoreResults.appendChild(initialScore);
+        scoreResults.appendChild(latestScore);
+        scoreText.appendChild(scoreResults);
+
+        scoreDiv.appendChild(scoreText);
+    }
     subtopicRow.appendChild(scoreDiv);
 
 }
 
-function reviewColumn(subtopicRow, subtopicId, progressData){
+function reviewColumn(subtopicRow, subtopicId, progressData, questionCount){
     const reviewDiv = document.createElement('div');
     reviewDiv.classList.add('col-md-2', 'col-sm-2', 'review-column');
 
-    // review button
-    const reviewButton = document.createElement('button');
-    reviewButton.type = 'button';
-    reviewButton.classList.add('btn', 'btn-info', 'btn-sm');
-    reviewButton.setAttribute('id', `review-${subtopicId}`)
-    reviewButton.textContent = 'Review';
-    reviewDiv.appendChild(reviewButton);
+    if (progressData.progress_exists == 'no' || progressData.questions_answered != questionCount){
+        const reviewMinus = document.createElement('div');
+        reviewMinus.setAttribute('class', 'review-minus');
 
-    // reset button
-    const resetButton = document.createElement('button');
-    resetButton.type = 'button';
-    resetButton.classList.add('btn', 'btn-danger', 'btn-sm');
-    resetButton.setAttribute('id', `reset-${subtopicId}`)
-    resetButton.textContent = 'Reset';
-    reviewDiv.appendChild(resetButton);
+        const reviewMinusIcon = document.createElement('i');
+        reviewMinusIcon.classList.add('fa', 'fa-solid', 'fa-minus', 'minus-bigger');
 
-    // add event listener to resume button
+        reviewMinus.append(reviewMinusIcon);
+        reviewDiv.append(reviewMinus);
+
+    }else if (progressData.progress_exists == 'yes' && progressData.questions_answered == questionCount){
+        // review button
+        const reviewButton = document.createElement('button');
+        reviewButton.type = 'button';
+        reviewButton.classList.add('btn', 'btn-info', 'btn-sm');
+        reviewButton.setAttribute('id', `review-${subtopicId}`)
+        reviewButton.textContent = 'Review';
+        reviewDiv.appendChild(reviewButton);
+
+        // retake button
+        const retakeButton = document.createElement('button');
+        retakeButton.type = 'button';
+        retakeButton.classList.add('btn', 'btn-danger', 'btn-sm');
+        retakeButton.setAttribute('id', `retake-${subtopicId}`)
+        retakeButton.textContent = 'Retake';
+        reviewDiv.appendChild(retakeButton);
+    }
+
+    // add event listener to review button
     subtopicRow.appendChild(reviewDiv);
+}
+
+function loadQuiz(subtopicId){
+    const route = `/quizes/home/load_quiz/${subtopicId}`;
 
 }

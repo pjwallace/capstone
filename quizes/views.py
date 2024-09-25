@@ -51,3 +51,7 @@ def get_progress_data(request, subtopic_id):
             }
 
         return JsonResponse(progress_data)
+    
+@login_required(login_url='login')
+def load_quiz(request, subtopic_id):
+    pass

@@ -62,20 +62,54 @@ body, html {
 
 .subtopics-row .status-column,
 .subtopics-row .progress-column,
-.subtopics-row .score-column,
-.subtopics-row .review-column {
+.subtopics-row .score-column{
     display: flex;
     align-items: center;
     justify-content: flex-start;
 }
 
+.subtopics-row .review-column{
+    display: flex;
+    align-items: center;
+    justify-content: center;    
+}
+
 .review-column {
-    gap: 20px; /* This will add 10px space between the review and reset buttons */
+    gap: 20px; /* This will add 20px space between the review and reset buttons */
+    
 }
 
 .questions-text span{
     display: block;
     font-size: small;
+}
+
+#questions-progress{
+    font-size: medium;
+}
+
+.score-dash{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.score-dash i {
+    width: 45%;
+    text-align: left; 
+    margin-right: 60px;
+    padding-left: 5px;
+    
+}
+
+.score-dash i:last-child {
+    margin-right: 0;  /* Remove margin for the last icon */
+}
+
+.minus-bigger{
+    font-size: 24px;
+    transform: scaleX(1.4);
+    color: blue;
 }
 
 .score-text{
@@ -98,6 +132,7 @@ body, html {
     display: flex;
     justify-content: space-between;
     width: 100%;
+    font-size: medium;
 }
 
 .score-results span{
