@@ -3,8 +3,11 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
-from management.models import Topic, Subtopic, Question
+from management.models import Topic, Subtopic, Question, Choice
 from quizes.models import Progress
+import json
+from django.template.loader import render_to_string
+from django.core.paginator import Paginator
 
 def dashboard(request):
     # Load topics that have subtopics with questions
@@ -53,5 +56,21 @@ def get_progress_data(request, subtopic_id):
         return JsonResponse(progress_data)
     
 @login_required(login_url='login')
-def load_quiz(request, subtopic_id):
-    pass
+def load_quiz_layout(request, subtopic_id, topic_id):
+    # get topic name for title
+    topic = get_object_or_404(Topic, id=topic_id)
+    topic_name = topic.name
+
+    # get subtopic name for title
+    subtopic = get_object_or_404(Subtopic, id=subtopic_id)
+    subtopic_name = subtopic.name
+
+
+    context = {
+        'topic_name': topic_name,
+        'subtopic_name': subtopic_name,
+    }
+
+    quiz_layout_html = render_to_string('quizes/quiz_layout.html', context)
+    return JsonResponse({"success": True, 'quiz_layout_html': quiz_layout_html})
+    

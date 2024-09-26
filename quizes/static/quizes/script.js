@@ -57,7 +57,7 @@ function loadSubtopicsForQuizTopic(){
                                 .then(progressData =>{
                                     console.log(progressData);
                                     // set up the status column
-                                    statusColumn(subtopicRow, subtopicId, progressData, questionCount);
+                                    statusColumn(subtopicRow, subtopicId, progressData, questionCount, topicId);
 
                                     // set up the progress column
                                     progressColumn(subtopicRow, progressData, questionCount);
@@ -98,7 +98,7 @@ function getProgressData(subtopicId){
         });   
 }
 
-function statusColumn(subtopicRow, subtopicId, progressData, questionCount){
+function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topicId){
     const statusDiv = document.createElement('div');
     statusDiv.classList.add('col-md-2', 'col-sm-2', 'status-column');
     console.log(questionCount);
@@ -116,7 +116,7 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount){
         // add event listener to start button
         startButton.addEventListener('click', function(e){
             e.preventDefault;
-            loadQuiz(subtopicId);
+            loadQuizLayout(subtopicId, topicId);
         })
 
     // resume quiz button
@@ -270,7 +270,21 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount){
     subtopicRow.appendChild(reviewDiv);
 }
 
-function loadQuiz(subtopicId){
-    const route = `/quizes/home/load_quiz/${subtopicId}`;
+function loadQuizLayout(subtopicId, topicId){
+    const route = `/quizes/home/load_quiz_layout/${subtopicId}/${topicId}`;   
+    fetch(route)
+    .then(response => response.json())
+    .then(data =>{
+        if (data.success){
+            console.log('success');
+            // Replace the entire document (both <head> and <body>)
+            document.documentElement.innerHTML = data.quiz_layout_html;
+        }
+        else{
+            console.error("Failed to load quiz layout");
+        }
+
+    })
+    .catch(error => console.error('Error loading quiz layout:', error));
 
 }
