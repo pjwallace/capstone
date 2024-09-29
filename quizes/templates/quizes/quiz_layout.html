@@ -30,19 +30,28 @@
         </nav> 
 
         <div id="title-container">
-            <span>{{ topic_name }}: {{ subtopic_name }}</span>
+            <span><h2>{{ topic_name }}: {{ subtopic_name }}</h2></span>
 
         </div>
 
         <div id="progress-container">
-
+            {% for question in questions %}
+                <a href="#" id="question-{{ question.id }}" class="questions" 
+                    data-question-id="{{ question.id }}">
+                    <i class="fa fa-circle" id="circle-{{question.id}}"></i>
+                    <i class="fa fa-solid fa-check" id="check-{{question.id}}"></i>
+                    <i class="fa fa-times" id="times-{{question.id}}"></i>  
+                    Question{{ forloop.counter }}              
+                </a>                                      
+            {% endfor %}
         </div>
-
+        <!--
         <div id="quiz-container">
             {% block body %}
                 
             {% endblock %}
         </div>
+        -->
 
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" 
             integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" 
@@ -52,6 +61,7 @@
             crossorigin="anonymous"></script>
         <script src="{% static 'quizes/script_quiz.js' %}"></script>
         <script src="{% static 'quizes/script.js' %}"></script>
+        
 
     </body>
 

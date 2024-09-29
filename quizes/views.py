@@ -65,12 +65,40 @@ def load_quiz_layout(request, subtopic_id, topic_id):
     subtopic = get_object_or_404(Subtopic, id=subtopic_id)
     subtopic_name = subtopic.name
 
+    #get all the questions for the subtopic
+    questions = Question.objects.filter(subtopic_id=subtopic_id)
+    questions_count = questions.count()
+
+    if  not questions:
+        return JsonResponse({"success": False,  
+                "messages": [{"message": "An error occurred while retrieving questions.", "tags": "info"}]}, 
+                status=500)    
 
     context = {
         'topic_name': topic_name,
         'subtopic_name': subtopic_name,
+        'questions': questions,
+        'question_count': questions_count,        
     }
 
     quiz_layout_html = render_to_string('quizes/quiz_layout.html', context)
     return JsonResponse({"success": True, 'quiz_layout_html': quiz_layout_html})
     
+def load_quiz_questions_and_answers(request, subtopic_id):
+    #get all the questions for the subtopic
+    questions = Question.objects.filter(subtopic_id=subtopic_id).order_by('id')
+
+    # set up pagination
+    paginator = Paginator(questions, 1) # 1 question/page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'page_number': page_number,
+        'paginator': paginator,
+        'questions': questions,
+    }
+
+    quiz_html = render_to_string('quizes/quiz.html', context)
+    return JsonResponse({"success": True, 'quiz_html': quiz_html})
