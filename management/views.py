@@ -768,7 +768,7 @@ def edit_all_questions_and_choices(request):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         page_range = pagination(page_obj, paginator)
-
+        
         # Get the current question
         question = page_obj.object_list[0]    
         

@@ -35,7 +35,6 @@ function loadSubtopicsForQuizTopic(){
                        
                         data.subtopic_data.forEach(subtopic =>{
                             
-                            console.log(subtopic.subtopic_id);
                             // Create a Bootstrap row div to hold the subtopic and other columns
                             const subtopicRow = document.createElement('div');
                             subtopicRow.classList.add('row', 'subtopics-row');
@@ -55,7 +54,6 @@ function loadSubtopicsForQuizTopic(){
                             // retrieve user progress data
                             getProgressData(subtopicId)
                                 .then(progressData =>{
-                                    console.log(progressData);
                                     // set up the status column
                                     statusColumn(subtopicRow, subtopicId, progressData, questionCount, topicId);
 
@@ -101,7 +99,7 @@ function getProgressData(subtopicId){
 function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topicId){
     const statusDiv = document.createElement('div');
     statusDiv.classList.add('col-md-2', 'col-sm-2', 'status-column');
-    console.log(questionCount);
+
     // display start button if a quiz hasn't been attempted yet
     if (progressData.progress_exists == 'no'){
         const startButton = document.createElement('button');
@@ -276,9 +274,10 @@ function loadQuizLayout(subtopicId, topicId){
     .then(response => response.json())
     .then(data =>{
         if (data.success){
-            console.log('success');
+            
             // Replace the entire document (both <head> and <body>)
             document.documentElement.innerHTML = data.quiz_layout_html;
+            loadQuizQuestionsAndAnswers(subtopicId);
         }
         else{
             console.error("Failed to load quiz layout");
@@ -288,3 +287,22 @@ function loadQuizLayout(subtopicId, topicId){
     .catch(error => console.error('Error loading quiz layout:', error));
 
 }
+
+function loadQuizQuestionsAndAnswers(subtopicId){
+    quizContainer = document.getElementById('quiz-container');
+    const route = `/quizes/home/load_quiz_questions_and_answers/${subtopicId}`;   
+    fetch(route)
+    .then(response => response.json())
+    .then(data =>{
+        if (data.success){
+            quizContainer.innerHTML = '';
+            quizContainer.innerHTML = data.quiz_html;
+
+        }else{
+            console.error("Failed to load quiz html");
+        }
+
+    })
+    .catch(error => console.error('Error loading quiz:', error));
+}
+

@@ -70,3 +70,56 @@ body, html {
     overflow-y: auto;
     overflow-x: hidden;
 }
+
+.quiz-wrapper{
+    margin: 20px auto; /* Center the content with some margin */
+    padding: 20px; /* Add some padding inside the container */
+    background-color: #f9f9f9; /* Set a light background color */
+    max-width: 800px;
+    border: 1px solid #ddd; /* Optional border */
+    border-radius: 8px; /* Rounded corners */
+}
+
+form h2{
+    text-align: center;
+}
+
+.quiz-question p{
+    font-size: 20px;
+}
+
+.choice-container{
+    margin-bottom: 10px;
+    padding-left: 30px;
+}
+
+.choice-container input[type="radio"] {
+    transform: scale(1.5); /* Increase the scale value to make the radio button larger */
+    margin-right: 10px; 
+}
+
+.choice-container label{
+    display: inline-block;
+    font-size: 20px;
+}
+
+#submit-quiz-question{
+    margin-top: 30px;
+}
+
+.pagination-container{
+    display: flex;
+    justify-content: center; 
+    width: 100%;             
+    margin-top: 20px;        
+}
+
+.pagination {
+    display: inline-flex; /* Ensure it displays as a flex container */
+    justify-content: center;
+    width: auto; /* Set to auto to avoid stretching */
+}
+
+.pagination .step-links{
+    font-size: 16px;
+}
