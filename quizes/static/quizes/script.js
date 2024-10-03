@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', function(){
+    loadSubtopicsForQuizTopic(); 
     
-    loadSubtopicsForQuizTopic();       
+    
+              
 }); 
 
 function loadSubtopicsForQuizTopic(){
@@ -290,19 +292,57 @@ function loadQuizLayout(subtopicId, topicId){
 
 function loadQuizQuestionsAndAnswers(subtopicId){
     quizContainer = document.getElementById('quiz-container');
-    const route = `/quizes/home/load_quiz_questions_and_answers/${subtopicId}`;   
-    fetch(route)
-    .then(response => response.json())
-    .then(data =>{
-        if (data.success){
-            quizContainer.innerHTML = '';
-            quizContainer.innerHTML = data.quiz_html;
+    if (quizContainer){
+        const route = `/quizes/home/load_quiz_questions_and_answers/${subtopicId}`;   
+        fetch(route)
+        .then(response => response.json())
+        .then(data =>{
+            if (data.success){
+                quizContainer.innerHTML = '';
+                quizContainer.innerHTML = data.quiz_html;
+                document.getElementById('quizsubtopic-id').value = subtopicId
 
-        }else{
-            console.error("Failed to load quiz html");
-        }
+                // add event listener to the form
+                quizContainer.addEventListener('submit', function(e){
+                    e.preventDefault();
+                    if (e.target && e.target.id === 'quiz'){
+                        processQuizQuestion();
+                    }
+                });
+                
+            }else{
+                console.error("Failed to load quiz html");
+            }
 
+        })
+        .catch(error => console.error('Error loading quiz:', error));
+    }
+}
+
+function processQuizQuestion(){
+    console.log('here');
+    const subtopicId = document.getElementById('quizsubtopic-id').value;
+
+    // process the quiz answer
+    
+    const route = `/quizes/home/process_quiz_question/${subtopicId}`;
+
+    // Retrieve the django CSRF token from the form
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    fetch(route, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+           // name : document.getElementById('new-topic').value,
+                
+        })
     })
-    .catch(error => console.error('Error loading quiz:', error));
+    
+    .then(response => response.json())
+
 }
 

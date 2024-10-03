@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
+from django.template import RequestContext
+from django.middleware.csrf import get_token
 from management.models import Topic, Subtopic, Question, Choice
 from quizes.models import Progress
 import json
@@ -83,7 +85,8 @@ def load_quiz_layout(request, subtopic_id, topic_id):
 
     quiz_layout_html = render_to_string('quizes/quiz_layout.html', context)
     return JsonResponse({"success": True, 'quiz_layout_html': quiz_layout_html})
-    
+
+@login_required(login_url='login')    
 def load_quiz_questions_and_answers(request, subtopic_id):
     #get all the questions for the subtopic
     questions = Question.objects.filter(subtopic_id=subtopic_id).order_by('id')
@@ -92,13 +95,20 @@ def load_quiz_questions_and_answers(request, subtopic_id):
     paginator = Paginator(questions, 1) # 1 question/page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
+    
     context = {
         'page_obj': page_obj,
         'page_number': page_number,
         'paginator': paginator,
         'questions': questions,
     }
+    # Use get_token(request) to get the CSRF token
+    csrf_token = get_token(request)  
+    context['csrf_token'] = csrf_token 
 
-    quiz_html = render_to_string('quizes/quiz.html', context)
+    quiz_html = render_to_string('quizes/quiz.html', context, request=request)
     return JsonResponse({"success": True, 'quiz_html': quiz_html})
+
+@login_required(login_url='login')
+def process_quiz_question(request, subtopic_id):
+    pass

@@ -8,4 +8,5 @@ urlpatterns = [
     path("load_quiz_layout/<int:subtopic_id>/<int:topic_id>", views.load_quiz_layout, name="load_quiz_layout"),
     path("load_quiz_questions_and_answers/<int:subtopic_id>", views.load_quiz_questions_and_answers, 
          name="load_quiz_questions_and_answerst"),
+    path("process_quiz_question/<int:subtopic_id>", views.process_quiz_question, name="process_quiz_question"),
 ]

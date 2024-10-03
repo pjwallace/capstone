@@ -2,7 +2,9 @@
 {% block body %}
     <div class="quiz-wrapper">
             
-        <form class="quiz-form" method="post">
+        <form class="quiz-form" id="quiz"  method="post">
+            {% csrf_token %}
+            <input type="hidden" id="quizsubtopic-id" name="quizsubtopic-id" value="">
             
             <h2>Question {{ page_obj.number}} of {{ page_obj.paginator.num_pages }}</h2><br>
 
