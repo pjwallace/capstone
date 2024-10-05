@@ -111,4 +111,9 @@ def load_quiz_questions_and_answers(request, subtopic_id):
 
 @login_required(login_url='login')
 def process_quiz_question(request, subtopic_id):
-    pass
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        answer_array = data.get("selected_answers", [])
+        print(answer_array)
+
+    return JsonResponse({"success": True})

@@ -320,10 +320,14 @@ function loadQuizQuestionsAndAnswers(subtopicId){
 }
 
 function processQuizQuestion(){
-    console.log('here');
     const subtopicId = document.getElementById('quizsubtopic-id').value;
 
-    // process the quiz answer
+    // retrieve the quiz answers
+    let selectedAnswers = [];
+    const checkedAnswers = document.querySelectorAll("input[name^='question-']:checked");
+    checkedAnswers.forEach((answer) => {
+        selectedAnswers.push(answer.value);
+    });
     
     const route = `/quizes/home/process_quiz_question/${subtopicId}`;
 
@@ -337,12 +341,16 @@ function processQuizQuestion(){
             'X-CSRFToken': csrftoken,
         },
         body: JSON.stringify({
-           // name : document.getElementById('new-topic').value,
-                
+            selected_answers : selectedAnswers,                
         })
-    })
-    
+    })   
     .then(response => response.json())
+    .then(data =>{
+        if (data.success){
+            console.log('success');
+        }
 
+    })
+    .catch(error => console.error('Error processing quiz answers:', error));
 }
 
