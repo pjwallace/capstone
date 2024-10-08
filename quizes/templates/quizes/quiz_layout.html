@@ -30,7 +30,10 @@
         </nav> 
 
         <div id="title-container">
-            <span><h2>{{ topic_name }}: {{ subtopic_name }}</h2></span>
+            <h2>{{ topic_name }}: {{ subtopic_name }}</h2>
+            <a href="{% url 'dashboard' %}" class="btn btn-primary" id="return-to-dashboard">
+                Return to dashboard
+            </a>
 
         </div>
 
@@ -38,9 +41,9 @@
             {% for question in questions %}
                 <a href="#" id="question-{{ question.id }}" class="questions not-attempted wrong correct" 
                     data-question-id="{{ question.id }}">
-                        <i class="fa fa-circle" id="circle-{{question.id}}"></i>
-                        <i class="fa fa-solid fa-check" id="check-{{question.id}}"></i>
-                        <i class="fa fa-times" id="times-{{question.id}}"></i>  
+                        <i class="fa fa-circle" id="circle-{{ question.id }}"></i>
+                        <i class="fa fa-solid fa-check" id="check-{{ question.id }}"></i>
+                        <i class="fa fa-times" id="times-{{ question.id }}"></i>  
                     Question{{ forloop.counter }}              
                 </a>                                      
             {% endfor %}

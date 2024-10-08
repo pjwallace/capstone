@@ -1,6 +1,19 @@
 
 {% block body %}
     <div class="quiz-wrapper">
+        <div id="quiz-msg" class="msg-div">
+            
+        </div>
+               
+        <div class="error-msg">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
             
         <form class="quiz-form" id="quiz"  method="post">
             {% csrf_token %}
@@ -9,6 +22,7 @@
             <h2>Question {{ page_obj.number}} of {{ page_obj.paginator.num_pages }}</h2><br>
 
             {% for question in page_obj %}
+                <input type="hidden" id="quizquestion-id" name="quizquestion-id" value="{{ question.id }}">
                 <div class="quiz-question">
                     <p>{{ question.text}}</p>
 

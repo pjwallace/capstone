@@ -1,8 +1,5 @@
 document.addEventListener('DOMContentLoaded', function(){
-    loadSubtopicsForQuizTopic(); 
-    
-    
-              
+    loadSubtopicsForQuizTopic();    
 }); 
 
 function loadSubtopicsForQuizTopic(){
@@ -321,12 +318,13 @@ function loadQuizQuestionsAndAnswers(subtopicId){
 
 function processQuizQuestion(){
     const subtopicId = document.getElementById('quizsubtopic-id').value;
+    const questionId = document.getElementById('quizquestion-id').value;
 
     // retrieve the quiz answers
     let selectedAnswers = [];
     const checkedAnswers = document.querySelectorAll("input[name^='question-']:checked");
     checkedAnswers.forEach((answer) => {
-        selectedAnswers.push(answer.value);
+        selectedAnswers.push(answer.value); // value = choice.id
     });
     
     const route = `/quizes/home/process_quiz_question/${subtopicId}`;
@@ -341,13 +339,34 @@ function processQuizQuestion(){
             'X-CSRFToken': csrftoken,
         },
         body: JSON.stringify({
-            selected_answers : selectedAnswers,                
+            selected_answers : selectedAnswers,
+            question_id : questionId,                
         })
     })   
     .then(response => response.json())
     .then(data =>{
-        if (data.success){
-            console.log('success');
+        if (data.success){ 
+            
+            // if there is an incorrect answer, change the progress bar icon
+            let incorrectAnswer = false;
+            for (key in data.results_dict){
+                if (data.results_dict[key] === false){
+                    incorrectAnswer = true;
+                    break;                   
+                }
+            } 
+            document.getElementById('circle-' + questionId).style.display = 'none';
+            document.getElementById('times-' + questionId).style.display = 'block';
+            
+            Object.keys(data.results_dict).forEach(key => {
+                const choiceId = key;
+                const isCorrect = data.results_dict[key];
+                console.log(`${choiceId}: ${isCorrect}`);
+            })
+        }else{
+            // errors
+            let quiz_msg = document.getElementById('quiz-msg');
+            quiz_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;   
         }
 
     })

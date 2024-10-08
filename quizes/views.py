@@ -14,7 +14,6 @@ from django.core.paginator import Paginator
 def dashboard(request):
     # Load topics that have subtopics with questions
     topics = Topic.objects.filter(subtopics__questions__isnull=False).distinct()
-    print(topics)
     return render(request, 'quizes/dashboard.html', {
         'topics': topics
     })
@@ -113,7 +112,34 @@ def load_quiz_questions_and_answers(request, subtopic_id):
 def process_quiz_question(request, subtopic_id):
     if request.method == 'POST':
         data = json.loads(request.body)
-        answer_array = data.get("selected_answers", [])
-        print(answer_array)
+        student_answers = data.get("selected_answers", [])
+        question_id = data.get("question_id", "")
 
-    return JsonResponse({"success": True})
+        # must select at least one correct answer
+        if not student_answers:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "You didn't select an answer.", "tags": "danger"}]}, status=400)
+        
+        # if multiple answer question, must select at least 2 answers
+        question = get_object_or_404(Question, id=question_id)
+        if question.question_type.name == 'Multiple Answer' and len(student_answers)< 2:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "At least 2 answers are required for this question type.", "tags": "danger"}]}, 
+                    status=400)
+            
+        results_dict = {}
+        for answer in student_answers:
+            choice_id = int(answer)
+            try:
+                choice = get_object_or_404(Choice, id=choice_id)
+                if choice.is_correct:
+                    results_dict[choice_id] = True
+                else:
+                    results_dict[choice_id] = False
+            except Choice.DoesNotExist:
+                return JsonResponse({"success": False, 
+                    "messages": [{"message": "Choice not found.", "tags": "danger"}]}, status=400)
+
+        print(results_dict)
+
+        return JsonResponse({"success": True, "results_dict": results_dict})
