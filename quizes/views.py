@@ -126,20 +126,69 @@ def process_quiz_question(request, subtopic_id):
             return JsonResponse({"success": False, 
                 "messages": [{"message": "At least 2 answers are required for this question type.", "tags": "danger"}]}, 
                     status=400)
-            
+        # grade the quiz                    
         results_dict = {}
+        # get all the correct answers from the Choice model in list form. Using sets allows for easy comparisions
+        correct_choices = set(Choice.objects.filter(question=question, is_correct=True).values_list('id', flat=True))
+
+        # create a set of student choices
+        student_selected_choices = set()
+
         for answer in student_answers:
             choice_id = int(answer)
             try:
                 choice = get_object_or_404(Choice, id=choice_id)
-                if choice.is_correct:
-                    results_dict[choice_id] = True
-                else:
-                    results_dict[choice_id] = False
+                results_dict[choice_id] = {
+                    "is_correct": choice.is_correct,
+                    "selected_by_student": True
+                }
+                student_selected_choices.add(choice_id)
+               
             except Choice.DoesNotExist:
                 return JsonResponse({"success": False, 
                     "messages": [{"message": "Choice not found.", "tags": "danger"}]}, status=400)
 
+        # For multiple answer questions, there are 2 edge cases to consider:
+        # 1) The student didn't choose all the correct answers
+        # 2) The student chose all the correct answers but also chose an additional incorrect answer
+
+        if question.question_type.name == 'Multiple Answer':
+
+            # return choice_id
+            missed_correct_answers = correct_choices - student_selected_choices
+            extra_incorrect_answers = student_selected_choices - correct_choices
+
+            # add missed correct answers to the results_dict. The student didn't choose all the correct answers
+            for choice_id in missed_correct_answers:
+                results_dict[choice_id] = {
+                    "is_correct": True,
+                    "selected_by_student": False
+                }
+
+            # Indicate if there is an extra incorrect answer in results_dict
+            for choice_id in extra_incorrect_answers:
+                # update existing entry to flag it as an extra incorrect answer
+                if choice_id in results_dict:
+                    results_dict[choice_id]["is_extra_incorrect"] = True
+                else:
+                    # add to results_dict if not already present
+                    results_dict[choice_id] = {
+                        "is_correct": False,
+                        "selected_by_student": True,
+                        "is_extra_incorrect": True
+                    }
+
         print(results_dict)
 
-        return JsonResponse({"success": True, "results_dict": results_dict})
+        # create or update the Progress record
+
+        if question.question_type.name == 'Multiple Answer':
+            return JsonResponse({"success": True, "results_dict": results_dict,
+                "missed_incorrect_answers": list(missed_correct_answers),
+                "extra_incorrect_answers": list(extra_incorrect_answers)
+            })
+        else:
+            return JsonResponse({"success": True, "results_dict": results_dict,
+                "student_selected_choices": list(student_selected_choices)
+            })
+

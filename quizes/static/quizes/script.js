@@ -350,19 +350,25 @@ function processQuizQuestion(){
             // if there is an incorrect answer, change the progress bar icon
             let incorrectAnswer = false;
             for (key in data.results_dict){
-                if (data.results_dict[key] === false){
+                if (data.results_dict[key]['is_correct'] === false){
                     incorrectAnswer = true;
                     break;                   
                 }
-            } 
-            document.getElementById('circle-' + questionId).style.display = 'none';
-            document.getElementById('times-' + questionId).style.display = 'block';
+            }
+            console.log(incorrectAnswer);
+            if (incorrectAnswer === true){
+                document.getElementById('circle-' + questionId).style.display = 'none';
+                document.getElementById('check-' + questionId).style.display = 'none';
+                document.getElementById('times-' + questionId).style.display = 'block';
+            }else if (incorrectAnswer === false){
+                document.getElementById('circle-' + questionId).style.display = 'none';
+                document.getElementById('times-' + questionId).style.display = 'none';
+                document.getElementById('check-' + questionId).style.display = 'block';      
+            }
             
-            Object.keys(data.results_dict).forEach(key => {
-                const choiceId = key;
-                const isCorrect = data.results_dict[key];
-                console.log(`${choiceId}: ${isCorrect}`);
-            })
+            // highlight the correct and incorrect answers
+            highlightAnswers(results_dict);
+
         }else{
             // errors
             let quiz_msg = document.getElementById('quiz-msg');
@@ -372,4 +378,30 @@ function processQuizQuestion(){
     })
     .catch(error => console.error('Error processing quiz answers:', error));
 }
+
+function highlightAnswers(results_dict){
+    // loop over each key, value pair in results_dict
+    for (const [choice_id, result] of Object.entries(results_dict)){
+        const choiceElement = document.getElementById(`choice-${choice_id}`);
+
+        if (!choiceElement){
+            continue;
+        }
+
+        // check if the choice was selected by the student
+        if (result.selected_by_student){
+            if (result.is_correct){
+                choiceElement.style.backgroundColor = "green";
+            }else{
+                choiceElement.style.backgroundColor = "red";    
+            }
+        }else if(result.is_correct){
+            // answer not selected by the student
+            choiceElement.style.backgroundColor = "yellow";    
+        }
+
+    }
+
+}
+
 
