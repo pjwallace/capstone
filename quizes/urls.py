@@ -9,4 +9,8 @@ urlpatterns = [
     path("load_quiz_questions_and_answers/<int:subtopic_id>", views.load_quiz_questions_and_answers, 
          name="load_quiz_questions_and_answerst"),
     path("process_quiz_question/<int:subtopic_id>", views.process_quiz_question, name="process_quiz_question"),
+    path("create_progress_record/<int:subtopic_id>", views.create_progress_record, 
+         name="create_progress_record"),
+    path("update_progress_record/<int:subtopic_id>", views.update_progress_record, 
+         name="update_progress_record"),
 ]

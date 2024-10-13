@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.template import RequestContext
 from django.middleware.csrf import get_token
+from django.db import IntegrityError, OperationalError
 from management.models import Topic, Subtopic, Question, Choice
 from quizes.models import Progress
 import json
@@ -40,7 +41,7 @@ def get_subtopics_for_quiz(request, topic_id):
 @login_required(login_url='login')
 def get_progress_data(request, subtopic_id):
     if request.method == 'GET':
-        # retrieve the unique user/subtopic_id progress recor
+        # retrieve the unique user/subtopic_id progress record
         try:
             progress = Progress.objects.get(learner=request.user, subtopic_id=subtopic_id)
             progress_data = {
@@ -126,7 +127,8 @@ def process_quiz_question(request, subtopic_id):
             return JsonResponse({"success": False, 
                 "messages": [{"message": "At least 2 answers are required for this question type.", "tags": "danger"}]}, 
                     status=400)
-        # grade the quiz                    
+        
+        # grade the quiz question                   
         results_dict = {}
         # get all the correct answers from the Choice model in list form. Using sets allows for easy comparisions
         correct_choices = set(Choice.objects.filter(question=question, is_correct=True).values_list('id', flat=True))
@@ -152,43 +154,84 @@ def process_quiz_question(request, subtopic_id):
         # 1) The student didn't choose all the correct answers
         # 2) The student chose all the correct answers but also chose an additional incorrect answer
 
-        if question.question_type.name == 'Multiple Answer':
+        # return choice_id
+        missed_correct_answers = correct_choices - student_selected_choices
+        extra_incorrect_answers = student_selected_choices - correct_choices
 
-            # return choice_id
-            missed_correct_answers = correct_choices - student_selected_choices
-            extra_incorrect_answers = student_selected_choices - correct_choices
+        # add missed correct answers to the results_dict. The student didn't choose all the correct answers
+        for choice_id in missed_correct_answers:
+            results_dict[choice_id] = {
+                "is_correct": True,
+                "selected_by_student": False
+            }
 
-            # add missed correct answers to the results_dict. The student didn't choose all the correct answers
-            for choice_id in missed_correct_answers:
+        # Indicate if there is an extra incorrect answer in results_dict
+        for choice_id in extra_incorrect_answers:
+            # update existing entry to flag it as an extra incorrect answer
+            if choice_id in results_dict:
+                results_dict[choice_id]["is_extra_incorrect"] = True
+            else:
+                # add to results_dict if not already present
                 results_dict[choice_id] = {
-                    "is_correct": True,
-                    "selected_by_student": False
+                    "is_correct": False,
+                    "selected_by_student": True,
+                    "is_extra_incorrect": True
                 }
+        
+        # check if the progress record exists or must be created
+        try:
+            progress = Progress.objects.get(learner=request.user, subtopic_id=subtopic_id)
+            progress_data = {
+                'questions_answered': progress.questions_answered,
+                'progress_exists': 'yes'
+            }
+        except Progress.DoesNotExist:
+            progress_data = {
+                'progress_exists': 'no'
+            }
+               
+        return JsonResponse({"success": True, "results_dict": results_dict,
+                "question_type": question.question_type.name, 'progress_data': progress_data})
+                
+            
+@login_required(login_url='login')
+def create_progress_record(request, subtopic_id):
+    if request.method == 'POST':
+        learner = request.user
 
-            # Indicate if there is an extra incorrect answer in results_dict
-            for choice_id in extra_incorrect_answers:
-                # update existing entry to flag it as an extra incorrect answer
-                if choice_id in results_dict:
-                    results_dict[choice_id]["is_extra_incorrect"] = True
-                else:
-                    # add to results_dict if not already present
-                    results_dict[choice_id] = {
-                        "is_correct": False,
-                        "selected_by_student": True,
-                        "is_extra_incorrect": True
-                    }
+        try:
+            progress = Progress(learner=learner, subtopic_id=subtopic_id, questions_answered=1)
+            progress.save()
 
-        print(results_dict)
+        except IntegrityError:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "An error occurred while creating this record.", "tags": "danger"}]},
+                    status=500)
+        
+        except Exception as e:
+            return JsonResponse({"success": False, "messages": [{"message": f"An unexpected error occurred: {str(e)}", "tags": "danger"}]},
+                    status=500)
+        
+        return JsonResponse({"success": True})
+    
+@login_required(login_url='login')
+def update_progress_record(request, subtopic_id):
+    if request.method == 'PUT':
+        learner = request.user
 
-        # create or update the Progress record
-
-        if question.question_type.name == 'Multiple Answer':
-            return JsonResponse({"success": True, "results_dict": results_dict,
-                "missed_incorrect_answers": list(missed_correct_answers),
-                "extra_incorrect_answers": list(extra_incorrect_answers)
-            })
-        else:
-            return JsonResponse({"success": True, "results_dict": results_dict,
-                "student_selected_choices": list(student_selected_choices)
-            })
+         # create a Progress instance
+        try:
+            progress = Progress.objects.get(learner=learner, subtopic_id=subtopic_id)
+            questions_answered = progress.questions_answered
+        except Progress.DoesNotExist:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Progress record does not exist.", "tags": "danger"}]}, status=400)
+        
+        # update number of questions answered
+        try:
+            progress.questions_answered = questions_answered + 1           
+            progress.save()
+        except Exception as e:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
 

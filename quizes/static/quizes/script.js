@@ -319,6 +319,8 @@ function loadQuizQuestionsAndAnswers(subtopicId){
 function processQuizQuestion(){
     const subtopicId = document.getElementById('quizsubtopic-id').value;
     const questionId = document.getElementById('quizquestion-id').value;
+    let rightAnswer = 0;
+    let wrongAnswer = 0;
 
     // retrieve the quiz answers
     let selectedAnswers = [];
@@ -355,7 +357,7 @@ function processQuizQuestion(){
                     break;                   
                 }
             }
-            console.log(incorrectAnswer);
+            
             if (incorrectAnswer === true){
                 document.getElementById('circle-' + questionId).style.display = 'none';
                 document.getElementById('check-' + questionId).style.display = 'none';
@@ -365,10 +367,25 @@ function processQuizQuestion(){
                 document.getElementById('times-' + questionId).style.display = 'none';
                 document.getElementById('check-' + questionId).style.display = 'block';      
             }
+
+            if (incorrectAnswer === true){
+                wrongAnswer += 1;
+            }else{
+                rightAnswer += 1;
+            }
             
             // highlight the correct and incorrect answers
-            highlightAnswers(results_dict);
+            highlightAnswers(data.results_dict, data.question_type);
 
+            // create or update the Progress record
+            if (data.progress_data.progress_exists == 'yes'){
+                updateProgressRecord(subtopicId);
+            }else if (data.progress_data.progress_exists == 'no'){
+                createProgressRecord(subtopicId);                
+            }
+
+            // load the question explanation, if it exists
+            
         }else{
             // errors
             let quiz_msg = document.getElementById('quiz-msg');
@@ -379,11 +396,14 @@ function processQuizQuestion(){
     .catch(error => console.error('Error processing quiz answers:', error));
 }
 
-function highlightAnswers(results_dict){
+function highlightAnswers(results_dict, questionType){
+    console.log(results_dict);
     // loop over each key, value pair in results_dict
     for (const [choice_id, result] of Object.entries(results_dict)){
-        const choiceElement = document.getElementById(`choice-${choice_id}`);
-
+        const choiceElement = document.getElementById(`span-${choice_id}`);
+        console.log(choice_id);
+        console.log(result);
+        console.log(choiceElement);
         if (!choiceElement){
             continue;
         }
@@ -391,17 +411,71 @@ function highlightAnswers(results_dict){
         // check if the choice was selected by the student
         if (result.selected_by_student){
             if (result.is_correct){
-                choiceElement.style.backgroundColor = "green";
+                choiceElement.style.backgroundColor = "rgba(0, 128, 0, 0.5)";
             }else{
-                choiceElement.style.backgroundColor = "red";    
+                choiceElement.style.backgroundColor = "rgba(255, 0, 0, 0.5)";    
             }
         }else if(result.is_correct){
             // answer not selected by the student
-            choiceElement.style.backgroundColor = "yellow";    
+            if (questionType === 'Multiple Answer'){
+                choiceElement.style.backgroundColor = "yellow";
+            }else{
+                choiceElement.style.backgroundColor = "rgba(0, 128, 0, 0.5)";
+            }
         }
 
     }
 
 }
 
+function createProgressRecord(subtopicId){
+    const route = `/quizes/home/create_progress_record/${subtopicId}`;
 
+    // Retrieve the django CSRF token from the form
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(route, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        }        
+    })   
+    .then(response => response.json())
+    .then(data =>{
+        if (data.success){
+            console.log("progress record successfully added")
+        }else{
+            // errors
+            let quiz_msg = document.getElementById('quiz-msg');
+            quiz_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;    
+        }
+    })
+    .catch(error => console.error('Error creating Progress record:', error));
+}
+
+function updateProgressRecord(subtopicId){
+    const route = `/quizes/home/update_progress_record/${subtopicId}`;
+
+    // Retrieve the django CSRF token from the form
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;  
+    
+    fetch(route, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        }        
+    })   
+    .then(response => response.json())
+    .then(data =>{
+        if (data.success){
+            console.log("progress record successfully updated")
+        }else{
+            // errors
+            let quiz_msg = document.getElementById('quiz-msg');
+            quiz_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;    
+        }
+    })
+    .catch(error => console.error('Error updating Progress record:', error));
+}
