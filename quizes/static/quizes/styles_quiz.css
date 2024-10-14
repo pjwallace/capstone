@@ -62,13 +62,20 @@ body, html {
     color: green;
 }
 
-#quiz-container{
-    height: calc(100vh - 95px); 
+#quiz-page-container{
+    display: flex;
     margin-left: 160px;
+    flex-direction: column;
+    height: calc(100vh - 95px); /* Prevent overlap with navbar/title */
+    overflow: auto; /* Ensure it scrolls if the content overflows */
+    padding: 10px; /* Optional padding */
+}
+
+#quiz-container{
     padding: 10px;
+    flex-grow: 1; /* Allow quiz content to take up most of the space */     
+    margin-bottom: none;  /* Add space between quiz and explanation */
     
-    overflow-y: auto;
-    overflow-x: hidden;
 }
 
 .quiz-wrapper{
@@ -78,6 +85,23 @@ body, html {
     max-width: 800px;
     border: 1px solid #ddd; /* Optional border */
     border-radius: 8px; /* Rounded corners */
+}
+
+#explanation-container {
+    flex-shrink: 0; /* Ensure explanation is visible */
+    padding: 10px;
+    background-color: #fff;
+    /*border-top: 1px solid #ddd;*/
+    margin-bottom: 10px; /* Optional space for future references */
+}
+
+.explanation-wrapper{
+    margin: 20px auto; /* Center the content with some margin */
+    padding: 20px; /* Add some padding inside the container */
+    background-color: #f9f9f9; /* Set a light background color */
+    max-width: 800px; 
+    border: 1px solid #ddd;
+    border-radius: 8px;   
 }
 
 form h2{

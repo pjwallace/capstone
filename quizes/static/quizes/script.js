@@ -316,7 +316,7 @@ function loadQuizQuestionsAndAnswers(subtopicId){
     }
 }
 
-function processQuizQuestion(){
+async function processQuizQuestion(){
     const subtopicId = document.getElementById('quizsubtopic-id').value;
     const questionId = document.getElementById('quizquestion-id').value;
     let rightAnswer = 0;
@@ -333,77 +333,62 @@ function processQuizQuestion(){
 
     // Retrieve the django CSRF token from the form
     var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    
-    fetch(route, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
-        },
-        body: JSON.stringify({
-            selected_answers : selectedAnswers,
-            question_id : questionId,                
-        })
-    })   
-    .then(response => response.json())
-    .then(data =>{
-        if (data.success){ 
-            
-            // if there is an incorrect answer, change the progress bar icon
-            let incorrectAnswer = false;
-            for (key in data.results_dict){
-                if (data.results_dict[key]['is_correct'] === false){
-                    incorrectAnswer = true;
-                    break;                   
-                }
-            }
-            
-            if (incorrectAnswer === true){
-                document.getElementById('circle-' + questionId).style.display = 'none';
-                document.getElementById('check-' + questionId).style.display = 'none';
-                document.getElementById('times-' + questionId).style.display = 'block';
-            }else if (incorrectAnswer === false){
-                document.getElementById('circle-' + questionId).style.display = 'none';
-                document.getElementById('times-' + questionId).style.display = 'none';
-                document.getElementById('check-' + questionId).style.display = 'block';      
-            }
 
-            if (incorrectAnswer === true){
-                wrongAnswer += 1;
-            }else{
-                rightAnswer += 1;
-            }
-            
-            // highlight the correct and incorrect answers
+    try {
+        
+        const response = await fetch(route, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                selected_answers: selectedAnswers,
+                question_id: questionId,
+            }),
+        });
+        
+        const data = await response.json();
+
+        if (data.success) {
+            // Handle correct/incorrect answers
+            let incorrectAnswer = Object.values(data.results_dict).some(result => !result.is_correct);
+
+            document.getElementById(`circle-${questionId}`).style.display = 'none';
+            document.getElementById(`check-${questionId}`).style.display = incorrectAnswer ? 'none' : 'block';
+            document.getElementById(`times-${questionId}`).style.display = incorrectAnswer ? 'block' : 'none';
+
+            incorrectAnswer ? wrongAnswer++ : rightAnswer++;
+
+            // Highlight correct/incorrect answers
             highlightAnswers(data.results_dict, data.question_type);
 
-            // create or update the Progress record
-            if (data.progress_data.progress_exists == 'yes'){
-                updateProgressRecord(subtopicId);
-            }else if (data.progress_data.progress_exists == 'no'){
-                createProgressRecord(subtopicId);                
+            // Create or update progress record first, then load explanation
+            if (data.progress_data.progress_exists === 'yes') {
+            await updateProgressRecord(subtopicId); // Wait for progress record to update
+            } else {
+                await createProgressRecord(subtopicId); // Wait for progress record to be created
             }
 
-            // load the question explanation, if it exists
-            
-        }else{
-            // errors
-            let quiz_msg = document.getElementById('quiz-msg');
-            quiz_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;   
+            // Load explanation after progress record is updated/created
+            console.log("Loading quiz explanation for question:", questionId);
+            await loadQuizQuestionExplanation(questionId); // Wait for the explanation to load
+
+        } else {
+            document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
         }
 
-    })
-    .catch(error => console.error('Error processing quiz answers:', error));
+        
+    } catch (error) {        
+        console.error('Error processing quiz answers:', error);        
+    }
 }
 
-function highlightAnswers(results_dict, questionType){
-    console.log(results_dict);
+function highlightAnswers(results_dict, questionType){    
     // loop over each key, value pair in results_dict
     for (const [choice_id, result] of Object.entries(results_dict)){
         const choiceElement = document.getElementById(`span-${choice_id}`);
-        console.log(choice_id);
-        console.log(result);
-        console.log(choiceElement);
+        
         if (!choiceElement){
             continue;
         }
@@ -428,54 +413,74 @@ function highlightAnswers(results_dict, questionType){
 
 }
 
-function createProgressRecord(subtopicId){
+async function createProgressRecord(subtopicId){
     const route = `/quizes/home/create_progress_record/${subtopicId}`;
 
     // Retrieve the django CSRF token from the form
     var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    fetch(route, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
-        }        
-    })   
-    .then(response => response.json())
-    .then(data =>{
-        if (data.success){
-            console.log("progress record successfully added")
-        }else{
-            // errors
-            let quiz_msg = document.getElementById('quiz-msg');
-            quiz_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;    
+    try {
+        const response = await fetch(route, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            console.log("Progress record successfully added");
+        } else {
+            console.error("Error adding progress record:", data.messages[0].message);
         }
-    })
-    .catch(error => console.error('Error creating Progress record:', error));
+    } catch (error) {
+        console.error('Error in createProgressRecord:', error);
+    }
 }
 
-function updateProgressRecord(subtopicId){
+async function updateProgressRecord(subtopicId) {
     const route = `/quizes/home/update_progress_record/${subtopicId}`;
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    // Retrieve the django CSRF token from the form
-    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;  
-    
-    fetch(route, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
-        }        
-    })   
-    .then(response => response.json())
-    .then(data =>{
-        if (data.success){
-            console.log("progress record successfully updated")
-        }else{
-            // errors
-            let quiz_msg = document.getElementById('quiz-msg');
-            quiz_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;    
+    try {
+        const response = await fetch(route, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            console.log("Progress record successfully updated");
+        } else {
+            console.error("Error updating progress record:", data.messages[0].message);
         }
-    })
-    .catch(error => console.error('Error updating Progress record:', error));
+    } catch (error) {
+        console.error('Error in updateProgressRecord:', error);
+    }
+}
+
+
+async function loadQuizQuestionExplanation(questionId) {
+    const explanationContainer = document.getElementById('explanation-container');
+    console.log(explanationContainer);
+    
+    try {
+        const response = await fetch(`/quizes/home/load_quiz_question_explanation/${questionId}`);
+        const data = await response.json();
+
+        if (data.success) {
+            explanationContainer.innerHTML = '';
+            explanationContainer.innerHTML = data.quiz_explanation_html; 
+        } else {
+            console.error('Failed to load explanation:', data.messages);
+        }
+    } catch (error) {
+        console.error('Error loading explanation:', error); 
+    }
 }

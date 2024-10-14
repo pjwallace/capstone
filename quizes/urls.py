@@ -13,4 +13,6 @@ urlpatterns = [
          name="create_progress_record"),
     path("update_progress_record/<int:subtopic_id>", views.update_progress_record, 
          name="update_progress_record"),
+    path("load_quiz_question_explanation/<int:question_id>", views.load_quiz_question_explanation, 
+         name="load_quiz_question_explanation"),
 ]

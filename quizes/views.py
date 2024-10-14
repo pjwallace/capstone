@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.template import RequestContext
 from django.middleware.csrf import get_token
 from django.db import IntegrityError, OperationalError
-from management.models import Topic, Subtopic, Question, Choice
+from management.models import Topic, Subtopic, Question, Choice, Explanation
 from quizes.models import Progress
 import json
 from django.template.loader import render_to_string
@@ -235,3 +235,20 @@ def update_progress_record(request, subtopic_id):
             return JsonResponse({"success": False, 
                 "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
 
+def load_quiz_question_explanation(request, question_id):
+    try:
+        explanation = Explanation.objects.get(question_id=question_id)
+        context = {
+            'explanation_text': explanation.text
+        }
+       
+        quiz_explanation_html = render_to_string('quizes/quiz_explanation.html', context)
+        
+    except Explanation.DoesNotExist:
+        return JsonResponse({"success": False})
+    
+    except Exception as e:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
+    
+    return JsonResponse({"success": True, "quiz_explanation_html": quiz_explanation_html})
