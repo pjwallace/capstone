@@ -93,7 +93,7 @@ def load_quiz_questions_and_answers(request, subtopic_id):
 
     # set up pagination
     paginator = Paginator(questions, 1) # 1 question/page
-    page_number = request.GET.get('page')
+    page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     
     context = {
@@ -107,7 +107,14 @@ def load_quiz_questions_and_answers(request, subtopic_id):
     context['csrf_token'] = csrf_token 
 
     quiz_html = render_to_string('quizes/quiz.html', context, request=request)
-    return JsonResponse({"success": True, 'quiz_html': quiz_html})
+    return JsonResponse({
+        "success": True, 
+        'quiz_html': quiz_html,
+        'has_next': page_obj.has_next(),
+        'has_previous': page_obj.has_previous,
+        'page_number': page_obj.number,
+        'total_pages': paginator.num_pages
+        })
 
 @login_required(login_url='login')
 def process_quiz_question(request, subtopic_id):

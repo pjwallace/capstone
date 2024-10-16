@@ -299,6 +299,18 @@ function loadQuizQuestionsAndAnswers(subtopicId){
                 quizContainer.innerHTML = data.quiz_html;
                 document.getElementById('quizsubtopic-id').value = subtopicId
 
+                // add event listener to the previous button
+                previousButton = document.getElementById('previous-button');
+                if (previousButton){
+                    previousButton.addEventListener('click', previousPage);
+                }
+
+                // add event listener to the next button
+                nextButton = document.getElementById('next-button');
+                if (nextButton){
+                    previousButton.addEventListener('click', nextPage);
+                }
+
                 // add event listener to the form
                 quizContainer.addEventListener('submit', function(e){
                     e.preventDefault();
@@ -314,6 +326,14 @@ function loadQuizQuestionsAndAnswers(subtopicId){
         })
         .catch(error => console.error('Error loading quiz:', error));
     }
+}
+
+function previousPage(){
+
+}
+
+function nextPage(){
+    
 }
 
 async function processQuizQuestion(){
