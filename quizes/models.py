@@ -1,9 +1,7 @@
 from django.conf import settings
 from django.db import models
-from management.models import Subtopic
+from management.models import Subtopic, Question, Choice
 
-
-# Create your models here.
 class Progress(models.Model):
     learner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='progress')
     subtopic = models.ForeignKey(Subtopic, on_delete=models.CASCADE, related_name='progress')
@@ -14,3 +12,11 @@ class Progress(models.Model):
 
     class Meta:
         unique_together = ('learner', 'subtopic')
+
+class StudentAnswer(models.Model):
+    learner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='student_answers')
+    subtopic = models.ForeignKey(Subtopic, on_delete=models.CASCADE, related_name='student_answers')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='student_answers')
+    selected_choices = models.ManyToManyField(Choice, blank=True)  # Allows for multiple answer questions
+    is_correct = models.BooleanField(default=False)
+    date_answered = models.DateTimeField(auto_now_add=True)

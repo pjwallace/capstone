@@ -93,7 +93,7 @@ def load_quiz_questions_and_answers(request, subtopic_id):
 
     # set up pagination
     paginator = Paginator(questions, 1) # 1 question/page
-    page_number = request.GET.get('page', 1)
+    page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
     context = {
@@ -111,7 +111,7 @@ def load_quiz_questions_and_answers(request, subtopic_id):
         "success": True, 
         'quiz_html': quiz_html,
         'has_next': page_obj.has_next(),
-        'has_previous': page_obj.has_previous,
+        'has_previous': page_obj.has_previous(),
         'page_number': page_obj.number,
         'total_pages': paginator.num_pages
         })
@@ -197,7 +197,7 @@ def process_quiz_question(request, subtopic_id):
                 'progress_exists': 'no'
             }
                
-        return JsonResponse({"success": True, "results_dict": results_dict,
+        return JsonResponse({"success": True, "results_dict": results_dict, 'question_id': question_id,
                 "question_type": question.question_type.name, 'progress_data': progress_data})
                 
             
@@ -241,6 +241,9 @@ def update_progress_record(request, subtopic_id):
         except Exception as e:
             return JsonResponse({"success": False, 
                 "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
+
+def save_answer(request, question_id):
+    pass
 
 def load_quiz_question_explanation(request, question_id):
     try:

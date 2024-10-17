@@ -154,6 +154,10 @@ form h2{
     justify-self: end; /* Align the next button to the right */
 }
 
+.hidden {
+    visibility: hidden; /* Hide the element but keep its space */
+}
+
 
 
 /*

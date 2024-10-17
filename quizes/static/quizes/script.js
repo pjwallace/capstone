@@ -276,7 +276,9 @@ function loadQuizLayout(subtopicId, topicId){
             
             // Replace the entire document (both <head> and <body>)
             document.documentElement.innerHTML = data.quiz_layout_html;
-            loadQuizQuestionsAndAnswers(subtopicId);
+
+            // load the first quiz question
+            loadQuizQuestionsAndAnswers(subtopicId, pageNumber=1);
         }
         else{
             console.error("Failed to load quiz layout");
@@ -287,28 +289,63 @@ function loadQuizLayout(subtopicId, topicId){
 
 }
 
-function loadQuizQuestionsAndAnswers(subtopicId){
+function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
     quizContainer = document.getElementById('quiz-container');
     if (quizContainer){
-        const route = `/quizes/home/load_quiz_questions_and_answers/${subtopicId}`;   
+        const route = `/quizes/home/load_quiz_questions_and_answers/${subtopicId}?page=${pageNumber}`;   
         fetch(route)
         .then(response => response.json())
         .then(data =>{
             if (data.success){
+                const hasNext = data.has_next;
+                const hasPrevious = data.has_previous;
+                let pageNumber  = data.page_number;
+                const totalPages = data.total_pages;
+
                 quizContainer.innerHTML = '';
                 quizContainer.innerHTML = data.quiz_html;
                 document.getElementById('quizsubtopic-id').value = subtopicId
-
-                // add event listener to the previous button
+                
+                // if there isn't a previous quiz question, hide the previous button;
+                // else display the button and add an event listener              
                 previousButton = document.getElementById('previous-button');
                 if (previousButton){
-                    previousButton.addEventListener('click', previousPage);
-                }
+                    if (hasPrevious){
+                        previousButton.classList.remove('hidden');
 
-                // add event listener to the next button
+                        // remove the old event listener to prevent multiple event listeners for the same button
+                        previousButton.removeEventListener('click', previousPageHandler);
+
+                        // define previousPageHandler
+                        function previousPageHandler(){
+                            previousPage(subtopicId, pageNumber);    
+                        }
+                        // add the event listener
+                        previousButton.addEventListener('click', previousPageHandler);
+                    }else{
+                        previousButton.classList.add('hidden');
+                    }
+                }   
+                
+                // if there isn't a next quiz question, hide the next button;
+                // else display the button and add an event listener
                 nextButton = document.getElementById('next-button');
                 if (nextButton){
-                    previousButton.addEventListener('click', nextPage);
+                    if (hasNext){
+                        nextButton.classList.remove('hidden');
+
+                        // remove the old event listener to prevent multiple event listeners for the same button
+                        nextButton.removeEventListener('click', nextPageHandler);
+
+                        // define nextPageHandler
+                        function nextPageHandler(){
+                            nextPage(subtopicId, pageNumber, totalPages);    
+                        }
+                         // add the event handler to the next button
+                        nextButton.addEventListener('click', nextPageHandler);
+                    }else{
+                        nextButton.classList.add('hidden');                        
+                    }
                 }
 
                 // add event listener to the form
@@ -328,12 +365,18 @@ function loadQuizQuestionsAndAnswers(subtopicId){
     }
 }
 
-function previousPage(){
-
+function previousPage(subtopicId, pageNumber ){
+    if (pageNumber > 1){
+        pageNumber  --;
+        loadQuizQuestionsAndAnswers(subtopicId, pageNumber);
+    }
 }
 
-function nextPage(){
-    
+function nextPage(subtopicId, pageNumber, totalPages){
+    if (pageNumber < totalPages){
+        pageNumber ++;
+        loadQuizQuestionsAndAnswers(subtopicId, pageNumber);
+    }    
 }
 
 async function processQuizQuestion(){
@@ -383,15 +426,17 @@ async function processQuizQuestion(){
             // Highlight correct/incorrect answers
             highlightAnswers(data.results_dict, data.question_type);
 
-            // Create or update progress record first, then load explanation
+            // Create or update progress record first, then save the student answer for later review
             if (data.progress_data.progress_exists === 'yes') {
             await updateProgressRecord(subtopicId); // Wait for progress record to update
             } else {
                 await createProgressRecord(subtopicId); // Wait for progress record to be created
             }
 
+            // save the student answer in the StudentAnswer model
+            await saveAnswer(questionId);
+
             // Load explanation after progress record is updated/created
-            console.log("Loading quiz explanation for question:", questionId);
             await loadQuizQuestionExplanation(questionId); // Wait for the explanation to load
 
         } else {
@@ -485,11 +530,38 @@ async function updateProgressRecord(subtopicId) {
     }
 }
 
+async function saveAnswer(questionId){
+   
+    const response = await fetch(`/quizes/home/save_answer/${questionId}`);
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    try {
+        const response = await fetch(route, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success){
+
+        }else{
+            console.error("Error updating or creating StudentAnswer record:", data.messages[0].message);
+        }
+
+    } catch (error){
+        console.error('Error saving student answer:', error);
+    }
+
+    
+}
 
 async function loadQuizQuestionExplanation(questionId) {
     const explanationContainer = document.getElementById('explanation-container');
-    console.log(explanationContainer);
-    
+        
     try {
         const response = await fetch(`/quizes/home/load_quiz_question_explanation/${questionId}`);
         const data = await response.json();
