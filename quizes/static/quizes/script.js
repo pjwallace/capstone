@@ -434,7 +434,7 @@ async function processQuizQuestion(){
             }
 
             // save the student answer in the StudentAnswer model
-            await saveAnswer(questionId);
+            await saveAnswer(questionId, data.student_answers);
 
             // Load explanation after progress record is updated/created
             await loadQuizQuestionExplanation(questionId); // Wait for the explanation to load
@@ -530,9 +530,8 @@ async function updateProgressRecord(subtopicId) {
     }
 }
 
-async function saveAnswer(questionId){
-   
-    const response = await fetch(`/quizes/home/save_answer/${questionId}`);
+async function saveAnswer(questionId, studentAnswers){
+    const route = `/quizes/home/save_answer/${questionId}`
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     try {
@@ -541,13 +540,16 @@ async function saveAnswer(questionId){
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrftoken,
-            }
+            },
+            body: JSON.stringify({
+                student_answers: studentAnswers
+            }),
         });
 
         const data = await response.json();
 
         if (data.success){
-
+            console.log('StudentAnswer record updated or created');
         }else{
             console.error("Error updating or creating StudentAnswer record:", data.messages[0].message);
         }
@@ -555,8 +557,6 @@ async function saveAnswer(questionId){
     } catch (error){
         console.error('Error saving student answer:', error);
     }
-
-    
 }
 
 async function loadQuizQuestionExplanation(questionId) {
@@ -570,7 +570,7 @@ async function loadQuizQuestionExplanation(questionId) {
             explanationContainer.innerHTML = '';
             explanationContainer.innerHTML = data.quiz_explanation_html; 
         } else {
-            console.error('Failed to load explanation:', data.messages);
+            console.error('There is no explanation for this question:', data.messages);
         }
     } catch (error) {
         console.error('Error loading explanation:', error); 

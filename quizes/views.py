@@ -7,7 +7,7 @@ from django.template import RequestContext
 from django.middleware.csrf import get_token
 from django.db import IntegrityError, OperationalError
 from management.models import Topic, Subtopic, Question, Choice, Explanation
-from quizes.models import Progress
+from quizes.models import Progress, StudentAnswer
 import json
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
@@ -122,7 +122,7 @@ def process_quiz_question(request, subtopic_id):
         data = json.loads(request.body)
         student_answers = data.get("selected_answers", [])
         question_id = data.get("question_id", "")
-
+       
         # must select at least one correct answer
         if not student_answers:
             return JsonResponse({"success": False, 
@@ -197,8 +197,9 @@ def process_quiz_question(request, subtopic_id):
                 'progress_exists': 'no'
             }
                
-        return JsonResponse({"success": True, "results_dict": results_dict, 'question_id': question_id,
-                "question_type": question.question_type.name, 'progress_data': progress_data})
+        return JsonResponse({"success": True, "student_answers": student_answers, "results_dict": results_dict, 
+                'question_id': question_id, "question_type": question.question_type.name,
+                'progress_data': progress_data})
                 
             
 @login_required(login_url='login')
@@ -241,10 +242,43 @@ def update_progress_record(request, subtopic_id):
         except Exception as e:
             return JsonResponse({"success": False, 
                 "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
+        
+        return JsonResponse({"success": True})
 
+@login_required(login_url='login')
 def save_answer(request, question_id):
-    pass
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        student_answers = data.get("student_answers", [])
+        print(student_answers)
+        question = get_object_or_404(Question, id=question_id)
+        
+        # iterate over the student_answer list and create a StudentAnswer record for each answer
+        # each answer is a choice id
+        # question type 'Multiple Answer' will have at least 2 answers
+        for student_answer in student_answers:
+            selected_choices = Choice.objects.get(pk=student_answer)
+            # save the student's answers
+            try:
+                student_answer_obj = StudentAnswer.objects.create(
+                    learner = request.user,
+                    question = question,
+                    subtopic = question.subtopic,
+                    is_correct=selected_choices.is_correct                    
+                )
 
+                # add the selected_choices many-to-many field using the set() method
+                student_answer_obj.selected_choices.set([selected_choices])               
+
+            except Exception as e:
+                return JsonResponse({"success": False, 
+                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)  
+
+        return JsonResponse({"success": True})
+
+        
+
+@login_required(login_url='login')
 def load_quiz_question_explanation(request, question_id):
     try:
         explanation = Explanation.objects.get(question_id=question_id)
