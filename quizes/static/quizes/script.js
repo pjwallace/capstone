@@ -273,9 +273,12 @@ function loadQuizLayout(subtopicId, topicId){
     .then(response => response.json())
     .then(data =>{
         if (data.success){
-            
+                        
             // Replace the entire document (both <head> and <body>)
             document.documentElement.innerHTML = data.quiz_layout_html;
+
+            // attach progress bar event listeners
+            attachProgressBarEventListeners();
 
             // load the first quiz question
             loadQuizQuestionsAndAnswers(subtopicId, pageNumber=1);
@@ -289,8 +292,26 @@ function loadQuizLayout(subtopicId, topicId){
 
 }
 
+function attachProgressBarEventListeners(){
+    progressContainer = document.getElementById('progress-container');
+   
+    if (progressContainer){
+        const questionLinks = document.querySelectorAll('#progress-container a');
+
+        questionLinks.forEach(link => {
+            link.addEventListener('click', function(e){
+                e.preventDefault();
+                const subtopicId = this.getAttribute('data-subtopic-id');
+                const pageNumber = this.getAttribute('data-page');
+                loadQuizQuestionsAndAnswers(subtopicId, pageNumber);
+            })
+        })
+    }
+}
+
 function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
     quizContainer = document.getElementById('quiz-container');
+    explanationContainer = document.getElementById('explanation-container');
     if (quizContainer){
         const route = `/quizes/home/load_quiz_questions_and_answers/${subtopicId}?page=${pageNumber}`;   
         fetch(route)
@@ -301,9 +322,13 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
                 const hasPrevious = data.has_previous;
                 let pageNumber  = data.page_number;
                 const totalPages = data.total_pages;
+                if (explanationContainer){
+                    explanationContainer.innerHTML = '';    
+                }
 
                 quizContainer.innerHTML = '';
                 quizContainer.innerHTML = data.quiz_html;
+                
                 document.getElementById('quizsubtopic-id').value = subtopicId
                 
                 // if there isn't a previous quiz question, hide the previous button;
@@ -348,13 +373,17 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
                     }
                 }
 
-                // add event listener to the form
-                quizContainer.addEventListener('submit', function(e){
-                    e.preventDefault();
-                    if (e.target && e.target.id === 'quiz'){
-                        processQuizQuestion();
-                    }
-                });
+                // make sure the submit button is displayed
+                submitButton = document.getElementById('submit-quiz-question');
+                if (submitButton){
+                    submitButton.style.display = 'block';
+                }
+
+                // remove any old event listeners for the form submission event
+                quizContainer.removeEventListener('submit', formSubmitHandler);               
+
+                // add the form submit event handler
+                quizContainer.addEventListener('submit', formSubmitHandler);
                 
             }else{
                 console.error("Failed to load quiz html");
@@ -379,12 +408,20 @@ function nextPage(subtopicId, pageNumber, totalPages){
     }    
 }
 
+// add event listener to the form
+function formSubmitHandler(e){
+    e.preventDefault();
+    if (e.target && e.target.id === 'quiz'){
+        processQuizQuestion();
+    }
+};
+
 async function processQuizQuestion(){
     const subtopicId = document.getElementById('quizsubtopic-id').value;
     const questionId = document.getElementById('quizquestion-id').value;
     let rightAnswer = 0;
     let wrongAnswer = 0;
-
+    
     // retrieve the quiz answers
     let selectedAnswers = [];
     const checkedAnswers = document.querySelectorAll("input[name^='question-']:checked");
@@ -422,6 +459,12 @@ async function processQuizQuestion(){
             document.getElementById(`times-${questionId}`).style.display = incorrectAnswer ? 'block' : 'none';
 
             incorrectAnswer ? wrongAnswer++ : rightAnswer++;
+
+            // make sure the submit button is hidden so the form can't be resubmitted
+            submitButton = document.getElementById('submit-quiz-question');
+            if (submitButton){
+                submitButton.style.display = 'none';
+            }
 
             // Highlight correct/incorrect answers
             highlightAnswers(data.results_dict, data.question_type);
@@ -533,7 +576,7 @@ async function updateProgressRecord(subtopicId) {
 async function saveAnswer(questionId, studentAnswers){
     const route = `/quizes/home/save_answer/${questionId}`
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
+    
     try {
         const response = await fetch(route, {
             method: 'POST',
@@ -561,6 +604,7 @@ async function saveAnswer(questionId, studentAnswers){
 
 async function loadQuizQuestionExplanation(questionId) {
     const explanationContainer = document.getElementById('explanation-container');
+    explanationContainer.innerHTML = '';
         
     try {
         const response = await fetch(`/quizes/home/load_quiz_question_explanation/${questionId}`);
@@ -569,8 +613,11 @@ async function loadQuizQuestionExplanation(questionId) {
         if (data.success) {
             explanationContainer.innerHTML = '';
             explanationContainer.innerHTML = data.quiz_explanation_html; 
+
+            // add event listeners to the previous and next buttons
         } else {
-            console.error('There is no explanation for this question:', data.messages);
+            
+            //console.error('There is no explanation for this question:', data.messages);
         }
     } catch (error) {
         console.error('Error loading explanation:', error); 

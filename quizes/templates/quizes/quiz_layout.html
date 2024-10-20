@@ -39,12 +39,14 @@
 
         <div id="progress-container">
             {% for question in questions %}
-                <a href="#" id="question-{{ question.id }}" class="questions not-attempted wrong correct" 
-                    data-question-id="{{ question.id }}">
+                <a href="javascript:void(0);" 
+                    id="question-{{ question.id }}" class="questions not-attempted wrong correct" 
+                    data-question-id="{{ question.id }}" data-subtopic-id="{{ question.subtopic_id}}"
+                    data-page="{{ forloop.counter}}">
                         <i class="fa fa-circle" id="circle-{{ question.id }}"></i>
                         <i class="fa fa-solid fa-check" id="check-{{ question.id }}"></i>
                         <i class="fa fa-times" id="times-{{ question.id }}"></i>  
-                    Question{{ forloop.counter }}              
+                    Question {{ forloop.counter }}              
                 </a>                                      
             {% endfor %}
         </div>

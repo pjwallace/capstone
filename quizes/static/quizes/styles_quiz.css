@@ -105,12 +105,6 @@ body, html {
     border-radius: 8px;   
 }
 
-/*
-form h2{
-    text-align: center;
-}
-*/
-
 .quiz-question p{
     font-size: 20px;
 }
@@ -121,6 +115,11 @@ form h2{
 }
 
 .choice-container input[type="radio"] {
+    transform: scale(1.5); /* Increase the scale value to make the radio button larger */
+    margin-right: 10px; 
+}
+
+.choice-container input[type="checkbox"] {
     transform: scale(1.5); /* Increase the scale value to make the radio button larger */
     margin-right: 10px; 
 }
@@ -158,18 +157,19 @@ form h2{
     visibility: hidden; /* Hide the element but keep its space */
 }
 
+#pagination-container-bottom{
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 columns: left button, right button */
+    align-items: center; 
+    width: 100%; 
 
-
-/*
-.pagination {
-    display: inline-flex; 
-    justify-content: center;
-    width: auto; 
 }
 
-
-.pagination .step-links{
-    font-size: 16px;
+#previous-button-bottom {
+    justify-self: start; /* Align the previous button to the left */
 }
-*/
+
+#next-button-bottom {
+    justify-self: end; /* Align the next button to the right */
+}
 
