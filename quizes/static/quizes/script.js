@@ -1,3 +1,13 @@
+// global state management object
+const quizState = {
+    hasNext: false,
+    hasPrevious: false,
+    pageNumber: 1,
+    totalPages: 0,
+    correctAnswers: 0,
+    incorrectAnswers: 0
+}
+
 document.addEventListener('DOMContentLoaded', function(){
     loadSubtopicsForQuizTopic();    
 }); 
@@ -318,10 +328,10 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
         .then(response => response.json())
         .then(data =>{
             if (data.success){
-                const hasNext = data.has_next;
-                const hasPrevious = data.has_previous;
-                let pageNumber  = data.page_number;
-                const totalPages = data.total_pages;
+                quizState.hasNext = data.has_next;
+                quizState.hasPrevious = data.has_previous;
+                quizState.pageNumber  = data.page_number;
+                quizState.totalPages = data.total_pages;
                 if (explanationContainer){
                     explanationContainer.innerHTML = '';    
                 }
@@ -335,7 +345,7 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
                 // else display the button and add an event listener              
                 previousButton = document.getElementById('previous-button');
                 if (previousButton){
-                    if (hasPrevious){
+                    if (quizState.hasPrevious){
                         previousButton.classList.remove('hidden');
 
                         // remove the old event listener to prevent multiple event listeners for the same button
@@ -343,7 +353,7 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
 
                         // define previousPageHandler
                         function previousPageHandler(){
-                            previousPage(subtopicId, pageNumber);    
+                            previousPage(subtopicId, quizState.pageNumber);    
                         }
                         // add the event listener
                         previousButton.addEventListener('click', previousPageHandler);
@@ -356,7 +366,7 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
                 // else display the button and add an event listener
                 nextButton = document.getElementById('next-button');
                 if (nextButton){
-                    if (hasNext){
+                    if (quizState.hasNext){
                         nextButton.classList.remove('hidden');
 
                         // remove the old event listener to prevent multiple event listeners for the same button
@@ -364,7 +374,7 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
 
                         // define nextPageHandler
                         function nextPageHandler(){
-                            nextPage(subtopicId, pageNumber, totalPages);    
+                            nextPage(subtopicId, quizState.pageNumber, quizState.totalPages);    
                         }
                          // add the event handler to the next button
                         nextButton.addEventListener('click', nextPageHandler);
@@ -372,6 +382,13 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
                         nextButton.classList.add('hidden');                        
                     }
                 }
+
+                // check if this question has been previously answered (StudentAnswer record exists).
+                questionId = document.getElementById('quizquestion-id').value;
+                (async () => {
+                    const student_answers_dict = await getStudentAnswer(subtopicId, questionId);
+                    console.log(student_answers_dict);
+                })();
 
                 // make sure the submit button is displayed
                 submitButton = document.getElementById('submit-quiz-question');
@@ -416,12 +433,28 @@ function formSubmitHandler(e){
     }
 };
 
+async function getStudentAnswer(subtopicId, questionId){
+    const route = `/quizes/home/get_student_answer/${subtopicId}/${questionId}`;   
+    try {
+        const response = await fetch(route);
+        const data = await response.json();
+        
+        if (data.success) {
+            return data.student_answers_dict;
+        } else {
+            console.log("StudentAnswer record does not exist");
+            return null; // or return an empty object if appropriate
+        }
+    } catch (error) {
+        console.error("Error fetching student answers:", error);
+        return null;
+    }
+}
+
 async function processQuizQuestion(){
     const subtopicId = document.getElementById('quizsubtopic-id').value;
     const questionId = document.getElementById('quizquestion-id').value;
-    let rightAnswer = 0;
-    let wrongAnswer = 0;
-    
+        
     // retrieve the quiz answers
     let selectedAnswers = [];
     const checkedAnswers = document.querySelectorAll("input[name^='question-']:checked");
@@ -458,7 +491,12 @@ async function processQuizQuestion(){
             document.getElementById(`check-${questionId}`).style.display = incorrectAnswer ? 'none' : 'block';
             document.getElementById(`times-${questionId}`).style.display = incorrectAnswer ? 'block' : 'none';
 
-            incorrectAnswer ? wrongAnswer++ : rightAnswer++;
+            if (incorrectAnswer) {
+                quizState.wrongAnswers++;
+            } else {
+                quizState.rightAnswers++;
+            }
+            
 
             // make sure the submit button is hidden so the form can't be resubmitted
             submitButton = document.getElementById('submit-quiz-question');
@@ -480,7 +518,7 @@ async function processQuizQuestion(){
             await saveAnswer(questionId, data.student_answers);
 
             // Load explanation after progress record is updated/created
-            await loadQuizQuestionExplanation(questionId); // Wait for the explanation to load
+            await loadQuizQuestionExplanation(questionId, subtopicId); // Wait for the explanation to load
 
         } else {
             document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
@@ -602,7 +640,7 @@ async function saveAnswer(questionId, studentAnswers){
     }
 }
 
-async function loadQuizQuestionExplanation(questionId) {
+async function loadQuizQuestionExplanation(questionId, subtopicId) {
     const explanationContainer = document.getElementById('explanation-container');
     explanationContainer.innerHTML = '';
         
@@ -615,6 +653,47 @@ async function loadQuizQuestionExplanation(questionId) {
             explanationContainer.innerHTML = data.quiz_explanation_html; 
 
             // add event listeners to the previous and next buttons
+            // if there isn't a previous quiz question, hide the previous button;
+                // else display the button and add an event listener              
+                previousButtonBottom = document.getElementById('previous-button-bottom');
+                if (previousButtonBottom){
+                    if (quizState.hasPrevious){
+                        previousButtonBottom.classList.remove('hidden');
+
+                        // remove the old event listener to prevent multiple event listeners for the same button
+                        previousButtonBottom.removeEventListener('click', previousPageHandler);
+
+                        // define previousPageHandler
+                        function previousPageHandler(){
+                            previousPage(subtopicId, quizState.pageNumber);    
+                        }
+                        // add the event listener
+                        previousButtonBottom.addEventListener('click', previousPageHandler);
+                    }else{
+                        previousButtonBottom.classList.add('hidden');
+                    }
+                }   
+                
+                // if there isn't a next quiz question, hide the next button;
+                // else display the button and add an event listener
+                nextButtonBottom = document.getElementById('next-button-bottom');
+                if (nextButtonBottom){
+                    if (quizState.hasNext){
+                        nextButtonBottom.classList.remove('hidden');
+
+                        // remove the old event listener to prevent multiple event listeners for the same button
+                        nextButtonBottom.removeEventListener('click', nextPageHandler);
+
+                        // define nextPageHandler
+                        function nextPageHandler(){
+                            nextPage(subtopicId, quizState.pageNumber, quizState.totalPages);    
+                        }
+                         // add the event handler to the next button
+                        nextButtonBottom.addEventListener('click', nextPageHandler);
+                    }else{
+                        nextButtonBottom.classList.add('hidden');                        
+                    }
+                }
         } else {
             
             //console.error('There is no explanation for this question:', data.messages);

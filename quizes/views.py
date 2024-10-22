@@ -161,8 +161,9 @@ def process_quiz_question(request, subtopic_id):
         # 1) The student didn't choose all the correct answers
         # 2) The student chose all the correct answers but also chose an additional incorrect answer
 
-        # return choice_id
+        # student missed 1 or more correct answers
         missed_correct_answers = correct_choices - student_selected_choices
+        # student chose all the correct answers + 1 or more incorrect answers
         extra_incorrect_answers = student_selected_choices - correct_choices
 
         # add missed correct answers to the results_dict. The student didn't choose all the correct answers
@@ -172,7 +173,7 @@ def process_quiz_question(request, subtopic_id):
                 "selected_by_student": False
             }
 
-        # Indicate if there is an extra incorrect answer in results_dict
+        # add any extra incorrect answer to results_dict
         for choice_id in extra_incorrect_answers:
             # update existing entry to flag it as an extra incorrect answer
             if choice_id in results_dict:
@@ -275,9 +276,43 @@ def save_answer(request, question_id):
                 "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)  
 
         return JsonResponse({"success": True})
+    
+@login_required(login_url='login')
+def get_student_answer(request, subtopic_id, question_id):
+    learner = request.user
 
+    try:
+        student_answers = StudentAnswer.objects.filter(
+        learner=learner,
+        subtopic_id=subtopic_id,
+        question_id=question_id
+        ).prefetch_related('selected_choices')
+
+    except StudentAnswer.DoesNotExist:
+        return JsonResponse({"success": False, 
+            "messages": [{"message": "PStudentAnswer record does not exist.", "tags": "danger"}]}, status=400)
+
+    # Create a dictionary to store the answers and correctness
+    student_answers_dict = {
+        'selected_choices': [],
+        'correct_choices': []
+    }
+
+    for answer in student_answers:
+        # Store selected choices
+        selected_choices = list(answer.selected_choices.values_list('id', flat=True))
+        student_answers_dict['selected_choices'] += selected_choices
+
+        # Check if each selected choice is correct or incorrect
+        correct_choices = Choice.objects.filter(question=answer.question, is_correct=True).values_list('id', flat=True)
+
+        # Append correct choices for later use in frontend
+        student_answers_dict['correct_choices'] += list(correct_choices)
+
+        print(student_answers_dict)
+
+    return JsonResponse({"success": True, 'student_answers_dict': student_answers_dict})
         
-
 @login_required(login_url='login')
 def load_quiz_question_explanation(request, question_id):
     try:
