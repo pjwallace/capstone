@@ -383,25 +383,51 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
                     }
                 }
 
-                // check if this question has been previously answered (StudentAnswer record exists).
-                questionId = document.getElementById('quizquestion-id').value;
+                // check if this question has been previously answered (StudentAnswer record exists).                
                 (async () => {
-                    const student_answers_dict = await getStudentAnswer(subtopicId, questionId);
-                    console.log(student_answers_dict);
+                    questionId = document.getElementById('quizquestion-id').value;
+                    let studentAnswers = await getStudentAnswer(subtopicId, questionId);
+                    console.log(studentAnswers);
+
+                    if (studentAnswers && studentAnswers.length > 0){
+                        // disable the submit button
+                        submitButton = document.getElementById('submit-quiz-question');
+                        if (submitButton){
+                            submitButton.style.display = 'none';
+                        }
+
+                        // mark the choices selected by the student
+                        studentAnswers.forEach(choiceId=>{
+                            const choiceInput = document.querySelector(`input[value="${choiceId}"]`);
+                            if (choiceInput){
+                                choiceInput.checked = 'true';
+                            }
+                        });
+
+                        // disable all input boxes on the form
+                        const choiceInputs = document.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+                        choiceInputs.forEach(input => {
+                            input.disabled = 'true';
+                        });
+                        
+                        let previouslyAnswered = true;
+                        processQuizQuestion(studentAnswers, previouslyAnswered);
+                    }else{
+                        // question has not been previously answered
+                        // make sure the submit button is displayed
+                        submitButton = document.getElementById('submit-quiz-question');
+                        if (submitButton){
+                            submitButton.style.display = 'block';
+                        }
+    
+                        // remove any old event listeners for the form submission event
+                        quizContainer.removeEventListener('submit', formSubmitHandler);               
+    
+                        // add the form submit event handler
+                        quizContainer.addEventListener('submit', formSubmitHandler);
+                    }
                 })();
 
-                // make sure the submit button is displayed
-                submitButton = document.getElementById('submit-quiz-question');
-                if (submitButton){
-                    submitButton.style.display = 'block';
-                }
-
-                // remove any old event listeners for the form submission event
-                quizContainer.removeEventListener('submit', formSubmitHandler);               
-
-                // add the form submit event handler
-                quizContainer.addEventListener('submit', formSubmitHandler);
-                
             }else{
                 console.error("Failed to load quiz html");
             }
@@ -429,7 +455,9 @@ function nextPage(subtopicId, pageNumber, totalPages){
 function formSubmitHandler(e){
     e.preventDefault();
     if (e.target && e.target.id === 'quiz'){
-        processQuizQuestion();
+        let previouslyAnswered = false;
+        let studentAnswers = [];
+        processQuizQuestion(studentAnswers, previouslyAnswered);
     }
 };
 
@@ -440,10 +468,10 @@ async function getStudentAnswer(subtopicId, questionId){
         const data = await response.json();
         
         if (data.success) {
-            return data.student_answers_dict;
+            return data.student_answers_list;
         } else {
             console.log("StudentAnswer record does not exist");
-            return null; // or return an empty object if appropriate
+            return data.student_answers_list; 
         }
     } catch (error) {
         console.error("Error fetching student answers:", error);
@@ -451,16 +479,19 @@ async function getStudentAnswer(subtopicId, questionId){
     }
 }
 
-async function processQuizQuestion(){
+async function processQuizQuestion(selectedAnswers, previouslyAnswered){
     const subtopicId = document.getElementById('quizsubtopic-id').value;
     const questionId = document.getElementById('quizquestion-id').value;
+    console.log(selectedAnswers, previouslyAnswered);
         
-    // retrieve the quiz answers
-    let selectedAnswers = [];
-    const checkedAnswers = document.querySelectorAll("input[name^='question-']:checked");
-    checkedAnswers.forEach((answer) => {
-        selectedAnswers.push(answer.value); // value = choice.id
-    });
+    // retrieve the quiz answers from the form if question not previously answered
+    if (!previouslyAnswered){
+        selectedAnswers = [];
+        const checkedAnswers = document.querySelectorAll("input[name^='question-']:checked");
+        checkedAnswers.forEach((answer) => {
+            selectedAnswers.push(answer.value); // value = choice.id
+        });
+    }
     
     const route = `/quizes/home/process_quiz_question/${subtopicId}`;
 
@@ -491,10 +522,13 @@ async function processQuizQuestion(){
             document.getElementById(`check-${questionId}`).style.display = incorrectAnswer ? 'none' : 'block';
             document.getElementById(`times-${questionId}`).style.display = incorrectAnswer ? 'block' : 'none';
 
-            if (incorrectAnswer) {
-                quizState.wrongAnswers++;
-            } else {
-                quizState.rightAnswers++;
+            // if new question, update right and wrong answer totals
+            if (!previouslyAnswered){
+                if (incorrectAnswer) {
+                    quizState.wrongAnswers++;
+                } else {
+                    quizState.rightAnswers++;
+                }
             }
             
 
@@ -507,15 +541,17 @@ async function processQuizQuestion(){
             // Highlight correct/incorrect answers
             highlightAnswers(data.results_dict, data.question_type);
 
-            // Create or update progress record first, then save the student answer for later review
-            if (data.progress_data.progress_exists === 'yes') {
-            await updateProgressRecord(subtopicId); // Wait for progress record to update
-            } else {
-                await createProgressRecord(subtopicId); // Wait for progress record to be created
-            }
+            if (!previouslyAnswered){
+                // Create or update progress record first, then save the student answer for later review
+                if (data.progress_data.progress_exists === 'yes') {
+                await updateProgressRecord(subtopicId); // Wait for progress record to update
+                } else {
+                    await createProgressRecord(subtopicId); // Wait for progress record to be created
+                }
 
-            // save the student answer in the StudentAnswer model
-            await saveAnswer(questionId, data.student_answers);
+                // save the student answer in the StudentAnswer model
+                await saveAnswer(questionId, data.student_answers);
+            }
 
             // Load explanation after progress record is updated/created
             await loadQuizQuestionExplanation(questionId, subtopicId); // Wait for the explanation to load

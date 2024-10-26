@@ -280,38 +280,38 @@ def save_answer(request, question_id):
 @login_required(login_url='login')
 def get_student_answer(request, subtopic_id, question_id):
     learner = request.user
+    
+    student_answers = StudentAnswer.objects.filter(
+    learner=learner,
+    subtopic_id=subtopic_id,
+    question_id=question_id
+    ).prefetch_related('selected_choices')
+    print(student_answers)
 
-    try:
-        student_answers = StudentAnswer.objects.filter(
-        learner=learner,
-        subtopic_id=subtopic_id,
-        question_id=question_id
-        ).prefetch_related('selected_choices')
-
-    except StudentAnswer.DoesNotExist:
-        return JsonResponse({"success": False, 
-            "messages": [{"message": "PStudentAnswer record does not exist.", "tags": "danger"}]}, status=400)
+    if not student_answers.exists():
+        return JsonResponse({"success": False })
+            
 
     # Create a dictionary to store the answers and correctness
-    student_answers_dict = {
-        'selected_choices': [],
-        'correct_choices': []
-    }
-
+    #student_answers_dict = {
+    #    'selected_choices': [],
+    #    'correct_choices': []
+    #}
+    student_answers_list = []
     for answer in student_answers:
         # Store selected choices
-        selected_choices = list(answer.selected_choices.values_list('id', flat=True))
-        student_answers_dict['selected_choices'] += selected_choices
+        student_answers_list = list(answer.selected_choices.values_list('id', flat=True))
+        #student_answers_dict['selected_choices'] += selected_choices
 
         # Check if each selected choice is correct or incorrect
-        correct_choices = Choice.objects.filter(question=answer.question, is_correct=True).values_list('id', flat=True)
+        #correct_choices = Choice.objects.filter(question=answer.question, is_correct=True).values_list('id', flat=True)
 
         # Append correct choices for later use in frontend
-        student_answers_dict['correct_choices'] += list(correct_choices)
+        #student_answers_dict['correct_choices'] += list(correct_choices)
 
-        print(student_answers_dict)
+    print(student_answers_list)
 
-    return JsonResponse({"success": True, 'student_answers_dict': student_answers_dict})
+    return JsonResponse({"success": True, 'student_answers_list': student_answers_list})
         
 @login_required(login_url='login')
 def load_quiz_question_explanation(request, question_id):
