@@ -122,18 +122,22 @@ def process_quiz_question(request, subtopic_id):
         data = json.loads(request.body)
         student_answers = data.get("selected_answers", [])
         question_id = data.get("question_id", "")
-       
-        # must select at least one correct answer
-        if not student_answers:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "You didn't select an answer.", "tags": "danger"}]}, status=400)
+        previously_answered = data.get("previously_answered", "")
         
-        # if multiple answer question, must select at least 2 answers
+        # only validate the answer if it hasn't been previously answered
+        if not previously_answered:       
+            # must select at least one correct answer
+            if not student_answers:
+                return JsonResponse({"success": False, 
+                    "messages": [{"message": "You didn't select an answer.", "tags": "danger"}]}, status=400)
+            
+            # if multiple answer question, must select at least 2 answers
         question = get_object_or_404(Question, id=question_id)
-        if question.question_type.name == 'Multiple Answer' and len(student_answers)< 2:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "At least 2 answers are required for this question type.", "tags": "danger"}]}, 
-                    status=400)
+        if not previously_answered:
+            if question.question_type.name == 'Multiple Answer' and len(student_answers)< 2:
+                return JsonResponse({"success": False, 
+                    "messages": [{"message": "At least 2 answers are required for this question type.", "tags": "danger"}]}, 
+                        status=400)
         
         # grade the quiz question                   
         results_dict = {}
@@ -145,6 +149,7 @@ def process_quiz_question(request, subtopic_id):
 
         for answer in student_answers:
             choice_id = int(answer)
+            print(f'choice_id= {choice_id}')
             try:
                 choice = get_object_or_404(Choice, id=choice_id)
                 results_dict[choice_id] = {
@@ -251,7 +256,6 @@ def save_answer(request, question_id):
     if request.method == 'POST':
         data = json.loads(request.body)
         student_answers = data.get("student_answers", [])
-        print(student_answers)
         question = get_object_or_404(Question, id=question_id)
         
         # iterate over the student_answer list and create a StudentAnswer record for each answer
@@ -286,29 +290,16 @@ def get_student_answer(request, subtopic_id, question_id):
     subtopic_id=subtopic_id,
     question_id=question_id
     ).prefetch_related('selected_choices')
-    print(student_answers)
-
+    
     if not student_answers.exists():
         return JsonResponse({"success": False })
-            
-
-    # Create a dictionary to store the answers and correctness
-    #student_answers_dict = {
-    #    'selected_choices': [],
-    #    'correct_choices': []
-    #}
-    student_answers_list = []
-    for answer in student_answers:
-        # Store selected choices
-        student_answers_list = list(answer.selected_choices.values_list('id', flat=True))
-        #student_answers_dict['selected_choices'] += selected_choices
-
-        # Check if each selected choice is correct or incorrect
-        #correct_choices = Choice.objects.filter(question=answer.question, is_correct=True).values_list('id', flat=True)
-
-        # Append correct choices for later use in frontend
-        #student_answers_dict['correct_choices'] += list(correct_choices)
-
+    
+   # Collect the ID of each selected choice
+    student_answers_list = [
+        choice_id for answer in student_answers 
+        for choice_id in answer.selected_choices.values_list('id', flat=True)
+    ]
+        
     print(student_answers_list)
 
     return JsonResponse({"success": True, 'student_answers_list': student_answers_list})
@@ -331,3 +322,48 @@ def load_quiz_question_explanation(request, question_id):
                 "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
     
     return JsonResponse({"success": True, "quiz_explanation_html": quiz_explanation_html})
+
+@login_required(login_url='login')
+def process_completed_quiz(request, subtopic_id):
+    if request.method == 'PUT':
+        learner = request.user
+        data = json.loads(request.body)
+        question_count = int(data.get("question_count", ''))
+        correct_answers = int(data.get("correct_answers", ''))
+        quiz_score = round(correct_answers / question_count)
+
+        # retrieve the progress record
+        try:
+            progress = Progress.objects.get(learner=learner, subtopic_id=subtopic_id)
+            
+        except Progress.DoesNotExist:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Progress record does not exist.", "tags": "danger"}]}, status=400)
+        
+        # update the initial score if necessary and the latest score
+        try:
+            if progress.initial_score == 0 or progress.initial_score == '':
+                progress.initial_score = quiz_score 
+                progress.latest_score = quiz_score 
+            else:
+                progress.latest_score = quiz_score
+
+            progress.save()
+
+        except Exception as e:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
+        
+        context = {
+            "quiz_score": quiz_score,
+            "question_count": question_count,
+            "correct_answers": correct_answers
+        }
+        quiz_score_html = render_to_string('quizes/quiz_score.html', context)
+        
+        return JsonResponse({"success": True, "quiz_score": quiz_score, 
+                "question_count": question_count, "correct_answers": correct_answers})
+
+
+
+

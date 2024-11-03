@@ -5,7 +5,9 @@ const quizState = {
     pageNumber: 1,
     totalPages: 0,
     correctAnswers: 0,
-    incorrectAnswers: 0
+    incorrectAnswers: 0,
+    questionCount: 0,
+    questionsAnswered: 0,
 }
 
 document.addEventListener('DOMContentLoaded', function(){
@@ -59,6 +61,7 @@ function loadSubtopicsForQuizTopic(){
 
                             const subtopicId = subtopic.subtopic_id;
                             const questionCount = subtopic.subtopic_question_count;
+                            quizState.questionCount = questionCount;
 
                             // retrieve user progress data
                             getProgressData(subtopicId)
@@ -273,6 +276,13 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount){
         reviewDiv.appendChild(retakeButton);
     }
 
+    // update the number of questions previously answered
+    if (progressData.progress_exists == 'no'){
+        quizState.questionsAnswered = 0;
+    }else if (progressData.questions_answered != questionCount){
+        quizState.questionsAnswered = progressData.questions_answered;
+    }
+
     // add event listener to review button
     subtopicRow.appendChild(reviewDiv);
 }
@@ -387,8 +397,7 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
                 (async () => {
                     questionId = document.getElementById('quizquestion-id').value;
                     let studentAnswers = await getStudentAnswer(subtopicId, questionId);
-                    console.log(studentAnswers);
-
+                    
                     if (studentAnswers && studentAnswers.length > 0){
                         // disable the submit button
                         submitButton = document.getElementById('submit-quiz-question');
@@ -409,7 +418,7 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
                         choiceInputs.forEach(input => {
                             input.disabled = 'true';
                         });
-                        
+
                         let previouslyAnswered = true;
                         processQuizQuestion(studentAnswers, previouslyAnswered);
                     }else{
@@ -468,6 +477,7 @@ async function getStudentAnswer(subtopicId, questionId){
         const data = await response.json();
         
         if (data.success) {
+            console.log(data.student_answers_list);
             return data.student_answers_list;
         } else {
             console.log("StudentAnswer record does not exist");
@@ -482,11 +492,12 @@ async function getStudentAnswer(subtopicId, questionId){
 async function processQuizQuestion(selectedAnswers, previouslyAnswered){
     const subtopicId = document.getElementById('quizsubtopic-id').value;
     const questionId = document.getElementById('quizquestion-id').value;
-    console.log(selectedAnswers, previouslyAnswered);
+    
         
     // retrieve the quiz answers from the form if question not previously answered
     if (!previouslyAnswered){
         selectedAnswers = [];
+        
         const checkedAnswers = document.querySelectorAll("input[name^='question-']:checked");
         checkedAnswers.forEach((answer) => {
             selectedAnswers.push(answer.value); // value = choice.id
@@ -509,6 +520,7 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
             body: JSON.stringify({
                 selected_answers: selectedAnswers,
                 question_id: questionId,
+                previously_answered: previouslyAnswered
             }),
         });
         
@@ -516,21 +528,35 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
 
         if (data.success) {
             // Handle correct/incorrect answers
-            let incorrectAnswer = Object.values(data.results_dict).some(result => !result.is_correct);
+            
+            let incorrectAnswer = false;
+            if (data.question_type === 'True/False' || data.question_type === 'Multiple Choice'){
+                incorrectAnswer = Object.values(data.results_dict).some(result => !result.is_correct);
+            }else if (data.question_type === 'Multiple Answer'){
+                // For multiple-answer questions, check if:
+                // 1. Any selected answer is incorrect, or
+                // 2. Any correct answer was not selected by the student
+                incorrectAnswer = Object.values(data.results_dict).some(result => 
+                    (!result.is_correct && result.selected_by_student) ||  // Incorrect answer was selected
+                    (result.is_correct && !result.selected_by_student)     // Correct answer was not selected
+                );
+            }
 
+            // update the progress bar
             document.getElementById(`circle-${questionId}`).style.display = 'none';
             document.getElementById(`check-${questionId}`).style.display = incorrectAnswer ? 'none' : 'block';
             document.getElementById(`times-${questionId}`).style.display = incorrectAnswer ? 'block' : 'none';
 
             // if new question, update right and wrong answer totals
             if (!previouslyAnswered){
+                quizState.questionsAnswered ++;
                 if (incorrectAnswer) {
-                    quizState.wrongAnswers++;
+                    quizState.incorrectAnswers++;
                 } else {
-                    quizState.rightAnswers++;
+                    quizState.correctAnswers++;
                 }
             }
-            
+           
 
             // make sure the submit button is hidden so the form can't be resubmitted
             submitButton = document.getElementById('submit-quiz-question');
@@ -553,10 +579,16 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
                 await saveAnswer(questionId, data.student_answers);
             }
 
+            // if the quiz is complete
+            if (quizState.questionCount == quizState.questionsAnswered){
+                await processCompletedQuiz(subtopicId);
+            }
+
             // Load explanation after progress record is updated/created
             await loadQuizQuestionExplanation(questionId, subtopicId); // Wait for the explanation to load
 
         } else {
+            clearMessages();
             document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
         }
 
@@ -736,5 +768,69 @@ async function loadQuizQuestionExplanation(questionId, subtopicId) {
         }
     } catch (error) {
         console.error('Error loading explanation:', error); 
+    }
+}
+
+async function processCompletedQuiz(subtopicId){
+    viewQuizResults = document.getElementById('view-quiz-results');
+    const route = `/quizes/home/process_completed_quiz/${subtopicId}`
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    try {
+        const response = await fetch(route, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                question_count: quizState.questionCount,
+                correct_answers: quizState.correctAnswers,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (data.success){
+            // display the view quiz results button and add an event listener
+            if (viewQuizResults){
+                viewQuizResults.style.display = 'block';
+                viewQuizResults.addEventListener('submit', function(e){
+                    e.preventDefault();
+                    displayQuizScore(data.quiz_score_html);
+                })
+            }
+        }else{
+            console.error("Error updating progress record:", data.messages[0].message);
+        }
+
+    } catch (error){
+        console.error('Error saving quiz scorer:', error);
+    }
+}
+
+function displayQuizScore(quizScoreHTML){
+    // blank out the containers
+    quizContainer = document.getElementById('quiz-container');
+    quizContainer.innerHTML = '';
+    explanationContainer = document.getElementById('explanation-container');
+    explanationContainer.innerHTML = '';
+    quizScoreContainer = document.getElementById('quiz-score-container');
+    quizScoreContainer.innerHTML = '';
+
+    quizScoreContainer.innerHTML = quizScoreHTML;
+
+}
+
+function clearMessages(){
+    const messageContainer = document.querySelector('.error-msg');
+    const messageDiv = document.querySelector('.msg-div');
+    if (messageContainer) {
+        // Clear any existing messages
+        messageContainer.innerHTML = '';
+    }
+    if (messageDiv) {
+        // Clear any existing messages
+        messageDiv.innerHTML = '';
     }
 }
