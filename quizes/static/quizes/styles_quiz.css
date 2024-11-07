@@ -87,6 +87,10 @@ body, html {
     border-radius: 8px; /* Rounded corners */
 }
 
+#quiz-score-container{
+    display: none;
+}
+
 
 #explanation-container {
     flex-shrink: 0; /* Ensure explanation is visible */

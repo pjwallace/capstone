@@ -330,7 +330,7 @@ def process_completed_quiz(request, subtopic_id):
         data = json.loads(request.body)
         question_count = int(data.get("question_count", ''))
         correct_answers = int(data.get("correct_answers", ''))
-        quiz_score = round(correct_answers / question_count)
+        quiz_score = round((correct_answers / question_count) * 100)
 
         # retrieve the progress record
         try:
@@ -342,7 +342,7 @@ def process_completed_quiz(request, subtopic_id):
         
         # update the initial score if necessary and the latest score
         try:
-            if progress.initial_score == 0 or progress.initial_score == '':
+            if progress.initial_score == 0 or progress.initial_score == None:
                 progress.initial_score = quiz_score 
                 progress.latest_score = quiz_score 
             else:
@@ -361,8 +361,7 @@ def process_completed_quiz(request, subtopic_id):
         }
         quiz_score_html = render_to_string('quizes/quiz_score.html', context)
         
-        return JsonResponse({"success": True, "quiz_score": quiz_score, 
-                "question_count": question_count, "correct_answers": correct_answers})
+        return JsonResponse({"success": True, "quiz_score_html": quiz_score_html })
 
 
 
