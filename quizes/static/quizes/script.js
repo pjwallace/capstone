@@ -66,8 +66,7 @@ function loadSubtopicsForQuizTopic(){
 
                             const subtopicId = subtopic.subtopic_id;
                             const questionCount = subtopic.subtopic_question_count;
-                            quizState.questionCount = questionCount;
-
+                           
                             // retrieve user progress data
                             getProgressData(subtopicId)
                                 .then(progressData =>{
@@ -131,6 +130,8 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         // add event listener to start button
         startButton.addEventListener('click', function(e){
             e.preventDefault;
+            quizState.questionCount = questionCount;
+            console.log(quizState.questionCount);
             loadQuizLayout(subtopicId, topicId);
         })
 
@@ -417,10 +418,11 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
                         if (submitButton){
                             submitButton.style.display = 'none';
                         }
-                        // disable the view quiz results button
-                        
-                       if (viewQuizResults){
+
+                        // disable the view quiz results button                        
+                        if (viewQuizResults){
                             viewQuizResults.style.display = 'none';
+                            console.log(viewQuizResults);
                         } 
 
                         // mark the choices selected by the student
@@ -607,10 +609,11 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
             await loadQuizQuestionExplanation(questionId, subtopicId); 
 
             console.log(`questionsAnswered: ${quizState.questionsAnswered}, questionCount: ${quizState.questionCount}`);
-            // if the quiz is complete
-            if (quizState.questionCount == quizState.questionsAnswered){
-                console.log('Quiz is complete');
-                await processCompletedQuiz(subtopicId);
+            if (!previouslyAnswered){
+                // if the quiz is complete
+                if (quizState.questionCount == quizState.questionsAnswered){
+                    await processCompletedQuiz(subtopicId);
+                }
             }
 
         } else {

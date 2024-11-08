@@ -11,6 +11,10 @@ from quizes.models import Progress, StudentAnswer
 import json
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
+import time
+from django.db import transaction
+
+RETRIES = 3
 
 def dashboard(request):
     # Load topics that have subtopics with questions
@@ -213,20 +217,31 @@ def create_progress_record(request, subtopic_id):
     if request.method == 'POST':
         learner = request.user
 
-        try:
-            progress = Progress(learner=learner, subtopic_id=subtopic_id, questions_answered=1)
-            progress.save()
+        for _ in range(RETRIES):
 
-        except IntegrityError:
-            return JsonResponse({"success": False,  
-                "messages": [{"message": "An error occurred while creating this record.", "tags": "danger"}]},
-                    status=500)
-        
-        except Exception as e:
-            return JsonResponse({"success": False, "messages": [{"message": f"An unexpected error occurred: {str(e)}", "tags": "danger"}]},
-                    status=500)
-        
-        return JsonResponse({"success": True})
+            # if database is locked from a previous operation, retry 3 times
+            try:
+                progress = Progress(learner=learner, subtopic_id=subtopic_id, questions_answered=1)
+                progress.save()
+
+                return JsonResponse({"success": True})
+            
+            except IntegrityError:
+                return JsonResponse({"success": False,  
+                    "messages": [{"message": "An error occurred while creating this record.", "tags": "danger"}]},
+                        status=500)
+            
+            except Exception as e:
+                if "database is locked" in str(e).lower():
+                    time.sleep(0.3) 
+                else:
+                    return JsonResponse({"success": False, "messages": [{"message": f"An unexpected error occurred: {str(e)}", "tags": "danger"}]},
+                        status=500)  
+                
+        return JsonResponse({
+            "success": False,
+            "messages": [{"message": "Database is locked after multiple attempts.", "tags": "danger"}]
+        }, status=500)           
     
 @login_required(login_url='login')
 def update_progress_record(request, subtopic_id):
@@ -241,15 +256,24 @@ def update_progress_record(request, subtopic_id):
             return JsonResponse({"success": False, 
                 "messages": [{"message": "Progress record does not exist.", "tags": "danger"}]}, status=400)
         
-        # update number of questions answered
-        try:
-            progress.questions_answered = questions_answered + 1           
-            progress.save()
-        except Exception as e:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
+        for _ in range(RETRIES):        
+            # update number of questions answered
+            try:
+                progress.questions_answered = questions_answered + 1           
+                progress.save()
+                return JsonResponse({"success": True})
         
-        return JsonResponse({"success": True})
+            except Exception as e:
+                if "database is locked" in str(e).lower():
+                    time.sleep(0.3) 
+                else:
+                    return JsonResponse({"success": False, "messages": [{"message": f"An unexpected error occurred: {str(e)}", "tags": "danger"}]},
+                        status=500) 
+                
+        return JsonResponse({
+            "success": False,
+            "messages": [{"message": "Database is locked after multiple attempts.", "tags": "danger"}]
+        }, status=500)          
 
 @login_required(login_url='login')
 def save_answer(request, question_id):
@@ -257,29 +281,50 @@ def save_answer(request, question_id):
         data = json.loads(request.body)
         student_answers = data.get("student_answers", [])
         question = get_object_or_404(Question, id=question_id)
-        
-        # iterate over the student_answer list and create a StudentAnswer record for each answer
-        # each answer is a choice id
-        # question type 'Multiple Answer' will have at least 2 answers
-        for student_answer in student_answers:
-            selected_choices = Choice.objects.get(pk=student_answer)
-            # save the student's answers
-            try:
-                student_answer_obj = StudentAnswer.objects.create(
-                    learner = request.user,
-                    question = question,
-                    subtopic = question.subtopic,
-                    is_correct=selected_choices.is_correct                    
-                )
 
-                # add the selected_choices many-to-many field using the set() method
-                student_answer_obj.selected_choices.set([selected_choices])               
+        # if database is locked from a previous operation, retry 3 times
+        for _ in range(RETRIES):
+            try:
+                # all updates must succeed. Roll back to initial state if any update fails
+                with transaction.atomic():
+        
+                    # iterate over the student_answer list and create a StudentAnswer record for each answer
+                    # each answer is a choice id
+                    # question type 'Multiple Answer' will have at least 2 answers
+                    for student_answer in student_answers:
+                        selected_choices = Choice.objects.get(pk=student_answer)
+
+                        # save the student's answers                        
+                        student_answer_obj = StudentAnswer.objects.create(
+                            learner = request.user,
+                            question = question,
+                            subtopic = question.subtopic,
+                            is_correct=selected_choices.is_correct                    
+                        )
+
+                        # add the selected_choices many-to-many field using the set() method
+                        student_answer_obj.selected_choices.set([selected_choices]) 
+                
+                # database operations were successful
+                return JsonResponse({"success": True})
 
             except Exception as e:
-                return JsonResponse({"success": False, 
-                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)  
+                error_message = f"An error occurred: {str(e)}"
+                if "database is locked" in str(e).lower():
+                    # If the database is locked, wait before retrying
+                    time.sleep(0.5)  
+                else:
+                    # For other exceptions, return immediately
+                    return JsonResponse({
+                        "success": False,
+                        "messages": [{"message": error_message, "tags": "danger"}]
+                    }, status=500)
 
-        return JsonResponse({"success": True})
+        # If retry fails, return an error
+        return JsonResponse({
+            "success": False,
+            "messages": [{"message": "Database error occurred.", "tags": "danger"}]
+        }, status=500)       
     
 @login_required(login_url='login')
 def get_student_answer(request, subtopic_id, question_id):
@@ -300,8 +345,6 @@ def get_student_answer(request, subtopic_id, question_id):
         for choice_id in answer.selected_choices.values_list('id', flat=True)
     ]
         
-    print(student_answers_list)
-
     return JsonResponse({"success": True, 'student_answers_list': student_answers_list})
         
 @login_required(login_url='login')
