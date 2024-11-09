@@ -367,6 +367,21 @@ def load_quiz_question_explanation(request, question_id):
     return JsonResponse({"success": True, "quiz_explanation_html": quiz_explanation_html})
 
 @login_required(login_url='login')
+def get_previous_student_answers(request, subtopic_id):
+    learner = request.user
+    
+    student_answers = StudentAnswer.objects.filter(
+        learner=learner,
+        subtopic_id=subtopic_id,
+    )
+    
+    if not student_answers.exists():
+        return JsonResponse({"success": False })
+    else:
+        answer_question_ids = [answer.question_id for answer in student_answers]        
+        return JsonResponse({"success": True, "answer_question_ids": answer_question_ids})
+
+@login_required(login_url='login')
 def process_completed_quiz(request, subtopic_id):
     if request.method == 'PUT':
         learner = request.user

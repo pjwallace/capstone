@@ -131,8 +131,8 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         startButton.addEventListener('click', function(e){
             e.preventDefault;
             quizState.questionCount = questionCount;
-            console.log(quizState.questionCount);
-            loadQuizLayout(subtopicId, topicId);
+            buttonType = 'start';
+            loadQuizLayout(subtopicId, topicId, buttonType);
         })
 
     // resume quiz button
@@ -147,6 +147,12 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         subtopicRow.append(statusDiv);
 
         // add event listener to resume button
+        resumeButton.addEventListener('click', function(e){
+            e.preventDefault();
+            quizState.questionCount = questionCount;
+            buttonType = 'resume';
+            loadQuizLayout(subtopicId, topicId, buttonType);
+        })
 
     // Display quiz complete text
     }else if (progressData.progress_exists == 'yes' && questionCount == progressData.questions_answered){
@@ -282,18 +288,11 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount){
         reviewDiv.appendChild(retakeButton);
     }
 
-    // update the number of questions previously answered
-    //if (progressData.progress_exists == 'no'){
-    //    quizState.questionsAnswered = 0;
-    //}else if (progressData.questions_answered != questionCount){
-    //    quizState.questionsAnswered = progressData.questions_answered;
-    //}
-    //console.log(quizState.questionsAnswered);
     // add event listener to review button
     subtopicRow.appendChild(reviewDiv);
 }
 
-function loadQuizLayout(subtopicId, topicId){
+function loadQuizLayout(subtopicId, topicId, buttonType){
     const route = `/quizes/home/load_quiz_layout/${subtopicId}/${topicId}`;   
     fetch(route)
     .then(response => response.json())
@@ -306,8 +305,12 @@ function loadQuizLayout(subtopicId, topicId){
             // attach progress bar event listeners
             attachProgressBarEventListeners();
 
-            // load the first quiz question
-            loadQuizQuestionsAndAnswers(subtopicId, pageNumber=1);
+            // load the first quiz question if starting a new quiz
+            if (buttonType === 'start'){
+                loadQuizQuestionsAndAnswers(subtopicId, pageNumber=1);
+            } else if (buttonType === 'resume'){
+                resumeQuiz(subtopicId);
+            }
         }
         else{
             console.error("Failed to load quiz layout");
@@ -422,7 +425,6 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
                         // disable the view quiz results button                        
                         if (viewQuizResults){
                             viewQuizResults.style.display = 'none';
-                            console.log(viewQuizResults);
                         } 
 
                         // mark the choices selected by the student
@@ -499,7 +501,6 @@ async function getStudentAnswer(subtopicId, questionId){
         if (data.success) {
             return data.student_answers_list;
         } else {
-            console.log("StudentAnswer record does not exist");
             return data.student_answers_list; 
         }
     } catch (error) {
@@ -569,7 +570,7 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
             // if new question, update right and wrong answer totals
             if (!previouslyAnswered){
                 quizState.questionsAnswered ++;
-                console.log(quizState.questionsAnswered);
+                
                 if (incorrectAnswer) {
                     quizState.incorrectAnswers++;
                 } else {
@@ -608,7 +609,7 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
             // Load explanation after progress record is updated/created
             await loadQuizQuestionExplanation(questionId, subtopicId); 
 
-            console.log(`questionsAnswered: ${quizState.questionsAnswered}, questionCount: ${quizState.questionCount}`);
+            //console.log(`questionsAnswered: ${quizState.questionsAnswered}, questionCount: ${quizState.questionCount}`);
             if (!previouslyAnswered){
                 // if the quiz is complete
                 if (quizState.questionCount == quizState.questionsAnswered){
@@ -619,9 +620,7 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
         } else {
             clearMessages();
             document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-        }
-
-        
+        }        
     } catch (error) {        
         console.error('Error processing quiz answers:', error);        
     }
@@ -651,7 +650,6 @@ function highlightAnswers(results_dict, questionType){
                 choiceElement.style.backgroundColor = "rgba(0, 128, 0, 0.5)";
             }
         }
-
     }
 
 }
@@ -797,6 +795,32 @@ async function loadQuizQuestionExplanation(questionId, subtopicId) {
         }
     } catch (error) {
         console.error('Error loading explanation:', error); 
+    }
+}
+
+async function resumeQuiz(subtopicId){
+    // get all the previous answers
+    const answerQuestionIds = await getPreviousStudentAnswers(subtopicId);
+
+    answerQuestionIds.forEach((questionId) => {
+        let studentAnswers = getStudentAnswer(subtopicId, questionId);
+    })
+}
+
+async function getPreviousStudentAnswers(subtopicId){
+    const route = `/quizes/home/get_previous_student_answers/${subtopicId}`;
+    try {
+        const response = await fetch(route);
+        const data = await response.json();
+        if (data.success) {
+            return data.answer_question_ids;
+        } else {
+            // Handle the error case if needed
+            return [];
+        }
+    } catch (error) {
+        console.error("Error fetching student answers:", error);
+        return [];
     }
 }
 

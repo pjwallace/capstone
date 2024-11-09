@@ -20,4 +20,6 @@ urlpatterns = [
          name="get_student_answer"),
      path("process_completed_quiz/<int:subtopic_id>", views.process_completed_quiz, 
           name="process_completed_quiz"),
+     path("get_previous_student_answers/<int:subtopic_id>", views.get_previous_student_answers,
+          name="get_previous_student_answers"),
 ]
