@@ -529,8 +529,7 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
     // Retrieve the django CSRF token from the form
     var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    try {
-        
+    try {        
         const response = await fetch(route, {
             method: 'POST',
             headers: {
@@ -801,10 +800,17 @@ async function loadQuizQuestionExplanation(questionId, subtopicId) {
 async function resumeQuiz(subtopicId){
     // get all the previous answers
     const answerQuestionIds = await getPreviousStudentAnswers(subtopicId);
+    
+    // get the answer choice ids
+    for (const questionId of answerQuestionIds){
+        let studentAnswers = await getStudentAnswer(subtopicId, questionId);
 
-    answerQuestionIds.forEach((questionId) => {
-        let studentAnswers = getStudentAnswer(subtopicId, questionId);
-    })
+        await updateProgressBar(subtopicId, questionId, studentAnswers);
+        
+    }
+
+    // get the first unanswered quiz question
+    getFirstUnansweredQuestion();
 }
 
 async function getPreviousStudentAnswers(subtopicId){
@@ -821,6 +827,81 @@ async function getPreviousStudentAnswers(subtopicId){
     } catch (error) {
         console.error("Error fetching student answers:", error);
         return [];
+    }
+}
+
+async function updateProgressBar(subtopicId, questionId, studentAnswers){
+    const route = `/quizes/home/get_previous_results/${subtopicId}`;
+
+    try{
+        const response = await fetch(route, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                
+            },
+            body: JSON.stringify({
+                student_answers: studentAnswers,
+                question_id: questionId,
+            }),
+        });
+        
+        const data = await response.json();
+        if (data.success){
+            // Handle correct/incorrect answers
+            
+            let incorrectAnswer = false;
+            if (data.question_type === 'True/False' || data.question_type === 'Multiple Choice'){
+                incorrectAnswer = Object.values(data.results_dict).some(result => !result.is_correct);
+            }else if (data.question_type === 'Multiple Answer'){
+                // For multiple-answer questions, check if:
+                // 1. Any selected answer is incorrect, or
+                // 2. Any correct answer was not selected by the student
+                incorrectAnswer = Object.values(data.results_dict).some(result => 
+                    (!result.is_correct && result.selected_by_student) ||  // Incorrect answer was selected
+                    (result.is_correct && !result.selected_by_student)     // Correct answer was not selected
+                );
+            }
+
+            // update the progress bar
+            document.getElementById(`circle-${questionId}`).style.display = 'none';
+            document.getElementById(`check-${questionId}`).style.display = incorrectAnswer ? 'none' : 'block';
+            document.getElementById(`times-${questionId}`).style.display = incorrectAnswer ? 'block' : 'none';
+
+        }else{
+            clearMessages();
+            document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+        }
+
+    }catch(error){        
+        console.error('Error retrieving previous quiz answers:', error);        
+    }
+
+}
+
+function getFirstUnansweredQuestion(){
+    const progressContainer = document.getElementById('progress-container');
+    
+    
+    const pageNumber = this.getAttribute('data-page');
+
+    if (progressContainer){
+        const questionLinks = document.querySelectorAll('#progress-container a');
+        for (let link of questionLinks){
+            const subtopicId = link.getAttribute('data-subtopic-id');
+            const questionId = link.getAttribute('data-question-id');
+            const circleIcon = document.getElementById(`circle-${questionId}`);
+
+            // if the circle icon is still visible, it is an unanswered question
+            if (circleIcon && window.getComputedStyle(circleIcon).display !== 'none') {
+                const pageNumber = link.getAttribute('data-page');
+                loadQuizQuestionsAndAnswers(subtopicId, pageNumber);
+                
+                // exit the loop after the first unanswered question is found
+                return;
+            }
+
+        }
     }
 }
 
