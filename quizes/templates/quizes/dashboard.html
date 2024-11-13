@@ -5,6 +5,8 @@
 <html lang="en">
     <head>
         <title>{% block title %}Self Assessment Dashboard{% endblock %}</title>
+
+        <meta name="csrf-token" content="{{ csrf_token }}">
         
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
             integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" 
@@ -61,7 +63,7 @@
                         </div>
 
                         <div class="col-md-2 col-sm-2 text-center" id="review-header">
-                            <span class="header-span review-header" id="review">Review</span>                                                            
+                            <span class="header-span review-header" id="review">Review/Retake</span>                                                            
                         </div>                        
                     </div>
 
@@ -87,6 +89,36 @@
                         {% endfor %} 
                     </div>                      
                      
+                </div>
+
+                <!-- Modal -->
+                <div class="modal" id="confirm-retake-quiz-modal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    Retake Self-Assessment
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="close">                                
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>You can retake this Self-Assessment as many times as you like.
+                                    If you continue, your last attempt will be deleted. Your initial
+                                    score will still be kept.
+                                </p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel
+                                </button>
+                                <button type="button" class="btn btn-danger" id="confirm-retake-quiz-button">
+                                    Retake
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             {% endblock %}
         </div>

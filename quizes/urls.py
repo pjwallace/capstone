@@ -24,4 +24,6 @@ urlpatterns = [
           name="get_previous_student_answers"),
      path("get_previous_results/<int:subtopic_id>", views.get_previous_results, 
           name="get_previous_results"),
+     path("delete_student_answers/<int:subtopic_id>", views.delete_student_answers, 
+          name="delete_student_answers"),
 ]

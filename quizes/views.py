@@ -13,6 +13,7 @@ import json
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
 import time
+import math
 from django.db import transaction
 
 RETRIES = 3
@@ -448,7 +449,7 @@ def get_previous_student_answers(request, subtopic_id):
         answer_question_ids = [answer.question_id for answer in student_answers] 
         # convert to a set to remove duplicate ids that will exist with multiple answer questions
         answer_question_ids = set(answer_question_ids)
-        
+
         # reconvert to a list for JSON 
         answer_question_ids = list(answer_question_ids)
             
@@ -461,7 +462,7 @@ def process_completed_quiz(request, subtopic_id):
         data = json.loads(request.body)
         question_count = int(data.get("question_count", ''))
         correct_answers = int(data.get("correct_answers", ''))
-        quiz_score = round((correct_answers / question_count) * 100)
+        quiz_score = math.ceil((correct_answers / question_count) * 100)
 
         # retrieve the progress record
         try:
@@ -493,6 +494,12 @@ def process_completed_quiz(request, subtopic_id):
         quiz_score_html = render_to_string('quizes/quiz_score.html', context)
         
         return JsonResponse({"success": True, "quiz_score_html": quiz_score_html })
+    
+@login_required(login_url='login')
+def delete_student_answers(request, subtopic_id):
+    if request.method == 'POST':
+        learner = request.user
+
 
 
 

@@ -461,7 +461,7 @@ function updateTopicSelectMenu(formTopicId){
 }
 
 function setupDeleteTopicModal(){
-    // form select menu event listener
+    
     const selectTopicToDelete = document.getElementById('topic-to-delete');
     const deleteTopicButton = document.getElementById('delete-topic-btn');
     const modalElement = document.getElementById('confirm-delete-topic-modal');
@@ -474,7 +474,7 @@ function setupDeleteTopicModal(){
         if (!deleteTopicButton) {
             return;  // Early exit to avoid further errors
         }   
-        console.log(selectTopicToDelete);
+       
         if (selectTopicToDelete){
             // at least one valid topic available
             const validOptions = selectTopicToDelete.options.length > 1;

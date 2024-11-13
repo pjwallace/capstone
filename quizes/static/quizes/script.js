@@ -80,7 +80,7 @@ function loadSubtopicsForQuizTopic(){
                                     scoreColumn(subtopicRow, progressData, questionCount);
 
                                     // set up the review column
-                                    reviewColumn(subtopicRow, subtopicId, progressData, questionCount);
+                                    reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topicId);
 
                                     subtopicsContainer.appendChild(subtopicRow);
                                 })
@@ -256,7 +256,7 @@ function scoreColumn(subtopicRow, progressData, questionCount){
 
 }
 
-function reviewColumn(subtopicRow, subtopicId, progressData, questionCount){
+function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topicId){
     const reviewDiv = document.createElement('div');
     reviewDiv.classList.add('col-md-2', 'col-sm-2', 'review-column');
 
@@ -279,6 +279,13 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount){
         reviewButton.textContent = 'Review';
         reviewDiv.appendChild(reviewButton);
 
+        // add event listener to resume button
+        reviewButton.addEventListener('click', function(e){
+            e.preventDefault();
+            buttonType = 'review';
+            loadQuizLayout(subtopicId, topicId, buttonType);
+        })
+
         // retake button
         const retakeButton = document.createElement('button');
         retakeButton.type = 'button';
@@ -286,9 +293,25 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount){
         retakeButton.setAttribute('id', `retake-${subtopicId}`)
         retakeButton.textContent = 'Retake';
         reviewDiv.appendChild(retakeButton);
+
+        // set up the confirmation modal for retaking the quiz
+        const modalElement = document.getElementById('confirm-retake-quiz-modal');
+    
+        if (modalElement){
+            // instantiate the confirmation modal
+            const confirmRetakeQuizModal = new bootstrap.Modal(document.getElementById('confirm-retake-quiz-modal'), {});
+
+            // add event listener to resume button
+            retakeButton.addEventListener('click', function(e){
+                e.preventDefault();
+                confirmRetakeQuizModal.show();
+            })
+
+            retakeQuiz(subtopicId, confirmRetakeQuizModal);
+        }
+
     }
 
-    // add event listener to review button
     subtopicRow.appendChild(reviewDiv);
 }
 
@@ -306,7 +329,7 @@ function loadQuizLayout(subtopicId, topicId, buttonType){
             attachProgressBarEventListeners();
 
             // load the first quiz question if starting a new quiz
-            if (buttonType === 'start'){
+            if (buttonType === 'start' || buttonType === 'review'){
                 loadQuizQuestionsAndAnswers(subtopicId, pageNumber=1);
             } else if (buttonType === 'resume'){
                 resumeQuiz(subtopicId);
@@ -868,6 +891,14 @@ async function updateProgressBar(subtopicId, questionId, studentAnswers){
             document.getElementById(`check-${questionId}`).style.display = incorrectAnswer ? 'none' : 'block';
             document.getElementById(`times-${questionId}`).style.display = incorrectAnswer ? 'block' : 'none';
 
+            // update the number of correct and incorrect answers
+            quizState.questionsAnswered ++;
+            if (incorrectAnswer) {
+                quizState.incorrectAnswers++;
+            } else {
+                quizState.correctAnswers++;
+            }
+
         }else{
             clearMessages();
             document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
@@ -882,9 +913,6 @@ async function updateProgressBar(subtopicId, questionId, studentAnswers){
 function getFirstUnansweredQuestion(){
     const progressContainer = document.getElementById('progress-container');
     
-    
-    const pageNumber = this.getAttribute('data-page');
-
     if (progressContainer){
         const questionLinks = document.querySelectorAll('#progress-container a');
         for (let link of questionLinks){
@@ -955,6 +983,40 @@ function displayQuizScore(quizScoreHTML){
     quizScoreContainer.innerHTML = '';
 
     quizScoreContainer.innerHTML = quizScoreHTML;
+
+}
+
+function retakeQuiz(subtopicId, confirmRetakeQuizModal){
+    // modal delete button
+    const confirmRetakeQuizButton = document.getElementById('confirm-retake-quiz-button');
+    confirmRetakeQuizButton.addEventListener('click', function(){
+        const route = `/quizes/home/delete_student_answers/${subtopicId}`;
+
+        // Retrieve the django CSRF token 
+        const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        fetch(route, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.uccess){
+
+            }else{
+
+            }
+
+            // Close the modal
+            confirmRetakeQuizModal.hide();
+        })
+        .catch(error => console.error('Delete Student Answer records failed:', error));
+
+
+    })
 
 }
 
