@@ -307,7 +307,7 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topi
                 confirmRetakeQuizModal.show();
             })
 
-            retakeQuiz(subtopicId, confirmRetakeQuizModal);
+            retakeQuiz(subtopicId, topicId, confirmRetakeQuizModal);
         }
 
     }
@@ -329,7 +329,7 @@ function loadQuizLayout(subtopicId, topicId, buttonType){
             attachProgressBarEventListeners();
 
             // load the first quiz question if starting a new quiz
-            if (buttonType === 'start' || buttonType === 'review'){
+            if (buttonType === 'start' || buttonType === 'review' || buttonType === 'retake'){
                 loadQuizQuestionsAndAnswers(subtopicId, pageNumber=1);
             } else if (buttonType === 'resume'){
                 resumeQuiz(subtopicId);
@@ -986,9 +986,11 @@ function displayQuizScore(quizScoreHTML){
 
 }
 
-function retakeQuiz(subtopicId, confirmRetakeQuizModal){
+function retakeQuiz(subtopicId, topicId, confirmRetakeQuizModal){
     // modal delete button
     const confirmRetakeQuizButton = document.getElementById('confirm-retake-quiz-button');
+    const buttonType = 'retake';
+
     confirmRetakeQuizButton.addEventListener('click', function(){
         const route = `/quizes/home/delete_student_answers/${subtopicId}`;
 
@@ -996,7 +998,7 @@ function retakeQuiz(subtopicId, confirmRetakeQuizModal){
         const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         fetch(route, {
-            method: 'DELETE',
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrftoken,
@@ -1004,10 +1006,12 @@ function retakeQuiz(subtopicId, confirmRetakeQuizModal){
         })
         .then(response => response.json())
         .then(data => {
-            if (data.uccess){
+            if (data.success){
+                loadQuizLayout(subtopicId, topicId, buttonType);
 
             }else{
-
+                clearMessages();
+                document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
             }
 
             // Close the modal

@@ -500,6 +500,41 @@ def delete_student_answers(request, subtopic_id):
     if request.method == 'POST':
         learner = request.user
 
+        student_answers = StudentAnswer.objects.filter(
+            learner = learner,
+            subtopic_id = subtopic_id
+        )
+        # make sure the StudentAnswer records exist
+        if not student_answers.exists():
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "StudentAnswer records do not exist.", "tags": "danger"}]}, status=400)
+        
+        # retrieve the Progress record
+        try:
+            progress = Progress.objects.get(learner=learner, subtopic_id=subtopic_id)
+            
+        except Progress.DoesNotExist:
+            return JsonResponse({"success": False, 
+                "messages": [{"message": "Progress record does not exist.", "tags": "danger"}]}, status=400)
+
+        try:
+            with transaction.atomic():
+                student_answers.delete()
+                
+                # update the Progress record
+                progress.questions_answered = 0
+                progress.latest_score = None
+                progress.save()
+
+            return JsonResponse({"success": True})
+
+        except Exception as e:
+            return JsonResponse({
+                "success": False,
+                "messages": [{"message": f"An error occurred: {str(e)}",
+                              "tags": "danger"}]   
+            }, status=500)
+
 
 
 
