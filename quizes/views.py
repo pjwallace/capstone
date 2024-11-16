@@ -21,14 +21,12 @@ RETRIES = 3
 def dashboard(request):
     # Load topics that have subtopics with questions
     topics = Topic.objects.filter(subtopics__questions__isnull=False).distinct()
-    return render(request, 'quizes/dashboard.html', {
-        'topics': topics
-    })
+    return render(request, 'quizes/dashboard.html', {'topics': topics})
 
 @login_required(login_url='login')
 def get_subtopics_for_quiz(request, topic_id):
     topic = get_object_or_404(Topic, id=topic_id)
-    subtopics = topic.subtopics.all()
+    subtopics = topic.subtopics.all().order_by('id')
     if subtopics:
         subtopic_data = []
         for subtopic in subtopics:

@@ -162,6 +162,10 @@ def register(request):
     
     else:
         return render(request, "learners/register.html")
+    
+def edit_profile(request):
+
+    return redirect('dashboard')
 
 
 def logout_view(request):

@@ -159,6 +159,8 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         // complete span
         const completeText = document.createElement('span');
         completeText.textContent = 'Complete';
+        completeText.id = 'complete-status';
+        console.log(completeText.textContent);
         statusDiv.appendChild(completeText);
         subtopicRow.append(statusDiv);
     }
@@ -199,8 +201,9 @@ function progressColumn(subtopicRow, progressData, questionCount){
 function scoreColumn(subtopicRow, progressData, questionCount){
     const scoreDiv = document.createElement('div');
     scoreDiv.classList.add('col-md-2', 'col-sm-2', 'score-column');
-
-    if (progressData.progress_exists == 'no' || progressData.questions_answered != questionCount){
+    completeSpan = document.getElementById('complete-status');
+    console.log(progressData);
+    if (progressData.progress_exists == 'no'){
         // display 2 minus signs to indicate no score yet
         const scoreDashes = document.createElement('div');
         scoreDashes.setAttribute('class', 'score-dash');
@@ -215,7 +218,7 @@ function scoreColumn(subtopicRow, progressData, questionCount){
         scoreDashes.append(latestMinus);
         scoreDiv.append(scoreDashes);
 
-    }else if (progressData.progress_exists == 'yes' && progressData.questions_answered == questionCount ){
+    }else if (progressData.progress_exists == 'yes'){
         // score container
         const scoreText = document.createElement('div');
         scoreText.setAttribute('class', 'score-text');
@@ -233,7 +236,7 @@ function scoreColumn(subtopicRow, progressData, questionCount){
         scoreLabel.appendChild(initialLabel);
         scoreLabel.appendChild(latestLabel);
         scoreText.appendChild(scoreLabel);
-
+        
         // second line
         const scoreResults = document.createElement('div');
         scoreResults.setAttribute('class', 'score-results');
@@ -252,8 +255,8 @@ function scoreColumn(subtopicRow, progressData, questionCount){
 
         scoreDiv.appendChild(scoreText);
     }
+    
     subtopicRow.appendChild(scoreDiv);
-
 }
 
 function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topicId){
