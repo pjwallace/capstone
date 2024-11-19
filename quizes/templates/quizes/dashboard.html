@@ -21,14 +21,30 @@
     <body>
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Dashboard</a>
+            <a class="navbar-brand" id="brand"  href="#">Student Assessment</a>
           
-            <div>
-              <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
-                </li>                
-              </ul>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">                    
+                    <li class="nav-item dropdown">
+                        <a 
+                            class="nav-link dropdown-toggle d-flex align-items-center" 
+                            href="#" 
+                            id="user-dropdown" 
+                            role="button" 
+                            data-bs-toggle="dropdown" 
+                            aria-expanded="false"
+                        >
+                            <i class="fa fa-solid fa-user" id="user-icon"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{% url 'edit_profile' %}">Edit Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="logout-link"  href="{% url 'logout' %}">Log Out</a>
+                    </li>
+                </ul>
             </div>
         </nav>          
         
@@ -76,8 +92,7 @@
                                     <span>
                                         <i class="fa fa-regular fa-plus" id="plus-{{ topic.id }}"></i>
                                         <i class="fa fa-regular fa-minus" id="minus-{{ topic.id }}" 
-                                                style="display: none;"></i>
-                                    </span>
+                                                style="display: none;"></i></span>
                                 <span>{{ topic.name }}</span>                                    
                             </div>
                           

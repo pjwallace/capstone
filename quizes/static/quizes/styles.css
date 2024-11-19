@@ -3,6 +3,20 @@ body, html {
     height: 100%; /* Ensure the body and html elements take up the full viewport height */
 }
 
+#brand{
+    margin-left: 15px;
+}
+
+#user-icon {
+    font-size: 1.5rem;
+    margin-right: 15px; 
+    cursor: pointer;
+}
+
+#logout-link{
+    margin-right: 15px;
+}
+
 #dashboard-container{
     height: calc(100vh - 55px); 
     width: 90%;
@@ -21,7 +35,7 @@ body, html {
 }
 
 #choose-assessment{
-    text-indent: 30px;
+    text-indent: 40px;
 }
 
 .column-header{

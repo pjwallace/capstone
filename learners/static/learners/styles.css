@@ -51,6 +51,24 @@ a{
     width: 100%; /* Ensure the form takes the full width of the container */
 }
 
+#profile-container{
+    width: 40%;
+    height: auto;
+    margin: auto;
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: aliceblue;
+    border: 1px solid green;
+    padding: 15px;
+}
+
+#profile-form-container {
+    width: 100%; /* Ensure the form takes the full width of the container */
+}
+
 .form-group input {
     width: 100%; /* Make input fields take the full width of their container */
     box-sizing: border-box; /* Include padding and border in the element's total width and height */
