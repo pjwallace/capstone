@@ -1,14 +1,6 @@
-{% extends "learners/base.html" %}
+{% extends "learners/profile_base.html" %}
 
 {% block body %}
-
-    
-
-    {% if message %}
-        <div>{{ message }}</div>
-    {% endif %}
-
-    <h1 class="title">Surgical Self Assessment</h1>
 
     <div class="profile-container">
         <div class="error-msg">
@@ -21,57 +13,37 @@
             {% endif %}
         </div>
 
-        <h5>Edit Your Profile</h5>
+        <h3>Edit Your Profile</h3>
 
         <div id="profile-form-container">
             <form action="{% url 'edit_profile' %}" method="post">
-                {% csrf_token %}
-                
-                <div class="form-group">
-                    <input class="form-control" type="text" name="first_name" placeholder="First Name"
-                    value="{{ first_name }}">
-                </div>
-                <div class="form-group">
-                    <input class="form-control" type="text" name="last_name" placeholder="Last Name"
-                    value="{{ last_name }}">
-                </div>
-                <div class="form-group">
-                    <input class="form-control" type="text" name="preferred_name" placeholder="Preferred Name"
-                    value="{{ preferred_name }}">
+                {% csrf_token %}               
+                {{ profile_form.first_name.as_p}}
+                {{ profile_form.last_name.as_p}}
+                {{ profile_form.preferred_name.as_p}}
+                {{ profile_form.current_email.as_p}}
+
+                <div>
+                    {{ profile_form.new_email }}
+                    {% for error in profile_form.new_email.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
                 </div>
 
-                <div class="form-group">
-                    <input class="form-control e-mail" type="email" name="email" placeholder="Email Address"
-                    value="{{ email }}">
-                </div>
-                <div class="form-group">
-                    <input class="form-control e-mail" type="email" name="new-email" placeholder="New Email Address">    >
-                </div>
-                
-                <div class= "form-group">
-                    <label for="residency_program">Select your Residency Program:</label>
-                    <select name="residency_program" id="residency_program">
-                        <option value="UTMB">UTMB</option>
-                        <option value="Other">Other</option>
-                    </select>
+                {{ profile_form.residency_program.as_p }}
+                {{ profile_form.pg_level.as_p }}
+
+                <div>
+                    {{ profile_form.cell_phone }}
+                    {% for error in profile_form.cell_phone.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
                 </div>
 
-                <div class= "form-group">
-                    <label for="pg-level">Select your Postgraduate Level:</label>
-                    <select name="pg_level" id="pg-level">
-                        <option value="PG1">PG1</option>
-                        <option value="PG2">PG2</option>
-                        <option value="PG3">PG3</option>
-                        <option value="PG4">PG4</option>
-                        <option value="PG5">PG5</option>
-                        <option value="PG6">PG6</option>
-                        <option value="PG7">PG7</option>
-                        <option value="Fellow">Fellow</option>
-                        <option value="Faculty">Faculty</option>
-                    </select>
+                <div>
+                    <button class="btn btn-primary me-5" type="submit">Save Changes</button>
+                    <a type="button" class="btn btn-warning ms-5" href="{% url 'dashboard' %}">Cancel</a>
                 </div>
-                <button class="btn btn-primary mx-auto d-block" type="submit">Save Changes</button>
-                <button class="btn btn-primary mx-auto d-block" type="button">Cancel</button>
             </form>
         </div>
        

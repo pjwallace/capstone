@@ -51,15 +51,16 @@ a{
     width: 100%; /* Ensure the form takes the full width of the container */
 }
 
-#profile-container{
-    width: 40%;
-    height: auto;
+.profile-container{
+    width: 60%;
+    height: calc(100vh - 55px);
     margin: auto;
-    margin-top: 15px;
+    
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    overflow-y: auto;
     background-color: aliceblue;
     border: 1px solid green;
     padding: 15px;
@@ -67,6 +68,7 @@ a{
 
 #profile-form-container {
     width: 100%; /* Ensure the form takes the full width of the container */
+    overflow-y: auto;
 }
 
 .form-group input {

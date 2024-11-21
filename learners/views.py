@@ -1,14 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.messages import get_messages
 import re
-
-from .models import User
+from .forms import ProfileForm
+from .models import User, Profile
 
 def index(request):
     return render(request, 'learners/index.html')
@@ -164,8 +164,65 @@ def register(request):
         return render(request, "learners/register.html")
     
 def edit_profile(request):
+    if request.method == 'POST':
+        profile_form = ProfileForm(request.POST)
+        if profile_form.is_valid():
+            with transaction.atomic():
+                # create an instance of the User model
+                user = get_object_or_404(User, pk=request.user.id)
 
-    return redirect('dashboard')
+                # update the User model
+                user.first_name = profile_form.cleaned_data['first_name']
+                user.last_name = profile_form.cleaned_data['last_name']
+                if profile_form.cleaned_data['new_email']:
+                    user.email = profile_form.cleaned_data['new_email']
+
+                user.save()
+
+                # update or create a Profile record
+                try:
+                    profile = Profile.objects.get(user=user)
+                    profile.preferred_name = profile_form.cleaned_data['preferred_name']
+                    profile.residency_program = profile_form.cleaned_data['residency_program']
+                    profile.pg_level = profile_form.cleaned_data['pg_level']
+                    profile.cell_phone = profile_form.cleaned_data['cell_phone']
+                    profile.save()
+
+                except Profile.DoesNotExist:
+                    # create the new profile record
+                    profile = Profile.objects.create(
+                        user = user,
+                        preferred_name = profile_form.cleaned_data['preferred_name'],
+                        residency_program = profile_form.cleaned_data['residency_program'],
+                        pg_level = profile_form.cleaned_data['pg_level'],
+                        cell_phone = profile_form.cleaned_data['cell_phone'],
+                    )
+            messages.success(request, "Your profile has been updated.")
+            return redirect('edit_profile')
+    
+        else:
+            # Render the form with validation errors
+            return render(request, 'learners/edit_profile.html', {'profile_form': profile_form})
+
+    else:
+        try:
+            profile = request.user.profile
+        except Profile.DoesNotExist:
+            profile = None
+
+        profile_form = ProfileForm(initial={
+            'first_name': request.user.first_name or '',
+            'last_name': request.user.last_name or '',
+            'preferred_name': profile.preferred_name if profile else '',
+            'current_email': request.user.email or '',
+            'residency_program': profile.residency_program if profile else '',
+            'pg_level': profile.pg_level if profile else '',
+            'cell_phone': profile.cell_phone if profile else '',
+        })
+
+    return render(request, 'learners/profile.html', {
+        'profile_form': profile_form,
+    })
 
 
 def logout_view(request):

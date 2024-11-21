@@ -1,7 +1,10 @@
 from django import forms
 from learners.models import User, Profile
+import re
+from django.core.exceptions import ValidationError
 
 PG_LEVEL_CHOICES = [
+    ('', 'Select your training level'),
     ('PG1', 'PG-1'),
     ('PG2', 'PG-2'),
     ('PG3', 'PG-3'),
@@ -14,6 +17,7 @@ PG_LEVEL_CHOICES = [
 ]
 
 RESIDENCY_PROGRAM_CHOICES = [
+    ('', 'Select your training program'),
     ('UTMB', 'University of Texas Medical Branch'),
     ('Other', 'Other Program'),
 ]
@@ -21,6 +25,7 @@ RESIDENCY_PROGRAM_CHOICES = [
 class ProfileForm(forms.Form):
     first_name = forms.CharField(
         max_length=50, required=False,
+        label='',
         widget=forms.TextInput(attrs={
             'class': 'form-control', 
             'placeholder': 'First Name'
@@ -28,6 +33,7 @@ class ProfileForm(forms.Form):
     )
     last_name = forms.CharField(
         max_length=50, required=False,
+        label='',
         widget=forms.TextInput(attrs={
             'class': 'form-control', 
             'placeholder': 'Last Name'
@@ -35,20 +41,22 @@ class ProfileForm(forms.Form):
     )
     preferred_name = forms.CharField(
         max_length=50, required=False,
+        label='',
         widget=forms.TextInput(attrs={
             'class': 'form-control', 
             'placeholder': 'Preferred Name'
         })
     )
-    email = forms.EmailField(
+    current_email = forms.EmailField(
         required=False,
         widget=forms.EmailInput(attrs={
             'class': 'form-control', 
-            'readonly': 'readonly'
+            'disabled': True,
         })
     )
     new_email = forms.EmailField(
         required=False,
+        label='',
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
             'placeholder': 'New Email Address'
@@ -56,24 +64,57 @@ class ProfileForm(forms.Form):
     )
     residency_program = forms.ChoiceField(
         choices=RESIDENCY_PROGRAM_CHOICES, required=False,
+        label='',
         widget=forms.Select(attrs={
-            'class': 'form-control'
+            'class': 'form-select'
         })
     )
     pg_level = forms.ChoiceField(
         choices=PG_LEVEL_CHOICES, required=False,
+        label='',
         widget=forms.Select(attrs={
-            'class': 'form-control'
+            'class': 'form-select'
         })
     )
     cell_phone = forms.RegexField(
         regex=r'^\+?1?\d{9,15}$',
         required=False,
+        label='',
         error_messages={
             'invalid': 'Enter a valid phone number with digits only, no special characters.'
         },
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Enter numbers only, no special characters',
+            'placeholder': 'Enter cell phone number (digits only)',
         })
     )
+
+    def clean_first_name(self):
+        return self.cleaned_data.get('first_name', '').strip()
+
+    def clean_last_name(self):
+        return self.cleaned_data.get('last_name', '').strip()
+    
+    def clean_preferred_name(self):
+        return self.cleaned_data.get('preferred_name', '').strip()
+        
+    def clean_new_email(self):
+        new_email = self.cleaned_data.get('new_email', '').strip()
+
+        # Validate email format
+        regex_email = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+        if not re.fullmatch(regex_email, new_email):
+            raise ValidationError("Invalid email address format.")
+        
+        # Check if the email is already in use
+        if User.objects.filter(email=new_email).exists():
+            raise ValidationError("This email is already in use.")
+        return new_email
+    
+    def clean_cell_phone(self):
+        cell_phone = self.cleaned_data['cell_phone'].strip()
+
+        if cell_phone and (len(cell_phone) < 9 or len(cell_phone) > 15):
+            raise ValidationError("Phone number must be between 9 and 15 digits.")
+        
+        return cell_phone
