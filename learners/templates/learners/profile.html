@@ -18,29 +18,60 @@
         <div id="profile-form-container">
             <form action="{% url 'edit_profile' %}" method="post">
                 {% csrf_token %}               
-                {{ profile_form.first_name.as_p}}
-                {{ profile_form.last_name.as_p}}
-                {{ profile_form.preferred_name.as_p}}
-                {{ profile_form.current_email.as_p}}
+                <div class="mb-3">                    
+                    {{ profile_form.first_name }}
+                    {% for error in profile_form.first_name.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">                    
+                    {{ profile_form.last_name }}
+                    {% for error in profile_form.last_name.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    {{ profile_form.preferred_name }}
+                    {% for error in profile_form.preferred_name.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    {{ profile_form.current_email.label_tag }}
+                    {{ profile_form.current_email }}
+                    {% for error in profile_form.current_email.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
 
-                <div>
+                <div class="mb-3">
                     {{ profile_form.new_email }}
                     {% for error in profile_form.new_email.errors %}
                         <div class="text-danger">{{ error }}</div>
                     {% endfor %}
                 </div>
 
-                {{ profile_form.residency_program.as_p }}
-                {{ profile_form.pg_level.as_p }}
+                <div class="mb-3">
+                    {{ profile_form.residency_program }}
+                    {% for error in profile_form.residency_program.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    {{ profile_form.pg_level }}
+                    {% for error in profile_form.pg_level.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
 
-                <div>
+                <div class="mb-3">
                     {{ profile_form.cell_phone }}
                     {% for error in profile_form.cell_phone.errors %}
                         <div class="text-danger">{{ error }}</div>
                     {% endfor %}
                 </div>
 
-                <div>
+                <div class="mb-3">
                     <button class="btn btn-primary me-5" type="submit">Save Changes</button>
                     <a type="button" class="btn btn-warning ms-5" href="{% url 'dashboard' %}">Cancel</a>
                 </div>

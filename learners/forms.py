@@ -51,7 +51,7 @@ class ProfileForm(forms.Form):
         required=False,
         widget=forms.EmailInput(attrs={
             'class': 'form-control', 
-            'disabled': True,
+            'readonly': 'readonly',
         })
     )
     new_email = forms.EmailField(
@@ -76,13 +76,9 @@ class ProfileForm(forms.Form):
             'class': 'form-select'
         })
     )
-    cell_phone = forms.RegexField(
-        regex=r'^\+?1?\d{9,15}$',
+    cell_phone = forms.CharField(
         required=False,
         label='',
-        error_messages={
-            'invalid': 'Enter a valid phone number with digits only, no special characters.'
-        },
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Enter cell phone number (digits only)',
@@ -101,6 +97,10 @@ class ProfileForm(forms.Form):
     def clean_new_email(self):
         new_email = self.cleaned_data.get('new_email', '').strip()
 
+        # Skip validation if the field is blank
+        if not new_email:
+            return new_email
+
         # Validate email format
         regex_email = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
         if not re.fullmatch(regex_email, new_email):
@@ -114,6 +114,11 @@ class ProfileForm(forms.Form):
     def clean_cell_phone(self):
         cell_phone = self.cleaned_data['cell_phone'].strip()
 
+        # Check if the phone number is digit only
+        if cell_phone and not re.match(r'^\+?1?\d*$', cell_phone):
+            raise ValidationError('Enter a valid phone number with digits only, no special characters.')
+        
+        # must be between 9 and 15 digits long (for non U.S. numbers)
         if cell_phone and (len(cell_phone) < 9 or len(cell_phone) > 15):
             raise ValidationError("Phone number must be between 9 and 15 digits.")
         

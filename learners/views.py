@@ -202,7 +202,7 @@ def edit_profile(request):
     
         else:
             # Render the form with validation errors
-            return render(request, 'learners/edit_profile.html', {'profile_form': profile_form})
+            return render(request, 'learners/profile.html', {'profile_form': profile_form})
 
     else:
         try:
@@ -219,10 +219,10 @@ def edit_profile(request):
             'pg_level': profile.pg_level if profile else '',
             'cell_phone': profile.cell_phone if profile else '',
         })
-
-    return render(request, 'learners/profile.html', {
-        'profile_form': profile_form,
-    })
+       
+        return render(request, 'learners/profile.html', {
+            'profile_form': profile_form,
+        })
 
 
 def logout_view(request):
