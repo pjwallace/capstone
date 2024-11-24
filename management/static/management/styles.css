@@ -3,6 +3,20 @@ body, html {
     height: 100%; /* Ensure the body and html elements take up the full viewport height */
 }
 
+#brand{
+    margin-left: 15px;
+}
+
+#user-icon {
+    font-size: 1.5rem;
+    margin-right: 5px; 
+    cursor: pointer;
+}
+
+#logout-link{
+    margin-right: 15px;
+}
+
 .sidebar{
     height: calc(100% - 55px);
     width: 280px;

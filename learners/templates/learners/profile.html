@@ -18,19 +18,22 @@
         <div id="profile-form-container">
             <form action="{% url 'edit_profile' %}" method="post">
                 {% csrf_token %}               
-                <div class="mb-3">                    
+                <div class="mb-3">
+                    {{ profile_form.first_name.label_tag }}                    
                     {{ profile_form.first_name }}
                     {% for error in profile_form.first_name.errors %}
                         <div class="text-danger">{{ error }}</div>
                     {% endfor %}
                 </div>
-                <div class="mb-3">                    
+                <div class="mb-3">
+                    {{ profile_form.last_name.label_tag }}                    
                     {{ profile_form.last_name }}
                     {% for error in profile_form.last_name.errors %}
                         <div class="text-danger">{{ error }}</div>
                     {% endfor %}
                 </div>
                 <div class="mb-3">
+                    {{ profile_form.preferred_name.label_tag }}
                     {{ profile_form.preferred_name }}
                     {% for error in profile_form.preferred_name.errors %}
                         <div class="text-danger">{{ error }}</div>
@@ -45,6 +48,7 @@
                 </div>
 
                 <div class="mb-3">
+                    {{ profile_form.new_email.label_tag }}
                     {{ profile_form.new_email }}
                     {% for error in profile_form.new_email.errors %}
                         <div class="text-danger">{{ error }}</div>
@@ -52,12 +56,14 @@
                 </div>
 
                 <div class="mb-3">
+                    {{ profile_form.residency_program.label_tag }}
                     {{ profile_form.residency_program }}
                     {% for error in profile_form.residency_program.errors %}
                         <div class="text-danger">{{ error }}</div>
                     {% endfor %}
                 </div>
                 <div class="mb-3">
+                    {{ profile_form.pg_level.label_tag }}
                     {{ profile_form.pg_level }}
                     {% for error in profile_form.pg_level.errors %}
                         <div class="text-danger">{{ error }}</div>
@@ -65,6 +71,7 @@
                 </div>
 
                 <div class="mb-3">
+                    {{ profile_form.cell_phone.label_tag }}
                     {{ profile_form.cell_phone }}
                     {% for error in profile_form.cell_phone.errors %}
                         <div class="text-danger">{{ error }}</div>

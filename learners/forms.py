@@ -25,7 +25,6 @@ RESIDENCY_PROGRAM_CHOICES = [
 class ProfileForm(forms.Form):
     first_name = forms.CharField(
         max_length=50, required=False,
-        label='',
         widget=forms.TextInput(attrs={
             'class': 'form-control', 
             'placeholder': 'First Name'
@@ -33,7 +32,6 @@ class ProfileForm(forms.Form):
     )
     last_name = forms.CharField(
         max_length=50, required=False,
-        label='',
         widget=forms.TextInput(attrs={
             'class': 'form-control', 
             'placeholder': 'Last Name'
@@ -41,7 +39,6 @@ class ProfileForm(forms.Form):
     )
     preferred_name = forms.CharField(
         max_length=50, required=False,
-        label='',
         widget=forms.TextInput(attrs={
             'class': 'form-control', 
             'placeholder': 'Preferred Name'
@@ -56,7 +53,6 @@ class ProfileForm(forms.Form):
     )
     new_email = forms.EmailField(
         required=False,
-        label='',
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
             'placeholder': 'New Email Address'
@@ -64,21 +60,19 @@ class ProfileForm(forms.Form):
     )
     residency_program = forms.ChoiceField(
         choices=RESIDENCY_PROGRAM_CHOICES, required=False,
-        label='',
         widget=forms.Select(attrs={
             'class': 'form-select'
         })
     )
     pg_level = forms.ChoiceField(
         choices=PG_LEVEL_CHOICES, required=False,
-        label='',
+        label='Postgraduate Level',
         widget=forms.Select(attrs={
             'class': 'form-select'
         })
     )
     cell_phone = forms.CharField(
         required=False,
-        label='',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Enter cell phone number (digits only)',
