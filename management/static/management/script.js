@@ -109,8 +109,8 @@ function loadSuptopicsForTopic(){
             const topicId = topicATag.dataset.topicId;
             const subtopicsContainer = document.getElementById('subtopicscontainer-' + topicId);
             let downIcon = document.getElementById('caretdown-' + topicId);
-            const upIcon = document.getElementById('caretup-' + topicId);
-
+            let upIcon = document.getElementById('caretup-' + topicId);
+            
             // downIcon won't exist if there are no subtopics yet for the chosen topic
             if (!downIcon){
                 downIcon = document.createElement('i');
@@ -128,6 +128,11 @@ function loadSuptopicsForTopic(){
                     downIcon.style.display = 'block';
                     upIcon.style.display = 'none';
                     topicATag.appendChild(downIcon);
+                    // Use a small delay to ensure the DOM updates are applied before logging
+                    setTimeout(() => {
+                        console.log('Down Icon:', downIcon.style.display); // Should be 'block'
+                        console.log('Up Icon:', upIcon.style.display);     // Should be 'none'
+                    }, 0);
                 }
                
             }else{
@@ -203,20 +208,7 @@ function loadSuptopicsForTopic(){
                                 e.preventDefault();
                                 getQuestionToEditFromSidebar(topicId, subtopic.id);
                             });
-                            /*
-                            // display edit/review all questions
-                            const editAllQuestionsOption = document.createElement('a');
-                            editAllQuestionsOption.setAttribute('class', 'dropdown-item');
-                            editAllQuestionsOption.setAttribute('id', 'dropdown-edit-all-questions');
-                            editAllQuestionsOption.setAttribute('href', '#');
-                            editAllQuestionsOption.textContent = 'Edit/Review All Questions';
-
-                            editAllQuestionsOption.addEventListener('click', function(e) {
-                                e.preventDefault();
-                                getAllQuestionsToEditFromSidebar(topicId, subtopic.id);
-                            });
-                            */
-                            
+                                                        
                             sidebarMenu.appendChild(addQuestionOption);
                             
                             if (badgeValue > 0){
@@ -254,6 +246,8 @@ function loadSuptopicsForTopic(){
                         // toggle the caret icons
                         downIcon.style.display = 'none';
                         upIcon.style.display = 'block';
+                        console.log(downIcon);
+                        console.log(upIcon);
 
                     }else{
                         alert('This topic has no subtopics yet.');
@@ -413,8 +407,24 @@ function renameTopic(){
             updateTopicSelectMenu('rename-topic'); 
             
             // update the sidebar with the new topic name
+            let downIcon = document.getElementById(`caretdown-${data.topic_id}`);
+            let upIcon = document.getElementById(`caretup-${data.topic_id}`);
             const aTag = document.getElementById(`topic-${data.topic_id}`);
-            aTag.textContent = data.renamed_topic;
+
+            // Clear the existing content of the aTag without removing the caret
+            aTag.innerHTML = ''; 
+            aTag.append(data.renamed_topic);
+
+            // Append both carets and preserve their visibility states
+            if (downIcon) {
+                aTag.appendChild(downIcon); // Always append downIcon
+                downIcon.style.display = downIcon.style.display; // Preserve current state
+            } 
+
+            if (upIcon) {
+                aTag.appendChild(upIcon); // Always append upIcon
+                upIcon.style.display = upIcon.style.display; // Preserve current state
+            } 
             
             // display success message
             let rename_topic_msg = document.getElementById('rename-topic-msg');
@@ -690,7 +700,11 @@ function renameSubtopic(){
             
             // update the sidebar
             const subtopicATag = document.getElementById(`subtopic-${data.subtopic_id}`);
-            subtopicATag.textContent = data.new_subtopic_name;
+            
+            if (subtopicATag){
+                subtopicATag.textContent = data.new_subtopic_name;
+            }
+            
 
             // display success message
             let rename_subtopic_msg = document.getElementById('rename-subtopic-msg');
