@@ -37,7 +37,7 @@ def login_view(request):
         # Check if authentication successful              
         if user is not None:
             login(request, user)
-            if user.is_superuser:
+            if user.is_superuser or user.is_staff:
                 return redirect('management_portal')
             else:
                 return redirect('dashboard')
