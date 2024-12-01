@@ -76,3 +76,56 @@ The quizes app is what the students see once they are logged in. After successfu
             -   `AddExplanationForm`
             -   `EditExplanationForm`
         -   `models.py`: 6 models are defined
+            -   `Topic`: for example: liver, stomach
+                -   `name`
+                -   `date_created`
+                -   `created_by`
+                -   `date_modified`
+                -   `modified_by`
+                -   `is-visible`: Boolean value whether the topic is ready to be displayed to the user
+                -   `display_order`: Integer value used for topic display order
+            -   `Subtopic`: for example: liver/anatomy & physiology, liver/portal hypertension
+                -   `topic`: `ForeignKey(Topic)`, `related_name='subtopics'`
+                -   `name`
+                -   `date_created`
+                -   `created_by`
+                -   `date_modified`
+                -   `modified_by`
+                -   `is_visible`: Boolean value whether the subtopic is ready to be displayed
+                -   `display_order`: Integer value used for subtopic display order
+            -   `QuestionType`: Managed on the Django admin page
+                -   `name`: multiple choice, multiple answer, true/false questions are currently supported
+            -   `Question`: Questions are defined for a topic/subtopic combination
+                -   `subtopic`: `ForeignKey(Subtopic)`, `related_name='questions'`
+                -   `question_type`: `ForeignKey(QuestionType)`, `related_name='questions'`
+                -   `text`: Question text
+                -   `date_created`
+                -   `created_by`
+                -   `date_modified`
+                -   `modified_by`
+            -   `Choice`: Answer choices are defined for a topic/subtopic/question combination
+                -   `question`: `ForeignKey(Question)`, `related_name='choices'`
+                -   `text`: Answer choice text
+                -   `is_correct`: Boolean. Is this answer choice correct or not?
+                -   `date_created`
+                -   `created_by`
+                -   `date_modified`
+                -   `modified_by`
+            -   `Explanation`: A question may have only one explanation
+                -   `question`: `OneToOneField(Question, related_name='explanation')`
+                -   `text`
+                -   `date_created`
+                -   `created_by`
+                -   `date_modified`
+                -   `modified_by`
+        -   `urls.py`: consists of 30 paths to python views
+        -   `validation.py`: validates question and answer choices
+        -   `views.py`: Contains multiple functions that update the database when add, change, and  delete    forms are submitted
+    `quizes`: Application directory that manages the user dashboard and quiz page
+        -   on login, a student is directed to their dashboard
+        -   `static/quizes`
+            -   `script.js`
+
+
+
+
