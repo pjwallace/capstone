@@ -11,8 +11,8 @@ def get_default_question_type():
 
 # Create all the quiz topics.
 class Topic(models.Model):
-    name = models.CharField(max_length=40, unique=True) #100
-    slug = models.SlugField(max_length=50, unique=True, blank=True) #150
+    name = models.CharField(max_length=40, unique=True) 
+    slug = models.SlugField(max_length=50, unique=True, blank=True) 
     date_created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, 
         null=True, related_name='created_topics')
