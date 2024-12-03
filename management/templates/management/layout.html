@@ -130,6 +130,17 @@
         <div class="body" id="management-container"> 
 
             {% block body %}
+                {% if show_welcome %}
+                    <div class="welcome-container text-center" id="welcome" style="border: 1px solid #ddd; padding: 20px; border-radius: 5px;">
+                        <h2>Welcome to the Quiz Database Management Portal</h2><br>
+                        <p>To <strong>add, rename, or delete</strong> a topic or subtopic, click on the 
+                            appropriate menu in the <strong>top navigation bar</strong>.</p>
+                        <p>To <strong>add, edit, or delete</strong> questions, answer choices, or explanations, 
+                            you may use either the <strong>sidebar menu</strong> or the <strong>top navigation bar</strong>.</p>
+                        <p class="mt-4">Ready to get started? Use the menus above or to the left to 
+                            begin managing your quiz database.</p>
+                    </div>
+                {% endif %}
             {% endblock %}
         </div>
 

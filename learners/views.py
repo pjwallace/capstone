@@ -38,6 +38,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             if user.is_superuser or user.is_staff:
+                request.session['show_welcome'] = True #flag to show welcome instructions
                 return redirect('management_portal')
             else:
                 return redirect('dashboard')
@@ -154,7 +155,8 @@ def register(request):
             return render(request, "learners/register.html", context)
         
         login(request, user)
-        if user.is_superuser:
+        if user.is_superuser or user.is_staff:
+            request.session['show_welcome'] = True
             return redirect('management_portal')
         else:
             return redirect('dashboard')

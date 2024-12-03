@@ -417,12 +417,12 @@ function renameTopic(){
 
             // Append both carets and preserve their visibility states
             if (downIcon) {
-                aTag.appendChild(downIcon); // Always append downIcon
+                aTag.appendChild(downIcon); 
                 downIcon.style.display = downIcon.style.display; // Preserve current state
             } 
 
             if (upIcon) {
-                aTag.appendChild(upIcon); // Always append upIcon
+                aTag.appendChild(upIcon); 
                 upIcon.style.display = upIcon.style.display; // Preserve current state
             } 
             

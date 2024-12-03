@@ -22,8 +22,13 @@ RETRY_DELAY = 1  # Delay in seconds
 def management_portal(request): 
     # load topics for sidebar
     topics = Topic.objects.all()
+
+    # Check if welcome message should be displayed
+    show_welcome = request.session.pop('show_welcome', False)  # Retrieve and remove the flag
+
     return render(request, 'management/layout.html', {
-        'topics' : topics    
+        'topics' : topics,
+        'show_welcome': show_welcome    
     })
 
 @login_required(login_url='login')
