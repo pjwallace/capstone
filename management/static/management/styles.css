@@ -115,12 +115,20 @@ body, html {
     overflow-x: hidden;
 }
 
+.welcome-container{
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 5px;
+    background-color: aliceblue;
+}
+
 .form-container{    
     width: 100%;
     margin: 0;    
     padding-top: 5px;
     background-color: aliceblue;
-    border: solid 1px green;
+    border: 1px solid #ddd;
+    border-radius: 5px;
     overflow: auto;
 }
 
