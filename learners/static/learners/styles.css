@@ -1,20 +1,19 @@
 body{
     background-color: rgb(237, 234, 222);
 }
-.title{
-    text-align: center;
-}
 
-.login-container{
-    width: 40%;
-    height: auto;
-    margin: auto;
-    margin-top: 50px;
+.login-container, .register-container{
+    width: 100%; 
+    max-width: 400px; /* Constrain width for larger screens */
+    padding: 20px; 
+    margin-top: 0; 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: aliceblue;
+    background-color: aliceblue; 
+    border-radius: 8px; /* Add rounded corners for a modern look */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a shadow for depth */
 }
 
 h5{
@@ -32,7 +31,7 @@ a{
 .register-span{
     margin-top: 10px;
 }
-
+/*
 .register-container{
     width: 40%;
     height: auto;
@@ -46,33 +45,30 @@ a{
     border: 1px solid green;
     padding: 15px;
 }
-
+*/
 .form-container {
     width: 100%; /* Ensure the form takes the full width of the container */
 }
 
 .profile-container{
-    width: 60%;
+    width: 90%;
+    max-width: 600px;
     height: calc(100vh - 55px);
-    margin: auto;
-    
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    margin: 20px auto; 
     overflow-y: auto;
-    background-color: aliceblue;
-    border: 1px solid green;
-    padding: 15px;
+    background-color: aliceblue;   
+    padding: 20px;
+    box-sizing: border-box; /* Ensure padding is included in width */
 }
 
 #profile-form-container {
     width: 100%; 
     overflow-y: auto;
+    overflow-x: auto;
 }
 
 .form-group input {
-    width: 100%; /* Make input fields take the full width of their container */
+    width: 100%; 
     box-sizing: border-box; /* Include padding and border in the element's total width and height */
     padding: 10px; 
     margin-bottom: 15px; 
@@ -80,7 +76,7 @@ a{
 
 input[readonly] {
     background-color: lightgrey;
-    color: #666; /* Adjust text color for better readability */
+    color: #666; 
     cursor: not-allowed; 
 }
 
