@@ -62,39 +62,37 @@
                     </li>
                 </ul>
             </div>
-        </nav>          
-        
-        <div class="body" id="dashboard-container"> 
+        </nav> 
 
-            {% block body %}
-                <div id="dashboard-msg" class="msg-div">
-                
-                </div>
+        <div class="container-fluid vh-100 d-flex flex-column align-items-center">
+            <div class="body" id="dashboard-container"> 
+            
+                <div id="dashboard-msg" class="msg-div"></div>
 
-                <h2>{{ request.user}}'s Dashboard</h2>
-                <p id="choose-assessment">Choose your assessment from the available topics:</p>
+                <h2 class="text-center fs-2 fs-md-3 my-3">{{ request.user}}'s Dashboard</h2>
+                <p class="text-center fs-5 fs-md-6 mb-4" id="choose-assessment">Choose your assessment from the available topics:</p>
 
                 <!-- Bootstrap Grid-->
                 <div class="container">
                     <!-- column header-->
-                    <div class="row column-header">                        
-                        <div class="col-md-4 col-sm-4" id="topic-header">
+                    <div class="row column-header text-center">                        
+                        <div class="col-md-4 col-sm-6" id="topic-header">
                             <span class="header-span" id="topic">Topic</span>                                    
                         </div>
 
-                        <div class="col-md-2 col-sm-2" id="status-header">
+                        <div class="col-md-2 col-sm-6" id="status-header">
                             <span class="header-span" id="status">Status</span>                            
                         </div>
 
-                        <div class="col-md-2 col-sm-2" id="progress-header">
+                        <div class="col-md-2 col-sm-6" id="progress-header">
                             <span class="header-span" id="progress">Progress</span>
                         </div>
 
-                        <div class="col-md-2 col-sm-2 text-center" id="score-header">
+                        <div class="col-md-2 col-sm-6 text-center" id="score-header">
                             <span class="header-span score-header" id="score">Score</span>                                                           
                         </div>
 
-                        <div class="col-md-2 col-sm-2 text-center" id="review-header">
+                        <div class="col-md-2 col-sm-6 text-center" id="review-header">
                             <span class="header-span review-header" id="review">Review/Retake</span>                                                            
                         </div>                        
                     </div>
@@ -152,7 +150,8 @@
                         </div>
                     </div>
                 </div>
-            {% endblock %}
+            
+            </div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

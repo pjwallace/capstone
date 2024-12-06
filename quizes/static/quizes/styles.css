@@ -1,6 +1,8 @@
 body, html {
     overflow: hidden; /* Prevent scrolling on the body */
     height: 100%; /* Ensure the body and html elements take up the full viewport height */
+    margin: 0;
+    padding: 0;
 }
 
 #brand{
@@ -17,16 +19,24 @@ body, html {
     margin-right: 15px;
 }
 
+.container-fluid {
+    margin-top: 0; 
+}
 
 #dashboard-container{
-    height: calc(100vh - 55px); 
-    width: 90%;
-    margin-left: auto;
-    margin-right: auto;
-    padding-top: 10px;
+    box-sizing: border-box;
+    height: calc(100vh - 56px); 
+    width: 100%;
+    max-width: 90%;
+    margin: 0 auto;
+    padding-bottom: 20px;
     overflow-y: auto;
     overflow-x: hidden;  
     border: solid 1px green; 
+}
+
+.container {
+    padding: 0 15px; /* Add padding to prevent overflow */
 }
 
 #title-container{
@@ -35,14 +45,20 @@ body, html {
     justify-content: space-between;
 }
 
-#choose-assessment{
-    text-indent: 40px;
-}
-
 .column-header{
     background-color: #FFD700;
-    height: 40px;
+    height: auto; /* Allow dynamic height for wrapping */
+    display: flex;
+    flex-wrap: wrap; /* Allow elements to wrap on small screens */
+    padding: 5px;
     align-items: center;
+    text-align: center; /* Center text for all columns */
+}
+
+/* Column spans for small screens */
+.column-header .col-sm-2, 
+.column-header .col-sm-4 {
+    margin-bottom: 5px; /* Add space between rows on small screens */
 }
 
 .score-header, .review-header{
@@ -170,3 +186,32 @@ body, html {
     margin-right: 0;  /* Remove margin for the last span */
 }
 
+/* Adjust font size and layout for smaller screens */
+@media (max-width: 768px) {
+    .topics-list {
+        font-size: medium; /* Reduce font size */
+        padding-left: 10px;
+        flex-direction: column; /* Stack icons and text vertically */
+        align-items: flex-start; /* Align text to the left */
+    }
+
+    .topics-list span {
+        margin-left: 0; /* Reset margin for better alignment */
+    }
+
+    .topics-list i {
+        margin-right: 5px; /* Space between icons and text */
+    }
+}
+
+/* Stack icons and text on small screens */
+@media (max-width: 768px) {
+    .topics-list span:first-child {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .topics-list i {
+        margin: 0 5px; /* Add margin between icons */
+    }
+}
