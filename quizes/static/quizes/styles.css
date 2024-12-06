@@ -17,6 +17,7 @@ body, html {
     margin-right: 15px;
 }
 
+
 #dashboard-container{
     height: calc(100vh - 55px); 
     width: 90%;

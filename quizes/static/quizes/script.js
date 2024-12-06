@@ -160,7 +160,6 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         const completeText = document.createElement('span');
         completeText.textContent = 'Complete';
         completeText.id = 'complete-status';
-        console.log(completeText.textContent);
         statusDiv.appendChild(completeText);
         subtopicRow.append(statusDiv);
     }
@@ -202,7 +201,7 @@ function scoreColumn(subtopicRow, progressData, questionCount){
     const scoreDiv = document.createElement('div');
     scoreDiv.classList.add('col-md-2', 'col-sm-2', 'score-column');
     completeSpan = document.getElementById('complete-status');
-    console.log(progressData);
+    
     if (progressData.progress_exists == 'no'){
         // display 2 minus signs to indicate no score yet
         const scoreDashes = document.createElement('div');
