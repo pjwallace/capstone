@@ -48,6 +48,67 @@ function loadSubtopicsForQuizTopic(){
                         
                         minusIcon.style.display = 'block'; // Show the minus icon
                         plusIcon.style.display = 'none';   // Hide the plus icon
+
+                        // build the subtopic header columns
+                        const subtopicHeader = document.createElement('div');
+                        subtopicHeader.classList.add('row', 'column-header')
+
+                        // subtopic name
+                        const subtopicName = document.createElement('div');
+                        subtopicName.classList.add('col-md-4', 'col-sm-6');
+                        subtopicName.setAttribute('id', 'subtopic-header');
+                        const subtopicNameSpan = document.createElement('span');
+                        subtopicNameSpan.classList.add('header-span');
+                        subtopicNameSpan.setAttribute('id', 'subtopic-name');
+                        subtopicNameSpan.textContent = 'Subtopic';
+                        subtopicName.append(subtopicNameSpan);
+                        subtopicHeader.append(subtopicName);
+
+                        // subtopic status
+                        const subtopicStatus = document.createElement('div');
+                        subtopicStatus.classList.add('col-md-2', 'col-sm-6');
+                        subtopicStatus.setAttribute('id', 'status-header');
+                        const subtopicStatusSpan = document.createElement('span');
+                        subtopicStatusSpan.classList.add('header-span');
+                        subtopicStatusSpan.setAttribute('id', 'subtopic-status');
+                        subtopicStatusSpan.textContent = 'Status';
+                        subtopicStatus.append(subtopicStatusSpan);
+                        subtopicHeader.append(subtopicStatus);
+
+                        // subtopic progress
+                        const subtopicProgress = document.createElement('div');
+                        subtopicProgress.classList.add('col-md-2', 'col-sm-6');
+                        subtopicProgress.setAttribute('id', 'progress-header');
+                        const subtopicProgressSpan = document.createElement('span');
+                        subtopicProgressSpan.classList.add('header-span');
+                        subtopicProgressSpan.setAttribute('id', 'subtopic-progress');
+                        subtopicProgressSpan.textContent = 'Progress';
+                        subtopicProgress.append(subtopicProgressSpan);
+                        subtopicHeader.append(subtopicProgress);
+
+                        // subtopic score
+                        const subtopicScore = document.createElement('div');
+                        subtopicScore.classList.add('col-md-2', 'col-sm-6');
+                        subtopicScore.setAttribute('id', 'score-header');
+                        const subtopicScoreSpan = document.createElement('span');
+                        subtopicScoreSpan.classList.add('header-span');
+                        subtopicScoreSpan.setAttribute('id', 'subtopic-score');
+                        subtopicScoreSpan.textContent = 'Score';
+                        subtopicScore.append(subtopicScoreSpan);
+                        subtopicHeader.append(subtopicScore);
+
+                        // review/retake
+                        const subtopicReview = document.createElement('div');
+                        subtopicReview.classList.add('col-md-2', 'col-sm-6');
+                        subtopicReview.setAttribute('id', 'review-header');
+                        const subtopicReviewSpan = document.createElement('span');
+                        subtopicReviewSpan.classList.add('header-span');
+                        subtopicReviewSpan.setAttribute('id', 'subtopic-review');
+                        subtopicReviewSpan.textContent = 'Review/Retake';
+                        subtopicReview.append(subtopicReviewSpan);
+                        subtopicHeader.append(subtopicReview);
+
+                        subtopicsContainer.append(subtopicHeader);
                        
                         data.subtopic_data.forEach(subtopic =>{
                             
@@ -59,7 +120,7 @@ function loadSubtopicsForQuizTopic(){
                             // create div to hold the subtopic                         
                             const subtopicDiv = document.createElement('div');                            
                             subtopicDiv.setAttribute('id', `subtopic-${subtopic.subtopic_id}`);
-                            subtopicDiv.classList.add('col-md-4', 'col-sm-4', 'subtopics');
+                            subtopicDiv.classList.add('col-md-4', 'col-sm-6', 'subtopics');
                             subtopicDiv.setAttribute('data-subtopic-id', subtopic.subtopic_id);
                             subtopicDiv.textContent = subtopic.subtopic_name;
                             subtopicRow.appendChild(subtopicDiv);
@@ -114,14 +175,14 @@ function getProgressData(subtopicId){
 
 function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topicId){
     const statusDiv = document.createElement('div');
-    statusDiv.classList.add('col-md-2', 'col-sm-2', 'status-column');
+    statusDiv.classList.add('col-md-2', 'col-sm-6', 'status-column');
 
     // display start button if a quiz hasn't been attempted yet
     if (progressData.progress_exists == 'no'){
         const startButton = document.createElement('button');
         startButton.type = 'button';
         startButton.setAttribute('id', `start-${subtopicId}`);
-        startButton.classList.add('btn', 'btn-success');
+        startButton.classList.add('btn', 'btn-success', 'btn-sm');
         startButton.setAttribute('data-subtopic-id', subtopicId);
         startButton.textContent = 'Start Quiz';
         statusDiv.append(startButton);
@@ -140,7 +201,7 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         const resumeButton = document.createElement('button');
         resumeButton.type = 'button';
         resumeButton.setAttribute('id', `review-${subtopicId}`);
-        resumeButton.classList.add('btn', 'btn-primary');
+        resumeButton.classList.add('btn', 'btn-primary', 'btn-sm');
         resumeButton.setAttribute('data-subtopic-id', subtopicId);
         resumeButton.textContent = 'Resume Quiz';
         statusDiv.append(resumeButton);
@@ -167,7 +228,7 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topi
 
 function progressColumn(subtopicRow, progressData, questionCount){
     const progressDiv = document.createElement('div');
-    progressDiv.classList.add('col-md-2', 'col-sm-2', 'progress-column');
+    progressDiv.classList.add('col-md-2', 'col-sm-6', 'progress-column');
 
     // Quiz not started yet
     if (progressData.progress_exists == 'no'){
@@ -199,7 +260,7 @@ function progressColumn(subtopicRow, progressData, questionCount){
 
 function scoreColumn(subtopicRow, progressData, questionCount){
     const scoreDiv = document.createElement('div');
-    scoreDiv.classList.add('col-md-2', 'col-sm-2', 'score-column');
+    scoreDiv.classList.add('col-md-2', 'col-sm-6', 'score-column');
     completeSpan = document.getElementById('complete-status');
     
     if (progressData.progress_exists == 'no'){
@@ -260,7 +321,7 @@ function scoreColumn(subtopicRow, progressData, questionCount){
 
 function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topicId){
     const reviewDiv = document.createElement('div');
-    reviewDiv.classList.add('col-md-2', 'col-sm-2', 'review-column');
+    reviewDiv.classList.add('col-md-2', 'col-sm-6', 'review-column');
 
     if (progressData.progress_exists == 'no' || progressData.questions_answered != questionCount){
         const reviewMinus = document.createElement('div');

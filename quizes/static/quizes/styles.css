@@ -21,6 +21,7 @@ body, html {
 
 .container-fluid {
     margin-top: 0; 
+  
 }
 
 #dashboard-container{
@@ -47,18 +48,15 @@ body, html {
 
 .column-header{
     background-color: #FFD700;
-    height: auto; /* Allow dynamic height for wrapping */
+    height: 35px; 
     display: flex;
-    flex-wrap: wrap; /* Allow elements to wrap on small screens */
     padding: 5px;
     align-items: center;
-    text-align: center; /* Center text for all columns */
+    justify-content: flex-start;
 }
 
-/* Column spans for small screens */
-.column-header .col-sm-2, 
-.column-header .col-sm-4 {
-    margin-bottom: 5px; /* Add space between rows on small screens */
+#score-header, #review-header{
+    text-align: center;
 }
 
 .score-header, .review-header{
@@ -71,6 +69,7 @@ body, html {
     justify-content: flex-start;
     font-size: larger;
     height: 50px;
+    
     background-color: #F5F5F5;
     border: solid 1px darkgray;
     cursor: pointer;
