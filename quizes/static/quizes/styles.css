@@ -28,12 +28,11 @@ body, html {
     box-sizing: border-box;
     height: calc(100vh - 56px); 
     width: 100%;
-    max-width: 90%;
+    max-width: 95%;
     margin: 0 auto;
     padding-bottom: 20px;
     overflow-y: auto;
     overflow-x: hidden;  
-    border: solid 1px green; 
 }
 
 .container {
@@ -56,10 +55,6 @@ body, html {
 }
 
 #score-header, #review-header{
-    text-align: center;
-}
-
-.score-header, .review-header{
     text-align: center;
 }
 
@@ -97,14 +92,14 @@ body, html {
 }
 
 .subtopics-row .status-column,
-.subtopics-row .progress-column,
-.subtopics-row .score-column{
+.subtopics-row .progress-column {
     display: flex;
     align-items: center;
     justify-content: flex-start;
 }
 
-.subtopics-row .review-column{
+.subtopics-row .review-column,
+.subtopics-row .score-column{
     display: flex;
     align-items: center;
     justify-content: center;    
@@ -124,44 +119,59 @@ body, html {
     font-size: medium;
 }
 
-.score-dash{
+.score-dash {
     display: flex;
-    justify-content: space-between;
+    justify-content: center; 
+    align-items: center;    
     width: 100%;
+    gap: 10px; /* Add consistent spacing between dashes */
+}
+
+.score-dash i{
+    font-size: 20px;       
+    color: blue;           
+    text-align: center;    
 }
 
 .score-dash i {
-    width: 45%;
-    text-align: left; 
-    margin-right: 60px;
-    padding-left: 5px;
-    
+    padding-right: 20px; /* Add padding for spacing between icons */
+    text-align: center;  /* Center-align the icon */
 }
 
-.score-dash i:last-child {
-    margin-right: 0;  /* Remove margin for the last icon */
-}
-
-.minus-bigger{
+.minus-bigger {
     font-size: 24px;
-    transform: scaleX(1.4);
+    font-weight: bold;     
     color: blue;
 }
 
-.score-text{
-    font-size: small;
+.score-dash i:last-child {
+    padding-right: 0; 
+}
+
+.score-label, .score-results {
+    display: flex;
+    justify-content: flex-start; /* Align content to the left */
+    gap: 10px; /* Add consistent spacing between spans */
+    width: 100%;
+    
 }
 
 .score-label{
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
+    font-size: small;
 }
 
-.score-label span {
-    width: 45%;
-    text-align: left; 
-    margin-right: 60px; 
+.score-results {
+    font-size: medium;
+}
+
+.score-label span, .score-results span {
+    flex: 1; /* Allow spans to share equal space */
+    text-align: left;
+    padding-right: 10px; 
+}
+
+.score-label span:last-child, .score-results span:last-child {
+    padding-right: 0; 
 }
 
 .score-results{
@@ -170,47 +180,116 @@ body, html {
     width: 100%;
     font-size: medium;
 }
-
+/*
 .score-results span{
     width: 45%;
     text-align: left; 
     margin-right: 60px;   
 }
+*/
 
-.score-results span:last-child {
-    margin-right: 0;  /* Remove margin for the last span */
-}
+/* Responsive layout for small screens */
+@media (max-width: 576px) {
+    #progress-header,
+    #score-header,
+    #review-header,
+    .progress-column,
+    .score-column,
+    .review-column {
+      display: none; /* Hide unnecessary columns on small screens */
+    }
+    #subtopic-header,
+    .subtopics {
+      flex: 2; /* Make the Name column longer */
+    }
+    #status-header,
+    .status-column {
+      flex: 1; /* Keep the Status column smaller */
+    }
 
-.score-label span:last-child {
-    margin-right: 0;  /* Remove margin for the last span */
+  }
+
+  /* For screens between 577px and 768px */
+@media (min-width: 577px) and (max-width: 768px) {
+    #subtopic-header,
+    .subtopics {
+      flex: 2.5; /* Make the Name column longer */
+    }
+
+    #status-header,
+    .status-column {
+      flex: 1; /* Keep the Status column smaller */
+    }
+
+    #score-header,
+    .score-column {
+        display: flex; /* Add Score column */
+        flex: 1.5;
+    }
+
+    #progress-header,
+    .progress-column {
+        display: none; /* Keep Progress column hidden */
+    }
+
+    #review-header,
+    .review-column {
+        display: none; /* Keep Review column hidden */
+    }
+
 }
 
 /* Adjust font size and layout for smaller screens */
 @media (max-width: 768px) {
     .topics-list {
-        font-size: medium; /* Reduce font size */
-        padding-left: 10px;
-        flex-direction: column; /* Stack icons and text vertically */
-        align-items: flex-start; /* Align text to the left */
+        font-size: medium; /* Adjust font size for smaller screens */
+        padding-left: 5px; /* Reduce padding to minimize space from the left margin */
+        display: flex;
+        align-items: center; /* Center icon and text vertically */
+        flex-direction: row; /* Ensure icon and text are side by side */
     }
 
-    .topics-list span {
-        margin-left: 0; /* Reset margin for better alignment */
-    }
-
-    .topics-list i {
-        margin-right: 5px; /* Space between icons and text */
-    }
-}
-
-/* Stack icons and text on small screens */
-@media (max-width: 768px) {
     .topics-list span:first-child {
-        display: inline-flex;
-        align-items: center;
+        display: flex; /* Ensure proper alignment */
+        align-items: center; /* Vertically center the text next to the icon */
     }
 
     .topics-list i {
-        margin: 0 5px; /* Add margin between icons */
+        margin-right: 5px; 
+    }
+    
+}
+
+@media (max-width: 768px) {
+    .column-header #score-header {
+        justify-content: center;
+        flex: 1; /* Allow equal space distribution */
+        text-align: center;
     }
 }
+
+/* Default layout for screens > 768px */
+@media (min-width: 769px) {
+    .subtopics-row {
+        display: flex;
+    }
+
+    #subtopic-header, .subtopics {
+        flex: 4; 
+    }
+
+    #status-header, .status-column {
+        flex: 1.6; 
+    }
+
+    #progress-header, .progress-column {
+        flex: 1.2; 
+    }
+   
+    #score-header, .score-column,
+    #review-header, .review-column {
+        flex: 2; 
+    }
+    
+}
+

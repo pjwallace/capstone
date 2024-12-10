@@ -108,6 +108,15 @@ function loadSubtopicsForQuizTopic(){
                         subtopicReview.append(subtopicReviewSpan);
                         subtopicHeader.append(subtopicReview);
 
+                        // for mobile responsiveness, hide the progress and review/retake headers
+                        if (window.innerWidth <= 768) {
+                            subtopicProgress.style.display = 'none';
+                            subtopicReview.style.display = 'none';
+                        } else {
+                            subtopicProgress.style.display = '';
+                            subtopicReview.style.display = '';
+                        }
+
                         subtopicsContainer.append(subtopicHeader);
                        
                         data.subtopic_data.forEach(subtopic =>{
@@ -253,8 +262,15 @@ function progressColumn(subtopicRow, progressData, questionCount){
         progressQuestionsText.appendChild(questionsProgress);
 
         progressDiv.appendChild(progressQuestionsText);
-
     }
+
+    // For mobile responsiveness, check screen size and hide if necessary
+    if (window.innerWidth <= 768) {
+        progressDiv.style.display = 'none';
+    } else {
+        progressDiv.style.display = '';
+    }
+
     subtopicRow.appendChild(progressDiv);
 }
 
@@ -315,7 +331,16 @@ function scoreColumn(subtopicRow, progressData, questionCount){
 
         scoreDiv.appendChild(scoreText);
     }
-    
+
+    // For mobile responsiveness, check screen size and hide if necessary
+    if (window.innerWidth <= 576) {
+        scoreDiv.style.display = 'none';
+    }  else if (window.innerWidth <= 768){
+        scoreDiv.style.display = 'flex';
+    } else {
+        scoreDiv.style.display = '';
+    }    
+
     subtopicRow.appendChild(scoreDiv);
 }
 
@@ -373,6 +398,13 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topi
             retakeQuiz(subtopicId, topicId, confirmRetakeQuizModal);
         }
 
+    }
+
+    // For mobile responsiveness, review/retake only displays on larger screens
+    if (window.innerWidth <= 768) {
+        reviewDiv.style.display = 'none';
+    } else {
+        reviewDiv.style.display = '';
     }
 
     subtopicRow.appendChild(reviewDiv);

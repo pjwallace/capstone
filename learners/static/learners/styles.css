@@ -63,8 +63,8 @@ a{
 
 #profile-form-container {
     width: 100%; 
-    overflow-y: auto;
-    overflow-x: auto;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 .form-group input {
