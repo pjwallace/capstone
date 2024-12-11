@@ -382,21 +382,31 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         retakeButton.textContent = 'Retake';
         reviewDiv.appendChild(retakeButton);
 
+        retakeButton.addEventListener('click', function(e){
+            e.preventDefault();
+            const retakeConfirmed = confirm('Are you sure you want to retake this quiz? This will delete your current answers.')
+
+            if (retakeConfirmed){
+                quizState.questionCount = questionCount;
+                retakeQuiz(subtopicId, topicId);   
+            } else {
+                return;
+            }
+        })
+
         // set up the confirmation modal for retaking the quiz
-        const modalElement = document.getElementById('confirm-retake-quiz-modal');
+        //const modalElement = document.getElementById('confirm-retake-quiz-modal');
     
-        if (modalElement){
+        //if (modalElement){
             // instantiate the confirmation modal
-            const confirmRetakeQuizModal = new bootstrap.Modal(document.getElementById('confirm-retake-quiz-modal'), {});
+            //const confirmRetakeQuizModal = new bootstrap.Modal(document.getElementById('confirm-retake-quiz-modal'), {});
 
             // add event listener to resume button
-            retakeButton.addEventListener('click', function(e){
-                e.preventDefault();
-                confirmRetakeQuizModal.show();
-            })
-
-            retakeQuiz(subtopicId, topicId, confirmRetakeQuizModal);
-        }
+            //retakeButton.addEventListener('click', function(e){
+               // e.preventDefault();
+                //confirmRetakeQuizModal.show();
+            //})
+        //}
 
     }
 
@@ -726,7 +736,7 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
             // Load explanation after progress record is updated/created
             await loadQuizQuestionExplanation(questionId, subtopicId); 
 
-            //console.log(`questionsAnswered: ${quizState.questionsAnswered}, questionCount: ${quizState.questionCount}`);
+            console.log(`questionsAnswered: ${quizState.questionsAnswered}, questionCount: ${quizState.questionCount}`);
             if (!previouslyAnswered){
                 // if the quiz is complete
                 if (quizState.questionCount == quizState.questionsAnswered){
@@ -1081,43 +1091,73 @@ function displayQuizScore(quizScoreHTML){
 
 }
 
-function retakeQuiz(subtopicId, topicId, confirmRetakeQuizModal){
-    // modal delete button
-    const confirmRetakeQuizButton = document.getElementById('confirm-retake-quiz-button');
+function retakeQuiz(subtopicId, topicId){
+    const route = `/quizes/home/delete_student_answers/${subtopicId}`; 
     const buttonType = 'retake';
+    
+    // Retrieve the django CSRF token 
+    const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    confirmRetakeQuizButton.addEventListener('click', function(){
-        const route = `/quizes/home/delete_student_answers/${subtopicId}`;
+    fetch(route, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success){
+            loadQuizLayout(subtopicId, topicId, buttonType);
 
-        // Retrieve the django CSRF token 
-        const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-        fetch(route, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success){
-                loadQuizLayout(subtopicId, topicId, buttonType);
-
-            }else{
-                clearMessages();
-                document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-            }
-
-            // Close the modal
-            confirmRetakeQuizModal.hide();
-        })
-        .catch(error => console.error('Delete Student Answer records failed:', error));
-
+        }else{
+            clearMessages();
+            document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+        }
 
     })
-
+    .catch(error => console.error('Delete Student Answer records failed:', error));
 }
+
+//
+//function retakeQuiz(subtopicId, topicId, confirmRetakeQuizModal){
+    // modal delete button
+//   const confirmRetakeQuizButton = document.getElementById('confirm-retake-quiz-button');
+//    const buttonType = 'retake';
+
+//    confirmRetakeQuizButton.addEventListener('click', function(){
+//        const route = `/quizes/home/delete_student_answers/${subtopicId}`;
+
+        // Retrieve the django CSRF token 
+//        const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+//        fetch(route, {
+//            method: 'POST',
+//            headers: {
+//                'Content-Type': 'application/json',
+//                'X-CSRFToken': csrftoken,
+//
+//          },
+//        })
+//        .then(response => response.json())
+//        .then(data => {
+//           if (data.success){
+//                loadQuizLayout(subtopicId, topicId, buttonType);
+
+//            }else{
+//               clearMessages();
+//               document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+//           }
+
+            // Close the modal
+//            confirmRetakeQuizModal.hide();
+//        })
+//        .catch(error => console.error('Delete Student Answer records failed:', error));
+
+
+ //   })
+
+//}
 
 function initializeQuizState() {
     quizState.hasNext = false;
