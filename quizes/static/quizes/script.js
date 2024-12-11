@@ -193,7 +193,7 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         startButton.setAttribute('id', `start-${subtopicId}`);
         startButton.classList.add('btn', 'btn-success', 'btn-sm');
         startButton.setAttribute('data-subtopic-id', subtopicId);
-        startButton.textContent = 'Start Quiz';
+        startButton.textContent = 'Start';
         statusDiv.append(startButton);
         subtopicRow.append(statusDiv);
 
@@ -212,7 +212,7 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         resumeButton.setAttribute('id', `review-${subtopicId}`);
         resumeButton.classList.add('btn', 'btn-primary', 'btn-sm');
         resumeButton.setAttribute('data-subtopic-id', subtopicId);
-        resumeButton.textContent = 'Resume Quiz';
+        resumeButton.textContent = 'Resume';
         statusDiv.append(resumeButton);
         subtopicRow.append(statusDiv);
 
@@ -736,7 +736,7 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
             // Load explanation after progress record is updated/created
             await loadQuizQuestionExplanation(questionId, subtopicId); 
 
-            console.log(`questionsAnswered: ${quizState.questionsAnswered}, questionCount: ${quizState.questionCount}`);
+            //console.log(`questionsAnswered: ${quizState.questionsAnswered}, questionCount: ${quizState.questionCount}`);
             if (!previouslyAnswered){
                 // if the quiz is complete
                 if (quizState.questionCount == quizState.questionsAnswered){
