@@ -6,19 +6,19 @@ body, html {
 }
 
 #title-container{
-    text-align: center;
     background-color: goldenrod;
-    height: 40px;
+    padding: 5px 0;
 }
 
 
 
 #progress-container{
-    height: calc(100% - 95px);
-    width: 160px;
     position: fixed;
+    height: calc(100vh - 111px);
+    width: 160px;
+    
     z-index: 1;
-    top: 95px;
+    top:111px;
     left: 0;
     background-color: blue;
     overflow-y: auto;
@@ -33,8 +33,7 @@ body, html {
     padding-top: 10px;
     text-decoration: none;
     font-size: 18px;
-    color:whitesmoke;
-    
+    color:whitesmoke;   
     border: none;
     background: none;
     width: 100%;
@@ -66,7 +65,7 @@ body, html {
     display: flex;
     margin-left: 160px;
     flex-direction: column;
-    height: calc(100vh - 95px); /* Prevent overlap with navbar/title */
+    height: calc(100vh - 111px); /* Prevent overlap with navbar/title */
     overflow: auto; /* Ensure it scrolls if the content overflows */
     padding: 10px; /* Optional padding */
 }
@@ -74,7 +73,7 @@ body, html {
 #quiz-container{
     padding: 10px;
     flex-grow: 1; /* Allow quiz content to take up most of the space */     
-    margin-bottom: none;  /* Add space between quiz and explanation */
+    margin-bottom: 0;  /* Add space between quiz and explanation */
     
 }
 

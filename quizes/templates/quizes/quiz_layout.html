@@ -12,62 +12,75 @@
             integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" 
             crossorigin="anonymous">
 
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+
         <link rel="stylesheet" 
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
                
         <link href="{% static 'quizes/styles_quiz.css' %}" rel="stylesheet">
         <link href="{% static 'quizes/styles.css' %}" rel="stylesheet">
-                 
+
+        <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Quiz</a>
-          
-            <div>
-              <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
-                </li>                
-              </ul>
+            <a class="navbar-brand" id="brand" href="#">Student Profile</a>
+            <button 
+                class="navbar-toggler ms-auto" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#navbarContent" 
+                aria-controls="navbarContent" 
+                aria-expanded="false" 
+                aria-label="Toggle navigation"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        
+            <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
+                <ul class="navbar-nav ms-auto text-end">
+                    <!-- Dashboard Link -->
+                    <li class="nav-item">
+                        <a class="nav-link" id="dashboard-link" href="{% url 'dashboard' %}">Dashboard</a>
+                    </li>
+                    
+                    <!-- Log Out Link -->
+                    <li class="nav-item">
+                        <a class="nav-link" id="logout-link" href="{% url 'logout' %}">Log Out</a>
+                    </li>
+                </ul>
             </div>
-        </nav> 
+        </nav>
 
-        <div id="title-container">
-            <h2>{{ topic_name }}: {{ subtopic_name }}</h2>
-            <a href="{% url 'dashboard' %}" class="btn btn-primary" id="return-to-dashboard">
-                Return to dashboard
-            </a>
+        
 
+        <div id="title-container"> 
+            <h2>{{ topic_name }}: {{ subtopic_name }}</h2>            
         </div>
 
-        <div id="progress-container">
-            {% for question in questions %}
-                <a href="javascript:void(0);" 
-                    id="question-{{ question.id }}" class="questions not-attempted wrong correct" 
-                    data-question-id="{{ question.id }}" data-subtopic-id="{{ question.subtopic_id}}"
-                    data-page="{{ forloop.counter}}">
-                        <i class="fa fa-circle" id="circle-{{ question.id }}"></i>
-                        <i class="fa fa-solid fa-check" id="check-{{ question.id }}"></i>
-                        <i class="fa fa-times" id="times-{{ question.id }}"></i>  
-                    Question {{ forloop.counter }}              
-                </a>                                      
-            {% endfor %}
-        </div>
-
-        <div id="quiz-page-container">
-
-            <div id="quiz-score-container">
-                
-            </div>
-       
-            <div id="quiz-container">
-                
+            <div id="progress-container">
+                {% for question in questions %}
+                    <a href="javascript:void(0);" 
+                        id="question-{{ question.id }}" class="questions not-attempted wrong correct" 
+                        data-question-id="{{ question.id }}" data-subtopic-id="{{ question.subtopic_id}}"
+                        data-page="{{ forloop.counter}}">
+                            <i class="fa fa-circle" id="circle-{{ question.id }}"></i>
+                            <i class="fa fa-solid fa-check" id="check-{{ question.id }}"></i>
+                            <i class="fa fa-times" id="times-{{ question.id }}"></i>  
+                        Question {{ forloop.counter }}              
+                    </a>                                      
+                {% endfor %}
             </div>
 
-            <div id="explanation-container">
+            <main id="quiz-page-container">
 
-            </div>
-        </div>
+                <div id="quiz-score-container"></div>
+        
+                <div id="quiz-container"></div>
+
+                <div id="explanation-container"></div>
+            </main>
        
 
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" 
@@ -76,7 +89,6 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" 
             integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" 
             crossorigin="anonymous"></script>
-        <script src="{% static 'quizes/script_quiz.js' %}"></script>
         <script src="{% static 'quizes/script.js' %}"></script>
         
 
