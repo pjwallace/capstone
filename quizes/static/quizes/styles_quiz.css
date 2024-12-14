@@ -2,15 +2,23 @@
 
 body, html {
     overflow: hidden; /* Prevent scrolling on the body */
-    height: 100%; /* Ensure the body and html elements take up the full viewport height */
+    height: 100%; 
 }
 
-#title-container{
+#quiz-title-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: goldenrod;
-    padding: 5px 0;
+    padding: 10px;
+    width: 100%;
+    border-bottom: 1px solid #ddd;
 }
 
-
+#quiz-title-container h2 {
+    margin: 0;
+    text-align: center;
+}
 
 #progress-container{
     position: fixed;
