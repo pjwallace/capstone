@@ -138,9 +138,17 @@ body, html {
     margin-right: 10px; 
 }
 
+.choice-container span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .choice-container label{
-    display: inline-block;
-    font-size: 20px;
+    /*display: inline-block; */
+    white-space: normal;
+    word-wrap: break-word;
+    font-size: 1.2rem;
 }
 
 #submit-quiz-question{
@@ -200,13 +208,22 @@ body, html {
     #quiz-page-container{
         margin-left: 0;
     }
+    #pagination-container{
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
     #pagination-container h2{
-        font-size: 1rem;
+        font-size: 1.1rem;
         font-weight: bold;
         text-align: center;
     }
+    #previous-button, #next-button {
+        justify-self: center;
+        padding: 10px 15px;
+        margin: 5px 0;
+    }
     .choice-container {
-        padding-left: 10px;
+        padding-left: 7px;
         margin-bottom: 15px;
     }
     .choice-container label{   
@@ -220,9 +237,16 @@ body, html {
     .quiz-question p {
         font-size: 1.2rem;
     }
-    button {
+    #pagination-container button {
         padding: 10px 15px;
         font-size: 1rem;
+    }
+    #submit-quiz-question {
+        display: block;
+        width: 100%;
+        margin: 20px auto;
+        padding: 12px;
+        font-size: 1.2rem;
     }
     
 }
