@@ -394,20 +394,7 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topi
             }
         })
 
-        // set up the confirmation modal for retaking the quiz
-        //const modalElement = document.getElementById('confirm-retake-quiz-modal');
-    
-        //if (modalElement){
-            // instantiate the confirmation modal
-            //const confirmRetakeQuizModal = new bootstrap.Modal(document.getElementById('confirm-retake-quiz-modal'), {});
-
-            // add event listener to resume button
-            //retakeButton.addEventListener('click', function(e){
-               // e.preventDefault();
-                //confirmRetakeQuizModal.show();
-            //})
-        //}
-
+        
     }
 
     // For mobile responsiveness, review/retake only displays on larger screens
@@ -467,9 +454,10 @@ function attachProgressBarEventListeners(){
 }
 
 function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
-    quizContainer = document.getElementById('quiz-container');
-    quizScoreContainer = document.getElementById('quiz-score-container');
-    explanationContainer = document.getElementById('explanation-container');
+    const quizContainer = document.getElementById('quiz-container');
+    const quizScoreContainer = document.getElementById('quiz-score-container');
+    const explanationContainer = document.getElementById('explanation-container');
+    debugger;
     if (quizContainer){
         const route = `/quizes/home/load_quiz_questions_and_answers/${subtopicId}?page=${pageNumber}`;   
         fetch(route)
@@ -492,11 +480,12 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
                 quizContainer.innerHTML = '';
                 quizContainer.innerHTML = data.quiz_html;
                 
-                document.getElementById('quizsubtopic-id').value = subtopicId
-                
+                document.getElementById('quizsubtopic-id').value = subtopicId;
+
+                debugger;
                 // if there isn't a previous quiz question, hide the previous button;
                 // else display the button and add an event listener              
-                previousButton = document.getElementById('previous-button');
+                const previousButton = document.getElementById('previous-button');
                 if (previousButton){
                     if (quizState.hasPrevious){
                         previousButton.classList.remove('hidden');
@@ -517,7 +506,7 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
                 
                 // if there isn't a next quiz question, hide the next button;
                 // else display the button and add an event listener
-                nextButton = document.getElementById('next-button');
+                const nextButton = document.getElementById('next-button');
                 if (nextButton){
                     if (quizState.hasNext){
                         nextButton.classList.remove('hidden');
@@ -538,13 +527,13 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
 
                 // check if this question has been previously answered (StudentAnswer record exists).                
                 (async () => {
-                    questionId = document.getElementById('quizquestion-id').value;
-                    let studentAnswers = await getStudentAnswer(subtopicId, questionId);
+                    const questionId = document.getElementById('quizquestion-id').value;
+                    const studentAnswers = await getStudentAnswer(subtopicId, questionId);
                     
                     if (studentAnswers && studentAnswers.length > 0){
                         // disable the submit button
-                        submitButton = document.getElementById('submit-quiz-question');
-                        viewQuizResults = document.getElementById('view-quiz-results');
+                        const submitButton = document.getElementById('submit-quiz-question');
+                        const viewQuizResults = document.getElementById('view-quiz-results');
                         
                         if (submitButton){
                             submitButton.style.display = 'none';
@@ -574,7 +563,7 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
                     }else{
                         // question has not been previously answered
                         // make sure the submit button is displayed
-                        submitButton = document.getElementById('submit-quiz-question');
+                        const submitButton = document.getElementById('submit-quiz-question');
                         if (submitButton){
                             submitButton.style.display = 'block';
                         }
@@ -707,7 +696,7 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
            
 
             // make sure the submit button is hidden so the form can't be resubmitted
-            submitButton = document.getElementById('submit-quiz-question');
+            const submitButton = document.getElementById('submit-quiz-question');
             if (submitButton){
                 submitButton.style.display = 'none';
             }
@@ -717,7 +706,7 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
 
             if (!previouslyAnswered){
                 // create a list to hold all the async promises
-                promises = [];
+                const promises = [];
 
                 // Create or update progress record first, then save the student answer for later review
                 if (data.progress_data.progress_exists === 'yes') {
@@ -732,7 +721,7 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
                 // ensure all database actions are complete before proceeding
                 await Promise.all(promises);
             }
-
+           
             // Load explanation after progress record is updated/created
             await loadQuizQuestionExplanation(questionId, subtopicId); 
 
@@ -863,6 +852,7 @@ async function saveAnswer(questionId, studentAnswers){
 }
 
 async function loadQuizQuestionExplanation(questionId, subtopicId) {
+    console.log('loadQuizQuestionExplanation called for question:', questionId);
     const explanationContainer = document.getElementById('explanation-container');
     explanationContainer.innerHTML = '';
         
@@ -872,12 +862,12 @@ async function loadQuizQuestionExplanation(questionId, subtopicId) {
 
         if (data.success) {
             explanationContainer.innerHTML = '';
-            explanationContainer.innerHTML = data.quiz_explanation_html; 
-
+            explanationContainer.innerHTML = data.quiz_explanation_html;
+           
             // add event listeners to the previous and next buttons
             // if there isn't a previous quiz question, hide the previous button;
                 // else display the button and add an event listener              
-                previousButtonBottom = document.getElementById('previous-button-bottom');
+                const previousButtonBottom = document.getElementById('previous-button-bottom');
                 if (previousButtonBottom){
                     if (quizState.hasPrevious){
                         previousButtonBottom.classList.remove('hidden');
@@ -898,7 +888,7 @@ async function loadQuizQuestionExplanation(questionId, subtopicId) {
                 
                 // if there isn't a next quiz question, hide the next button;
                 // else display the button and add an event listener
-                nextButtonBottom = document.getElementById('next-button-bottom');
+                const nextButtonBottom = document.getElementById('next-button-bottom');
                 if (nextButtonBottom){
                     if (quizState.hasNext){
                         nextButtonBottom.classList.remove('hidden');
@@ -1078,12 +1068,13 @@ async function processCompletedQuiz(subtopicId){
 
 function displayQuizScore(quizScoreHTML){
     // blank out the containers
-    quizContainer = document.getElementById('quiz-container');
+    const quizContainer = document.getElementById('quiz-container');
     quizContainer.innerHTML = '';
-    explanationContainer = document.getElementById('explanation-container');
+
+    const explanationContainer = document.getElementById('explanation-container');
     explanationContainer.innerHTML = '';
 
-    quizScoreContainer = document.getElementById('quiz-score-container');
+    const quizScoreContainer = document.getElementById('quiz-score-container');
     quizScoreContainer.style.display = 'block';
     quizScoreContainer.innerHTML = '';
 
@@ -1119,45 +1110,6 @@ function retakeQuiz(subtopicId, topicId){
     .catch(error => console.error('Delete Student Answer records failed:', error));
 }
 
-//
-//function retakeQuiz(subtopicId, topicId, confirmRetakeQuizModal){
-    // modal delete button
-//   const confirmRetakeQuizButton = document.getElementById('confirm-retake-quiz-button');
-//    const buttonType = 'retake';
-
-//    confirmRetakeQuizButton.addEventListener('click', function(){
-//        const route = `/quizes/home/delete_student_answers/${subtopicId}`;
-
-        // Retrieve the django CSRF token 
-//        const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-//        fetch(route, {
-//            method: 'POST',
-//            headers: {
-//                'Content-Type': 'application/json',
-//                'X-CSRFToken': csrftoken,
-//
-//          },
-//        })
-//        .then(response => response.json())
-//        .then(data => {
-//           if (data.success){
-//                loadQuizLayout(subtopicId, topicId, buttonType);
-
-//            }else{
-//               clearMessages();
-//               document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-//           }
-
-            // Close the modal
-//            confirmRetakeQuizModal.hide();
-//        })
-//        .catch(error => console.error('Delete Student Answer records failed:', error));
-
-
- //   })
-
-//}
 
 function initializeQuizState() {
     quizState.hasNext = false;
