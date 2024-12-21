@@ -1968,7 +1968,7 @@ function getSubtopicsForAddExplanationForm(selectedTopicId, subtopicMenu){
 }
 
 function loadQuestionsToAddExplanationForm(selectedSubtopicId) {
-    const questionMenu = document.getElementById('question-for-add-explanation');
+    let questionMenu = document.getElementById('question-for-add-explanation');
     const addExplanationMsg = document.getElementById('add-explanation-msg');
     
     // Clear existing messages and options
@@ -2005,12 +2005,18 @@ function loadQuestionsToAddExplanationForm(selectedSubtopicId) {
                         'info'
                     );
                 } else {
-                    // Remove previous event listener and add a new one
-                    questionMenu.replaceWith(questionMenu.cloneNode(true)); // Clears all listeners
-                    questionMenu.addEventListener('change', function () {
-                        const selectedQuestionId = questionMenu.value;
+                    // Remove any existing 'change' event listeners
+                    const newQuestionMenu = questionMenu.cloneNode(true); 
+                    questionMenu.parentNode.replaceChild(newQuestionMenu, questionMenu);
+
+                    // Add a new event listener
+                    newQuestionMenu.addEventListener('change', function () {
+                        const selectedQuestionId = newQuestionMenu.value;
                         loadChoicesToAddExplanationForm(selectedQuestionId);
                     });
+
+                    // Update the reference
+                    questionMenu = newQuestionMenu;
                 }
             } else {
                 clearMessages();
@@ -2172,7 +2178,7 @@ function getSubtopicsForEditExplanation(selectedTopicId, subtopicMenu){
                 // add event listener to subtopic menu
                 subtopicMenu.addEventListener('change', function(){
                     const selectedSubtopicId = subtopicMenu.value;
-                    loadQuestionsToEditExplanation(selectedSubtopicId);
+                    loadQuestionsToEditExplanationForm(selectedSubtopicId);
                 }) 
             }
                 
@@ -2189,7 +2195,7 @@ function getSubtopicsForEditExplanation(selectedTopicId, subtopicMenu){
 }
 
 function loadQuestionsToEditExplanationForm(selectedSubtopicId) {
-    const questionMenu = document.getElementById('question-for-add-explanation');
+    let questionMenu = document.getElementById('question-for-edit-explanation');
     const editExplanationMsg = document.getElementById('edit-explanation-msg');
     
     // Clear existing messages and options
@@ -2229,12 +2235,18 @@ function loadQuestionsToEditExplanationForm(selectedSubtopicId) {
                     );
                 } else {
                     // Remove previous event listener and add a new one
-                    questionMenu.replaceWith(questionMenu.cloneNode(true)); // Clears all listeners
-                    questionMenu.addEventListener('change', function () {
-                        const selectedQuestionId = questionMenu.value;
+                    // Remove any existing 'change' event listeners
+                    const newQuestionMenu = questionMenu.cloneNode(true); 
+                    questionMenu.parentNode.replaceChild(newQuestionMenu, questionMenu);
+
+                    newQuestionMenu.addEventListener('change', function () {
+                        const selectedQuestionId = newQuestionMenu.value;
                         loadChoicesToEditExplanationForm(selectedQuestionId);
                         getExplanationForQuestion(selectedQuestionId);
                     });
+
+                    // Update the reference
+                    questionMenu = newQuestionMenu;
                 }
             } else {
                 clearMessages();
