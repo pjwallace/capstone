@@ -104,6 +104,9 @@ body, html {
     padding: 10px;
     background-color: #fff;
     margin-bottom: 10px; 
+    overflow-wrap: break-word; /* Ensure long words break and wrap */
+    word-wrap: break-word; /* Compatibility for older browsers */
+    word-break: break-word; /* Additional compatibility */
 }
 
 .explanation-wrapper{
@@ -112,7 +115,10 @@ body, html {
     background-color: #f9f9f9; 
     max-width: 800px; 
     border: 1px solid #ddd;
-    border-radius: 8px;   
+    border-radius: 8px; 
+    overflow-wrap: break-word; /* Ensure long words break and wrap */
+    word-wrap: break-word; /* Compatibility for older browsers */
+    word-break: break-word; /* Additional compatibility */  
 }
 
 .quiz-question p{

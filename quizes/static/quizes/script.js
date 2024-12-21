@@ -702,7 +702,10 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
             }
 
             // Highlight correct/incorrect answers
-            highlightAnswers(data.results_dict, data.question_type);  
+            highlightAnswers(data.results_dict, data.question_type); 
+            
+            // Load explanation           
+            //await loadQuizQuestionExplanation(questionId, subtopicId); 
 
             if (!previouslyAnswered){
                 // create a list to hold all the async promises
@@ -719,18 +722,17 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
                 promises.push(saveAnswer(questionId, data.student_answers));
 
                 // explanation, if it exists
-                promises.push(loadQuizQuestionExplanation(questionId, subtopicId));
+                //promises.push(loadQuizQuestionExplanation(questionId, subtopicId));
 
                 // ensure all database actions are complete before proceeding
                 await Promise.all(promises);
-            } else if (previouslyAnswered){
+            } //else if (previouslyAnswered){
                 // Load explanation           
-                await loadQuizQuestionExplanation(questionId, subtopicId);    
-            }
+                //await loadQuizQuestionExplanation(questionId, subtopicId);    
+            //}
 
-                       
-            // Load explanation           
-           // await loadQuizQuestionExplanation(questionId, subtopicId); 
+            await loadQuizQuestionExplanation(questionId, subtopicId);          
+            
 
             //console.log(`questionsAnswered: ${quizState.questionsAnswered}, questionCount: ${quizState.questionCount}`);
             if (!previouslyAnswered){
@@ -870,7 +872,14 @@ async function loadQuizQuestionExplanation(questionId, subtopicId) {
             //console.log('Explanation fetched:', data.quiz_explanation_html);
 
             explanationContainer.innerHTML = data.quiz_explanation_html;
-            explanationContainer.offsetHeight; // Force reflow
+            //explanationContainer.offsetHeight; // Force reflow
+            // Delay the insertion of explanation content
+
+            //setTimeout(() => {
+            //    explanationContainer.innerHTML = data.quiz_explanation_html;
+                // Optional: Force reflow if needed
+            //    explanationContainer.offsetHeight; 
+            //}, 50); // Adjust the delay as needed (e.g., 50ms)
            
             // add event listeners to the previous and next buttons
             // if there isn't a previous quiz question, hide the previous button;
