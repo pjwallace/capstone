@@ -201,7 +201,7 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         startButton.addEventListener('click', function(e){
             e.preventDefault;
             quizState.questionCount = questionCount;
-            buttonType = 'start';
+            let buttonType = 'start';
             loadQuizLayout(subtopicId, topicId, buttonType);
         })
 
@@ -220,7 +220,7 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         resumeButton.addEventListener('click', function(e){
             e.preventDefault();
             quizState.questionCount = questionCount;
-            buttonType = 'resume';
+            let buttonType = 'resume';
             loadQuizLayout(subtopicId, topicId, buttonType);
         })
 
@@ -284,10 +284,10 @@ function scoreColumn(subtopicRow, progressData, questionCount){
         const scoreDashes = document.createElement('div');
         scoreDashes.setAttribute('class', 'score-dash');
 
-        initialMinus = document.createElement('i');
+        const initialMinus = document.createElement('i');
         initialMinus.classList.add('fa', 'fa-solid', 'fa-minus', 'minus-bigger');
         
-        latestMinus = document.createElement('i');
+        const latestMinus = document.createElement('i');
         latestMinus.classList.add('fa', 'fa-solid', 'fa-minus', 'minus-bigger');
 
         scoreDashes.append(initialMinus);
@@ -370,7 +370,7 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         // add event listener to resume button
         reviewButton.addEventListener('click', function(e){
             e.preventDefault();
-            buttonType = 'review';
+            const buttonType = 'review';
             loadQuizLayout(subtopicId, topicId, buttonType);
         })
 
@@ -419,12 +419,14 @@ function loadQuizLayout(subtopicId, topicId, buttonType){
 
             // attach progress bar event listeners
             attachProgressBarEventListeners();
-
+            console.log(buttonType);
             // load the first quiz question if starting a new quiz
-            if (buttonType === 'start' || buttonType === 'review' || buttonType === 'retake'){
+            if (buttonType === 'start' || buttonType === 'retake'){
                 loadQuizQuestionsAndAnswers(subtopicId, pageNumber=1);
             } else if (buttonType === 'resume'){
                 resumeQuiz(subtopicId);
+            } else if (buttonType === 'review'){
+                reviewQuiz(subtopicId);
             }
         }
         else{
@@ -437,7 +439,7 @@ function loadQuizLayout(subtopicId, topicId, buttonType){
 }
 
 function attachProgressBarEventListeners(){
-    progressContainer = document.getElementById('progress-container');
+    const progressContainer = document.getElementById('progress-container');
    
     if (progressContainer){
         const questionLinks = document.querySelectorAll('#progress-container a');
@@ -457,7 +459,7 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
     const quizContainer = document.getElementById('quiz-container');
     const quizScoreContainer = document.getElementById('quiz-score-container');
     const explanationContainer = document.getElementById('explanation-container');
-    debugger;
+   
     if (quizContainer){
         const route = `/quizes/home/load_quiz_questions_and_answers/${subtopicId}?page=${pageNumber}`;   
         fetch(route)
@@ -482,7 +484,7 @@ function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
                 
                 document.getElementById('quizsubtopic-id').value = subtopicId;
 
-                debugger;
+               
                 // if there isn't a previous quiz question, hide the previous button;
                 // else display the button and add an event listener              
                 const previousButton = document.getElementById('previous-button');
@@ -604,7 +606,7 @@ function formSubmitHandler(e){
     e.preventDefault();
     if (e.target && e.target.id === 'quiz'){
         let previouslyAnswered = false;
-        let studentAnswers = [];
+        const studentAnswers = [];
         processQuizQuestion(studentAnswers, previouslyAnswered);
     }
 };
@@ -629,8 +631,7 @@ async function getStudentAnswer(subtopicId, questionId){
 async function processQuizQuestion(selectedAnswers, previouslyAnswered){
     const subtopicId = document.getElementById('quizsubtopic-id').value;
     const questionId = document.getElementById('quizquestion-id').value;
-    
-        
+            
     // retrieve the quiz answers from the form if question not previously answered
     if (!previouslyAnswered){
         selectedAnswers = [];
@@ -692,8 +693,7 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
                 } else {
                     quizState.correctAnswers++;
                 }
-            }
-           
+            }          
 
             // make sure the submit button is hidden so the form can't be resubmitted
             const submitButton = document.getElementById('submit-quiz-question');
@@ -702,7 +702,7 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
             }
 
             // Highlight correct/incorrect answers
-            highlightAnswers(data.results_dict, data.question_type);
+            highlightAnswers(data.results_dict, data.question_type);  
 
             if (!previouslyAnswered){
                 // create a list to hold all the async promises
@@ -718,12 +718,19 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
                 // save the student answer in the StudentAnswer model
                 promises.push(saveAnswer(questionId, data.student_answers));
 
+                // explanation, if it exists
+                promises.push(loadQuizQuestionExplanation(questionId, subtopicId));
+
                 // ensure all database actions are complete before proceeding
                 await Promise.all(promises);
+            } else if (previouslyAnswered){
+                // Load explanation           
+                await loadQuizQuestionExplanation(questionId, subtopicId);    
             }
-           
-            // Load explanation after progress record is updated/created
-            await loadQuizQuestionExplanation(questionId, subtopicId); 
+
+                       
+            // Load explanation           
+           // await loadQuizQuestionExplanation(questionId, subtopicId); 
 
             //console.log(`questionsAnswered: ${quizState.questionsAnswered}, questionCount: ${quizState.questionCount}`);
             if (!previouslyAnswered){
@@ -852,7 +859,6 @@ async function saveAnswer(questionId, studentAnswers){
 }
 
 async function loadQuizQuestionExplanation(questionId, subtopicId) {
-    console.log('loadQuizQuestionExplanation called for question:', questionId);
     const explanationContainer = document.getElementById('explanation-container');
     explanationContainer.innerHTML = '';
         
@@ -861,54 +867,56 @@ async function loadQuizQuestionExplanation(questionId, subtopicId) {
         const data = await response.json();
 
         if (data.success) {
-            explanationContainer.innerHTML = '';
+            //console.log('Explanation fetched:', data.quiz_explanation_html);
+
             explanationContainer.innerHTML = data.quiz_explanation_html;
+            explanationContainer.offsetHeight; // Force reflow
            
             // add event listeners to the previous and next buttons
             // if there isn't a previous quiz question, hide the previous button;
-                // else display the button and add an event listener              
-                const previousButtonBottom = document.getElementById('previous-button-bottom');
-                if (previousButtonBottom){
-                    if (quizState.hasPrevious){
-                        previousButtonBottom.classList.remove('hidden');
+            // else display the button and add an event listener              
+            const previousButtonBottom = document.getElementById('previous-button-bottom');
+            if (previousButtonBottom){
+                if (quizState.hasPrevious){
+                    previousButtonBottom.classList.remove('hidden');
 
-                        // remove the old event listener to prevent multiple event listeners for the same button
-                        previousButtonBottom.removeEventListener('click', previousPageHandler);
+                    // remove the old event listener to prevent multiple event listeners for the same button
+                    previousButtonBottom.removeEventListener('click', previousPageHandler);
 
-                        // define previousPageHandler
-                        function previousPageHandler(){
-                            previousPage(subtopicId, quizState.pageNumber);    
-                        }
-                        // add the event listener
-                        previousButtonBottom.addEventListener('click', previousPageHandler);
-                    }else{
-                        previousButtonBottom.classList.add('hidden');
+                    // define previousPageHandler
+                    function previousPageHandler(){
+                        previousPage(subtopicId, quizState.pageNumber);    
                     }
-                }   
-                
-                // if there isn't a next quiz question, hide the next button;
-                // else display the button and add an event listener
-                const nextButtonBottom = document.getElementById('next-button-bottom');
-                if (nextButtonBottom){
-                    if (quizState.hasNext){
-                        nextButtonBottom.classList.remove('hidden');
-
-                        // remove the old event listener to prevent multiple event listeners for the same button
-                        nextButtonBottom.removeEventListener('click', nextPageHandler);
-
-                        // define nextPageHandler
-                        function nextPageHandler(){
-                            nextPage(subtopicId, quizState.pageNumber, quizState.totalPages);    
-                        }
-                         // add the event handler to the next button
-                        nextButtonBottom.addEventListener('click', nextPageHandler);
-                    }else{
-                        nextButtonBottom.classList.add('hidden');                        
-                    }
+                    // add the event listener
+                    previousButtonBottom.addEventListener('click', previousPageHandler);
+                }else{
+                    previousButtonBottom.classList.add('hidden');
                 }
+            }   
+                
+            // if there isn't a next quiz question, hide the next button;
+            // else display the button and add an event listener
+            const nextButtonBottom = document.getElementById('next-button-bottom');
+            if (nextButtonBottom){
+                if (quizState.hasNext){
+                    nextButtonBottom.classList.remove('hidden');
+
+                    // remove the old event listener to prevent multiple event listeners for the same button
+                    nextButtonBottom.removeEventListener('click', nextPageHandler);
+
+                    // define nextPageHandler
+                    function nextPageHandler(){
+                        nextPage(subtopicId, quizState.pageNumber, quizState.totalPages);    
+                    }
+                        // add the event handler to the next button
+                    nextButtonBottom.addEventListener('click', nextPageHandler);
+                }else{
+                    nextButtonBottom.classList.add('hidden');                        
+                }
+            }
         } else {
             
-            //console.error('There is no explanation for this question:', data.messages);
+            console.error('There is no explanation for this question:', data.messages);
         }
     } catch (error) {
         console.error('Error loading explanation:', error); 
@@ -929,6 +937,21 @@ async function resumeQuiz(subtopicId){
 
     // get the first unanswered quiz question
     getFirstUnansweredQuestion();
+}
+
+async function reviewQuiz(subtopicId){
+    // get all the previous answers
+    const answerQuestionIds = await getPreviousStudentAnswers(subtopicId);
+    
+    // get the answer choice ids
+    for (const questionId of answerQuestionIds){
+        let studentAnswers = await getStudentAnswer(subtopicId, questionId);
+
+        await updateProgressBar(subtopicId, questionId, studentAnswers);
+        
+    }
+
+    loadQuizQuestionsAndAnswers(subtopicId, pageNumber=1);
 }
 
 async function getPreviousStudentAnswers(subtopicId){

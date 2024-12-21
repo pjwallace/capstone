@@ -268,7 +268,6 @@ body, html {
         font-size: 1rem;
     }
     #submit-quiz-question, #view-quiz-results {
-        /*display: block; */
         width: 100%;
         margin: 20px auto;
         padding: 12px;
@@ -288,5 +287,10 @@ body, html {
         margin-top: 8px;
         line-height: 1.4;
     }
+    #previous-button-bottom, #next-button-bottom {
+        padding: 10px 15px;
+        margin: 5px 0;    
+    }
     
 }
+

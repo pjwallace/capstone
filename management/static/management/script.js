@@ -1967,58 +1967,74 @@ function getSubtopicsForAddExplanationForm(selectedTopicId, subtopicMenu){
     })   
 }
 
-function loadQuestionsToAddExplanationForm(selectedSubtopicId){
+function loadQuestionsToAddExplanationForm(selectedSubtopicId) {
     const questionMenu = document.getElementById('question-for-add-explanation');
+    const addExplanationMsg = document.getElementById('add-explanation-msg');
     
-    // get all the questions for the chosen subtopic
-    const route = `/management/portal/load_questions/${selectedSubtopicId}`;
+    // Clear existing messages and options
+    if (addExplanationMsg) addExplanationMsg.innerHTML = '';
+    questionMenu.innerHTML = '';
+
+    const route = `/management/portal/load_questions_without_explanation/${selectedSubtopicId}`;
 
     fetch(route)
-    .then(response => response.json())
-    .then(data =>{
-        if (data.success){
-            // clear the existing question menu options
-            questionMenu.innerHTML = '';
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Add placeholder option
+                const placeholderOption = document.createElement('option');
+                placeholderOption.value = '';
+                placeholderOption.textContent = '--------';
+                placeholderOption.selected = true;
+                questionMenu.appendChild(placeholderOption);
 
-            // load the new questions, including the placeholder option
-            questionMenu.innerHTML = '<option value="" selected ="">--------</option>';
-            data.questions.forEach(question => {
-                const option = document.createElement('option');
-                option.value = question.id;
-                option.textContent = question.text;
-                questionMenu.appendChild(option);
-            }); 
-            
-            const validQuestionOptions = questionMenu.options.length > 1;
+                // Add new question options
+                data.questions_without_explanation.forEach(question => {
+                    const option = document.createElement('option');
+                    option.value = question.id;
+                    option.textContent = question.text;
+                    questionMenu.appendChild(option);
+                });
 
-            if (!validQuestionOptions){
-                let add_explanation_msg = document.getElementById('add-explanation-msg');
-                if (add_explanation_msg){
-                    add_explanation_msg.innerHTML = '';
+                // Check if there are valid questions
+                const hasValidQuestions = questionMenu.options.length > 1;
+                if (!hasValidQuestions) {
+                    clearMessages();
+                    displayMessage(
+                        'There was a problem retrieving questions for the chosen subtopic',
+                        'info'
+                    );
+                } else {
+                    // Remove previous event listener and add a new one
+                    questionMenu.replaceWith(questionMenu.cloneNode(true)); // Clears all listeners
+                    questionMenu.addEventListener('change', function () {
+                        const selectedQuestionId = questionMenu.value;
+                        loadChoicesToAddExplanationForm(selectedQuestionId);
+                    });
                 }
+            } else {
                 clearMessages();
-                displayMessage('There was a problem retrieving questions for the chosen subtopic', 'info');
-                return;
-            }else{
-                // add event listener to question menu
-                questionMenu.addEventListener('change', function(){
-                    const selectedQuestionId = questionMenu.value;
-                    loadChoicesToAddExplanationForm(selectedQuestionId);
-                }) 
+                if (data.messages && data.messages.length > 0) {
+                    addExplanationMsg.innerHTML = `
+                        <div class="alert alert-${data.messages[0].tags}" role="alert">
+                            ${data.messages[0].message}
+                        </div>
+                    `;
+                } else {
+                    displayMessage(
+                        'An unexpected error occurred while retrieving questions.',
+                        'error'
+                    );
+                }
             }
-
-        }else{
-            let add_explanation_msg = document.getElementById('add-explanation-msg');
-            if (add_explanation_msg){
-                add_explanation_msg.innerHTML = '';
-            }
+        })
+        .catch(error => {
+            console.error('Error loading questions:', error);
             clearMessages();
-            displayMessage('There are no available questions for the chosen subtopic', 'info');
-            return;    
-        } 
-
-    })
+            displayMessage('Failed to load questions. Please try again later.', 'error');
+        });
 }
+
 
 function loadChoicesToAddExplanationForm(selectedQuestionId){
     // get all the questions for the chosen subtopic
@@ -2172,60 +2188,77 @@ function getSubtopicsForEditExplanation(selectedTopicId, subtopicMenu){
     })    
 }
 
-function loadQuestionsToEditExplanation(selectedSubtopicId){
-    const questionMenu = document.getElementById('question-for-edit-explanation');
+function loadQuestionsToEditExplanationForm(selectedSubtopicId) {
+    const questionMenu = document.getElementById('question-for-add-explanation');
+    const editExplanationMsg = document.getElementById('edit-explanation-msg');
     
-    // get all the questions for the chosen subtopic
-    const route = `/management/portal/load_questions/${selectedSubtopicId}`;
+    // Clear existing messages and options
+    if (editExplanationMsg){ 
+        editExplanationMsg.innerHTML = '';
+    }
+    questionMenu.innerHTML = '';
+
+    const route = `/management/portal/load_questions_with_explanation/${selectedSubtopicId}`;
 
     fetch(route)
-    .then(response => response.json())
-    .then(data =>{
-        if (data.success){
-            // clear the existing question menu options
-            questionMenu.innerHTML = '';
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Add placeholder option
+                const placeholderOption = document.createElement('option');
+                placeholderOption.value = '';
+                placeholderOption.textContent = '--------';
+                placeholderOption.selected = true;
+                questionMenu.appendChild(placeholderOption);
 
-            // load the new questions, including the placeholder option
-            questionMenu.innerHTML = '<option value="" selected ="">--------</option>';
-            data.questions.forEach(question => {
-                const option = document.createElement('option');
-                option.value = question.id;
-                option.textContent = question.text;
-                questionMenu.appendChild(option);
-            }); 
-            
-            const validQuestionOptions = questionMenu.options.length > 1;
+                // Add new question options
+                data.questions_with_explanation.forEach(question => {
+                    const option = document.createElement('option');
+                    option.value = question.id;
+                    option.textContent = question.text;
+                    questionMenu.appendChild(option);
+                });
 
-            if (!validQuestionOptions){
-                let edit_explanation_msg = document.getElementById('edit-explanation-msg');
-                if (edit_explanation_msg){
-                    edit_explanation_msg.innerHTML = '';
+                // Check if there are valid questions
+                const hasValidQuestions = questionMenu.options.length > 1;
+                if (!hasValidQuestions) {
+                    clearMessages();
+                    displayMessage(
+                        'There was a problem retrieving questions for the chosen subtopic',
+                        'info'
+                    );
+                } else {
+                    // Remove previous event listener and add a new one
+                    questionMenu.replaceWith(questionMenu.cloneNode(true)); // Clears all listeners
+                    questionMenu.addEventListener('change', function () {
+                        const selectedQuestionId = questionMenu.value;
+                        loadChoicesToEditExplanationForm(selectedQuestionId);
+                        getExplanationForQuestion(selectedQuestionId);
+                    });
                 }
+            } else {
                 clearMessages();
-                displayMessage('There are no available questions for the chosen subtopic', 'info');
-                return;
-            }else{
-                // add event listener to question menu
-                questionMenu.addEventListener('change', function(){
-                    const selectedQuestionId = questionMenu.value;
-                    loadChoicesToEditExplanationForm(selectedQuestionId);
-                    getExplanationForQuestion(selectedQuestionId);
-                }) 
-
+                if (data.messages && data.messages.length > 0) {
+                    editExplanationMsg.innerHTML = `
+                        <div class="alert alert-${data.messages[0].tags}" role="alert">
+                            ${data.messages[0].message}
+                        </div>
+                    `;
+                } else {
+                    displayMessage(
+                        'An unexpected error occurred while retrieving questions.',
+                        'error'
+                    );
+                }
             }
-
-        }else{
-            let edit_explanation_msg = document.getElementById('edit-explanation-msg');
-            if (edit_explanation_msg){
-                edit_explanation_msg.innerHTML = '';
-            }
+        })
+        .catch(error => {
+            console.error('Error loading questions:', error);
             clearMessages();
-            displayMessage('There are no available questions for the chosen subtopic', 'info');
-            return;    
-        } 
-
-    })
+            displayMessage('Failed to load questions. Please try again later.', 'error');
+        });
 }
+
 
 function loadChoicesToEditExplanationForm(selectedQuestionId){
     // get all the questions for the chosen subtopic

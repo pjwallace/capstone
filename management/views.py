@@ -612,6 +612,51 @@ def load_questions(request, subtopic_id):
         else:
             return JsonResponse({"success": False,
                     "messages": [{"message": "An error occurred while retrieving questions.", "tags": "info"}]})
+        
+@login_required(login_url='login')
+def load_questions_without_explanation(request, subtopic_id):
+    if request.method == 'GET':
+        # only select questions without an explanation
+        questions_query = Question.objects.filter(subtopic_id=subtopic_id, explanation__isnull=True)
+        
+        if not questions_query.exists():
+            return JsonResponse({"success": False,
+                "messages": [{"message": "All questions for the chosen subtopic already have explanations.", 
+                            "tags": "info"}]})
+        
+        questions_without_explanation = questions_query.values('id', 'text')
+        
+        # convert QuerySet to a list
+        return JsonResponse({"success": True, 
+            "questions_without_explanation": list(questions_without_explanation)})
+    
+    # not a GET request
+    else:
+        return JsonResponse({"success": False,
+            "messages": [{"message": "Invalid request method.", "tags": "info"}]})
+
+        
+@login_required(login_url='login')
+def load_questions_with_explanation(request, subtopic_id):
+    if request.method == 'GET':
+        # only select questions with an explanation
+        questions_with_explanation = (
+            Question.objects.filter(subtopic_id=subtopic_id)
+            .filter(explanation__isnull=False).values('id', 'text')
+        )
+        
+        if not questions_with_explanation.exists():
+            return JsonResponse({"success": False,
+                "messages": [{"message": "Chosen subtopic does not have any questions with an explanation.", 
+                            "tags": "info"}]})
+        
+        # convert QuerySet to a list
+        return JsonResponse({"success": True, "questions_with_explanation": list(questions_with_explanation)})
+    
+    # not a GET request
+    else:
+        return JsonResponse({"success": False,
+            "messages": [{"message": "Invalid request method.", "tags": "info"}]})       
     
 @login_required(login_url='login')
 def get_all_questions_to_edit(request):
