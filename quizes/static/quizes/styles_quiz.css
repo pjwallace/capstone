@@ -81,17 +81,18 @@ body, html {
 
 #quiz-container{
     padding: 10px;
-    flex-grow: 1; /* Allow quiz content to take up most of the space */     
-    margin-bottom: 0;  /* Add space between quiz and explanation */    
+    flex-grow: 0; 
+    flex-shrink: 0;     
+    margin-bottom: 0;  
 }
 
 .quiz-wrapper{
     margin: 20px auto;  /* Center the content with some margin */
     margin-top: 5px;
-    padding: 20px; /* Add some padding inside the container */
-    background-color: #f9f9f9; /* Set a light background color */
+    padding: 20px; 
+    background-color: #f9f9f9; 
     max-width: 800px;
-    border: 1px solid #ddd; /* Optional border */
+    border: 1px solid #ddd; 
     border-radius: 8px; /* Rounded corners */
 }
 
@@ -234,11 +235,42 @@ body, html {
 
 /* media queries */
 @media (max-width: 576px){
+    body, html {
+        overflow-y: auto; /* Enable scrolling */
+        height: 100%;
+    }
     #progress-container{
-        display: none;
+        position: static;
+        width: 100%;
+        bottom: 0;
+        left: 0;
+        height: auto;
+        background-color: blue;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 5px;
+        padding: 10px;
+        margin-bottom: 20px;
+        /*
+        margin-top: 10px;
+        margin-bottom: 20px;
+        z-index: auto;
+        */
+    }
+    #progress-container a {
+        padding: 5px;
+        font-size: 0.9rem;
+        justify-content: center;
+        text-align: center;
+    }
+    #progress-container a i {
+        margin-right: 4px;
     }
     #quiz-page-container{
         margin-left: 0;
+        height: auto;
+        padding: 10px;
+        flex-grow: 0;
     }
     #pagination-container{
         grid-template-columns: 1fr;
@@ -296,6 +328,12 @@ body, html {
     #previous-button-bottom, #next-button-bottom {
         padding: 10px 15px;
         margin: 5px 0;    
+    }
+    #explanation-container {
+        margin-bottom: 0;
+    }
+    .explanation-wrapper {
+        margin-bottom: 0;
     }
     
 }
