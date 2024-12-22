@@ -286,6 +286,9 @@ body, html {
         padding: 10px 15px;
         margin: 5px 0;
     }
+    .hidden {
+        display: none; 
+    }
     .choice-container {
         padding-left: 7px;
         margin-bottom: 15px;
