@@ -336,25 +336,33 @@ function getAllQuestionsToEditFromSidebar(topicId, subtopicId){
 function addTopic(){
     const route = `/management/portal/add_topic`;
 
+    // Create FormData object to handle all form fields dynamically
+    const addTopicForm = document.getElementById('add-topic-form');
+    const formData = new FormData(addTopicForm);
+
     // Retrieve the django CSRF token from the form
-    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    //var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrftoken = formData.get('csrfmiddlewaretoken');
     
     fetch(route, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            //'Content-Type': 'application/json',
             'X-CSRFToken': csrftoken,
         },
-        body: JSON.stringify({
-            name : document.getElementById('new-topic').value,
-                
-        })
+        //body: JSON.stringify({
+        //    name : document.getElementById('new-topic').value,
+        //})
+        body: formData,        
     })
     
     .then(response => response.json())
     .then(data => {
-        document.getElementById('add-topic-form').reset(); // reset the form
-        if (data.success){  
+        //document.getElementById('add-topic-form').reset(); // reset the form
+        addTopicForm.reset();
+        document.getElementById('new-topic').focus();
+        
+        if (data.success){              
             // update the sidebar with the new topic 
             const sidebar = document.querySelector('.sidebar');
             const aTag = document.createElement('a');

@@ -23,61 +23,55 @@
             <a class="navbar-brand" id= "brand" href="#">Database Management</a>
           
             <div>
-              <ul class="navbar-nav mr-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle"
-                        href="#" id="navbardrop-topic" data-bs-toggle="dropdown">Topics
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" id="dropdown-add-topic" href="{% url 'add_topic' %}">Add Topic</a>
-                        <a class="dropdown-item" id="dropdown-rename-topic" href="{% url 'rename_topic' %}">Rename Topic</a>
-                        <a class="dropdown-item" id="dropdown-delete-topic" href="{% url 'delete_topic_form' %}">Delete Topic</a>   
-                    </div>
-                </li>
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                            href="#" id="navbardrop-topic" data-bs-toggle="dropdown">Topics
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" id="dropdown-add-topic" href="{% url 'add_topic' %}">Add Topic</a>
+                            <a class="dropdown-item" id="dropdown-rename-topic" href="{% url 'rename_topic' %}">Rename Topic</a>
+                            <a class="dropdown-item" id="dropdown-delete-topic" href="{% url 'delete_topic_form' %}">Delete Topic</a>   
+                        </div>
+                    </li>
 
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle"
-                        href="#" id="navbardrop-subtopic" data-bs-toggle="dropdown">Subtopics
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" id="dropdown-add-subtopic" href="{% url 'add_subtopic' %}">Add Subtopic</a>
-                        <a class="dropdown-item" id="dropdown-rename-subtopic" href="{% url 'rename_subtopic' %}">Rename Subtopic</a>
-                        <a class="dropdown-item" id="dropdown-delete-subtopic" href="{% url 'delete_subtopic_form' %}">Delete Subtopic</a>   
-                    </div>
-                </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                            href="#" id="navbardrop-subtopic" data-bs-toggle="dropdown">Subtopics
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" id="dropdown-add-subtopic" href="{% url 'add_subtopic' %}">Add Subtopic</a>
+                            <a class="dropdown-item" id="dropdown-rename-subtopic" href="{% url 'rename_subtopic' %}">Rename Subtopic</a>
+                            <a class="dropdown-item" id="dropdown-delete-subtopic" href="{% url 'delete_subtopic_form' %}">Delete Subtopic</a>   
+                        </div>
+                    </li>
                     
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle"
-                        href="#" id="navbardrop-question" data-bs-toggle="dropdown">Questions/Choices
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" id="dropdown-add-question-and-choices" href="{% url 'add_question_and_choices' %}">
-                            Add Question & Answer Choices</a>
-                        <a class="dropdown-item" id="dropdown-edit-question-and-choices" href="{% url 'get_question_to_edit' %}">
-                            Edit/Delete Question</a>
-                        <a class="dropdown-item" id="dropdown-edit-all-questions" href="{% url 'get_all_questions_to_edit' %}">
-                            Review/Edit All Questions</a>  
-                    </div>
-                </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                            href="#" id="navbardrop-question" data-bs-toggle="dropdown">Questions/Choices
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" id="dropdown-add-question-and-choices" href="{% url 'add_question_and_choices' %}">
+                                Add Question & Answer Choices</a>
+                            <a class="dropdown-item" id="dropdown-edit-question-and-choices" href="{% url 'get_question_to_edit' %}">
+                                Edit/Delete Question</a>
+                            <a class="dropdown-item" id="dropdown-edit-all-questions" href="{% url 'get_all_questions_to_edit' %}">
+                                Review/Edit All Questions</a>  
+                        </div>
+                    </li>
 
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle"
-                        href="#" id="navbardrop-choice" data-bs-toggle="dropdown">Explanations
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" id="dropdown-add-explanation" href="{% url 'add_explanation' %}">
-                            Add Explanation</a>
-                        <a class="dropdown-item" id="dropdown-edit-explanation" href="{% url 'edit_explanation' %}">
-                            Edit/Delete Explanation</a>
-                    </div>
-                </li>
-                <!--
-                <li class="nav-item">
-                    <a class="nav-link" id="logout-link" href="{% url 'logout' %}">Log Out</a>
-                </li>
-                -->
-                
-              </ul>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                            href="#" id="navbardrop-choice" data-bs-toggle="dropdown">Explanations
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" id="dropdown-add-explanation" href="{% url 'add_explanation' %}">
+                                Add Explanation</a>
+                            <a class="dropdown-item" id="dropdown-edit-explanation" href="{% url 'edit_explanation' %}">
+                                Edit/Delete Explanation</a>
+                        </div>
+                    </li>                
+                </ul>
             </div>
 
             <div class="collapse navbar-collapse">
@@ -95,9 +89,9 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li><a class="dropdown-item" href="{% url 'edit_profile' %}">Edit Profile</a></li>
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
                         </ul>
                     </li>
+                    
                     <li class="nav-item">
                         <a class="nav-link" id="dashboard-link"  href="{% url 'dashboard' %}">Dashboard</a>
                     </li>

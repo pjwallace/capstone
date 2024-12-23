@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from management.models import Topic, Subtopic, Question, QuestionType, Choice, Explanation
 from collections import OrderedDict
+import re
 
 class AddTopicForm(forms.ModelForm):
     class Meta:
@@ -19,6 +20,13 @@ class AddTopicForm(forms.ModelForm):
         labels = {
             'name' : ""
         } 
+    def clean_name(self):
+        name =self.cleaned_data.get('name', '').strip().title()
+        if not re.match(r'^[A-za-z0-9]', name):
+            raise ValidationError("Topic name must start with a letter or a number only.")
+        if Topic.objects.filter(name=name).exists():
+            raise ValidationError("A topic with this name already exists. Please choose a different name.")
+        return name
 
 class RenameTopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(

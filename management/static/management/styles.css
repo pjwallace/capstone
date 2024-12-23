@@ -109,10 +109,12 @@ body, html {
     margin-left: 280px;
     padding: 10px;
     display: flex;
-    justify-content: flex-start; 
+    justify-content: center; 
+    align-items: center;
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
+    background-color: #b0c4de;
 }
 
 .welcome-container{
@@ -124,8 +126,8 @@ body, html {
 
 .form-container{    
     width: 100%;
-    margin: 0;    
-    padding-top: 5px;
+    margin: 10px auto;    
+    padding: 20px;
     background-color: aliceblue;
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -134,6 +136,17 @@ body, html {
 
 .form-container h2{
     text-align: center;
+}
+
+#add-topic-container {
+    max-width: 500px;
+}
+
+#add-topic-btn {
+    margin-top: 25px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #add-question-and-choices-form {

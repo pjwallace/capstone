@@ -67,29 +67,19 @@ def add_topic(request):
         })
 
     elif request.method == 'POST':
-        data = json.loads(request.body)
-        name = data.get("name", "").strip().title()
-
-        if not name:
-            return JsonResponse({"success": False,  
-                "messages": [{"message": "Please enter a valid topic name.", "tags": "danger"}]})
-               
-        try:
-            topic = Topic(name = name, created_by = request.user, modified_by = request.user)
-            topic.save()
+        add_topic_form = AddTopicForm(request.POST)
+        if add_topic_form.is_valid():
+            topic = add_topic_form.save(commit=False)
+            topic.created_by = request.user
+            topic.modified_by = request.user
+            topic.save()       
             
-        except IntegrityError as e:
-            # topic name + slug must be unique
-            if 'name' or 'slug' in str(e):
-                return JsonResponse({"success": False, 
-                    "messages": [{"message": "A topic with this name already exists. Please choose a different name.", "tags": "danger"}]})
-            else:
-                return JsonResponse({"success": False,  
-                    "messages": [{"message": "An error occurred while saving the topic. Please try again.", "tags": "danger"}]})
-            
-       
-        return JsonResponse({"success": True, "topic_id" : topic.id, "topic_name": topic.name,
-            "messages": [{"message": f"{name} has been successfully added.", "tags": "success"}]})
+            return JsonResponse({"success": True, "topic_id" : topic.id, "topic_name": topic.name,
+                "messages": [{"message": f"{topic.name} has been successfully added.", "tags": "success"}]})
+        
+        else:
+            return JsonResponse({"success": False,
+                "messages": [{"message": add_topic_form.errors['name'][0], "tags": "danger"}]})
 
 @login_required(login_url='login')  
 def rename_topic(request):
