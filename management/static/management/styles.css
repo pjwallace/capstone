@@ -138,11 +138,15 @@ body, html {
     text-align: center;
 }
 
-#add-topic-container {
+#add-topic-container, 
+#rename-topic-container,
+#delete-topic-container {
     max-width: 500px;
 }
 
-#add-topic-btn {
+#add-topic-btn,
+#rename-topic-btn,
+#delete-topic-btn {
     margin-top: 25px;
     display: block;
     margin-left: auto;

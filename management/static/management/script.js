@@ -62,10 +62,10 @@ function initializePage(){
             }
         }              
            
-        });
+    });
        
 
-    // delete topic
+    // delete topic    
     setupDeleteTopicModal();
     
     // rename subtopic
@@ -336,7 +336,7 @@ function getAllQuestionsToEditFromSidebar(topicId, subtopicId){
 function addTopic(){
     const route = `/management/portal/add_topic`;
 
-    // Create FormData object to handle all form fields dynamically
+    // Create FormData object 
     const addTopicForm = document.getElementById('add-topic-form');
     const formData = new FormData(addTopicForm);
 
@@ -347,21 +347,14 @@ function addTopic(){
     fetch(route, {
         method: 'POST',
         headers: {
-            //'Content-Type': 'application/json',
             'X-CSRFToken': csrftoken,
         },
-        //body: JSON.stringify({
-        //    name : document.getElementById('new-topic').value,
-        //})
         body: formData,        
-    })
-    
+    })    
     .then(response => response.json())
-    .then(data => {
-        //document.getElementById('add-topic-form').reset(); // reset the form
-        addTopicForm.reset();
+    .then(data => {       
         document.getElementById('new-topic').focus();
-        
+        addTopicForm.reset();
         if (data.success){              
             // update the sidebar with the new topic 
             const sidebar = document.querySelector('.sidebar');
@@ -391,23 +384,24 @@ function addTopic(){
 function renameTopic(){
     const route = `/management/portal/rename_topic`;
 
+    // Create FormData object 
+    const renameTopicForm = document.getElementById('rename-topic-form');
+    const formData = new FormData(renameTopicForm);
+
     // Retrieve the django CSRF token from the form
-    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrftoken = formData.get('csrfmiddlewaretoken');
 
     fetch(route, {
-        method: 'PUT',
+        method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
             'X-CSRFToken': csrftoken,
         },
-        body: JSON.stringify({
-            old_topic_id : document.getElementById('rename-topic').value,
-            new_topic_name : document.getElementById('new-topic-name').value               
-        })
+        body: formData,
     })   
     .then(response => response.json())
     .then(data =>{
-        document.getElementById('rename-topic-form').reset(); // reset the form
+        document.getElementById('new-topic-name').focus();
+        renameTopicForm.reset();
         clearMessages();
 
         if (data.success){  
@@ -458,10 +452,17 @@ function updateTopicSelectMenu(formTopicId){
             
             const selectTopics = document.getElementById(formTopicId);
             // clear the existing subtopic options
-            selectTopics.innerHTML = '',  
+            selectTopics.innerHTML = '';  
             
             // load the new topics menu, including the placeholder option
-            selectTopics.innerHTML = '<option value="" selected ="">---------</option>';
+            // Add placeholder option
+            const placeholderOption = document.createElement('option');
+            placeholderOption.value = '';
+            placeholderOption.textContent = '--------';
+            placeholderOption.selected = true;
+            selectTopics.appendChild(placeholderOption);
+            
+            //selectTopics.innerHTML = '<option value="" selected ="">---------</option>';
             data.topics.forEach(topic => {
                 const option = document.createElement('option');
                 option.value = topic.id;
@@ -483,105 +484,97 @@ function setupDeleteTopicModal(){
     const selectTopicToDelete = document.getElementById('topic-to-delete');
     const deleteTopicButton = document.getElementById('delete-topic-btn');
     const modalElement = document.getElementById('confirm-delete-topic-modal');
-    
-    if (modalElement){
-        // instantiate the confirmation modal
-        const confirmDeleteTopicModal = new bootstrap.Modal(document.getElementById('confirm-delete-topic-modal'), {});
+    const confirmDeleteTopicButton = document.getElementById('confirm-delete-topic-button');
 
-        // Check if the delete button exists before setting properties
-        if (!deleteTopicButton) {
-            return;  // Early exit to avoid further errors
-        }   
+    if (!modalElement || !deleteTopicButton || !selectTopicToDelete) {
+        displayMessage('Unable to load the delete topic modal.', 'danger');
+        return;  // Exit early if essential elements are missing
+    }
        
-        if (selectTopicToDelete){
-            // at least one valid topic available
-            const validOptions = selectTopicToDelete.options.length > 1;
-
-            if (!validOptions) {
-                displayMessage('There are no topics to delete.', 'info');  
-                return;  // No further setup needed if there are no valid topics
-            }else{
-                // Show the modal after confirming a topic has been selected when the delete button is clicked
-                deleteTopicButton.addEventListener('click', function() {
-                    if (!selectTopicToDelete.value){
-                        // Display an error message if no topic is selected
-                        displayMessage('Please select a valid topic to delete.', 'danger');                        
-                        return;  // Stop here if validation fails
-                    }else{
-                        clearMessages();
-                        confirmDeleteTopicModal.show();
-                    }
-                });                        
-                
-            }
+    // instantiate the confirmation modal
+    const confirmDeleteTopicModal = new bootstrap.Modal(document.getElementById('confirm-delete-topic-modal'), {});
        
-        }else{
-            displayMessage('There are no topics to delete.', 'info');  
+    if (selectTopicToDelete.options.length <= 1){
+        displayMessage('There are no topics to delete.', 'info');  
+            return;  // No further setup needed if there are no valid topics
+    }
+           
+    // Show the modal after confirming a topic has been selected when the delete button is clicked
+    deleteTopicButton.addEventListener('click', function() {
+        if (!selectTopicToDelete.value){
+            // Display an error message if no topic is selected
+            displayMessage('Please select a valid topic to delete.', 'danger');                        
             return;  
         }
-        // Call deleteTopic and pass the modal instance
-        deleteTopic(confirmDeleteTopicModal);
-    }
 
+        clearMessages();
+        confirmDeleteTopicModal.show();        
+    }); 
+
+    // add the event listener for confirming topic deletion
+    confirmDeleteTopicButton.removeEventListener('click', confirmTopicDeletion);
+    confirmDeleteTopicButton.addEventListener('click', confirmTopicDeletion);
+
+    // Call deleteTopic and pass the  topic id and modal instance
+    function confirmTopicDeletion(){
+        const selectedTopicId = selectTopicToDelete.value;
+        deleteTopic(selectedTopicId, confirmDeleteTopicModal);
+    }
+                        
 }
 
-function deleteTopic(confirmDeleteTopicModal){
-    // modal delete button logic
-    const confirmDeleteTopicButton = document.getElementById('confirm-delete-topic-button');
-    
-    confirmDeleteTopicButton.addEventListener('click', function(){           
-        const selectTopicToDelete = document.getElementById('topic-to-delete');
-        const selectedTopicId = selectTopicToDelete.value;                                  
-    
-        const route = `/management/portal/delete_topic/${selectedTopicId}`;
-        // Retrieve the django CSRF token from the form
-        var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+function deleteTopic(selectedTopicId, confirmDeleteTopicModal){    
+    const deleteTopicForm = document.getElementById('delete-topic-form');
+       
+    const route = `/management/portal/delete_topic/${selectedTopicId}`;
+    // Retrieve the django CSRF token from the form
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         
-        fetch(route, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('delete-topic-form').reset(); // reset the form
-            if (data.success){
-                // update the topic select menu to reflect the name change
-                updateTopicSelectMenu('topic-to-delete'); 
+    fetch(route, {
+        method: 'POST',
+        headers: {
+            //'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        deleteTopicForm.reset(); // reset the form
+        if (data.success){
+            // update the topic select menu to reflect the topic deletion
+            updateTopicSelectMenu('topic-to-delete'); 
 
-                // Remove the deleted topic from the sidebar
-                const topicElement = document.getElementById(`topic-${selectedTopicId}`);
-                const subtopicsContainer = document.getElementById(`subtopicscontainer-${selectedTopicId}`);
+            // Remove the deleted topic from the sidebar
+            const topicElement = document.getElementById(`topic-${selectedTopicId}`);
+            const subtopicsContainer = document.getElementById(`subtopicscontainer-${selectedTopicId}`);
 
-                if (topicElement) {
-                    topicElement.remove();  
-                }
-                
-                if (subtopicsContainer) {
-                    subtopicsContainer.remove();  
-                }
-
-                clearMessages();
-                                
-                // display success message
-                let delete_topic_msg = document.getElementById('delete-topic-msg');
-                delete_topic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-                
-            }else{
-                clearMessages();
-                // errors
-                let delete_topic_msg = document.getElementById('delete-topic-msg');
-                delete_topic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            if (topicElement) {
+                topicElement.remove();  
+            }
+            
+            if (subtopicsContainer) {
+                subtopicsContainer.remove();  
             }
 
-            // Close the modal
-            confirmDeleteTopicModal.hide();
+            clearMessages();
+                            
+            // display success message
+            let delete_topic_msg = document.getElementById('delete-topic-msg');
+            delete_topic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
             
-        })
-        .catch(error => console.error('Topic deletion failed:', error));       
-    });
+        }else{
+            clearMessages();
+            // errors
+            let delete_topic_msg = document.getElementById('delete-topic-msg');
+            delete_topic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+        }
+
+        // Close the modal
+        confirmDeleteTopicModal.hide();
+        
+    })
+    .catch(error => console.error('Topic deletion failed:', error));       
+    //});
 }
         
 function addSubtopic(){

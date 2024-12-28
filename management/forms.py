@@ -58,11 +58,18 @@ class RenameTopicForm(forms.ModelForm):
 
         if topic and new_topic_name and topic.name == new_topic_name:
             self.add_error('new_topic_name', 'The new topic name must be different from the current name.')
-
         return cleaned_data
     
+    def clean_new_topic_name(self):
+        new_topic_name =self.cleaned_data.get('new_topic_name', '').strip().title()
+        if not re.match(r'^[A-za-z0-9]', new_topic_name):
+            raise ValidationError("Topic name must start with a letter or a number only.")
+        if Topic.objects.filter(name=new_topic_name).exists():
+            raise ValidationError("A topic with this name already exists. Please choose a different name.")
+        return new_topic_name       
+    
 class DeleteTopicForm(forms.ModelForm):
-    name = forms.ModelChoiceField(
+    topic = forms.ModelChoiceField(
         queryset= Topic.objects.all(),
         widget=forms.Select(attrs={
             'class' : 'form-control',
@@ -73,13 +80,13 @@ class DeleteTopicForm(forms.ModelForm):
 
     class Meta:
         model = Topic
-        fields = ['name']
+        fields = []
 
     def clean_topic(self):
-        name = self.cleaned_data.get('name')
-        if not name:
+        topic = self.cleaned_data.get('topic')
+        if not topic:
             raise forms.ValidationError("Please select a valid topic.")
-        return name
+        return topic
     
 
 class AddSubtopicForm(forms.ModelForm):

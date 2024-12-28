@@ -80,6 +80,10 @@ def add_topic(request):
         else:
             return JsonResponse({"success": False,
                 "messages": [{"message": add_topic_form.errors['name'][0], "tags": "danger"}]})
+        
+    else: 
+        # Return an error response for unsupported methods
+        return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
 
 @login_required(login_url='login')  
 def rename_topic(request):
@@ -92,41 +96,31 @@ def rename_topic(request):
             'topics' : topics,
         })
     
-    elif request.method == 'PUT':
-        data = json.loads(request.body)
-        topic_id = data.get("old_topic_id")
-        new_topic_name = data.get("new_topic_name", "").strip().title()
+    elif request.method == 'POST':
+        rename_topic_form = RenameTopicForm(request.POST)
 
-        if not new_topic_name:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "Please enter a valid topic name.", "tags": "danger"}]}, status=400)   
-       
-        # create a Topic instance
-        try:
-            topic = Topic.objects.get(pk=topic_id)
+        if rename_topic_form.is_valid():   
+            # create a topic instance using the selected topic from the form
+            topic = rename_topic_form.cleaned_data['topic']
+            # retrieve the current topic name
             old_topic_name = topic.name
-        except Topic.DoesNotExist:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "Invalid topic selected.", "tags": "danger"}]}, status=400)
-        
-        # Check if the new name is the same as the old name
-        if new_topic_name == old_topic_name:
-            return JsonResponse({"success": False,
-                                 "messages": [{"message": "The new topic name must be different from the current topic name.", 
-                                               "tags": "danger"}]}, status=400)
-        
-        # update topic name, modified_by in Topic model
-        try:
+            # retrieve the new topic name from the form       
+            new_topic_name = rename_topic_form.cleaned_data['new_topic_name']        
+               
+            # update topic name, modified_by in the topic record       
             topic.name = new_topic_name
             topic.modified_by = request.user
             topic.save()
-        except Exception as e:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
-                
-        return JsonResponse({"success": True, "renamed_topic": new_topic_name, "topic_id": topic_id,
-            "messages": [{"message": f"{old_topic_name} has been renamed to {new_topic_name}.", "tags": "success"}]})
 
+            return JsonResponse({"success": True, "renamed_topic": new_topic_name, "topic_id": topic.id,
+                "messages": [{"message": f"{old_topic_name} has been renamed to {new_topic_name}.", "tags": "success"}]})
+        else:
+           return JsonResponse({"success": False,
+                "messages": [{"message": rename_topic_form.errors['new_topic_name'][0], "tags": "danger"}]})
+        
+    else: 
+        # Return an error response for unsupported methods
+        return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
  
 @login_required(login_url='login')
 def delete_topic_form(request):
@@ -138,30 +132,27 @@ def delete_topic_form(request):
             'delete_topic_form' : delete_topic_form,
             'topics' : topics,
         })
+    else: 
+        # Return an error response for unsupported methods
+        return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
 
 @login_required(login_url='login')
-def delete_topic(request, topic_id):
-    
-    if request.method == 'DELETE':
+def delete_topic(request, topic_id):    
+    if request.method == 'POST':        
         try:
             topic = Topic.objects.get(pk=topic_id)
+            topic.delete()
+            return JsonResponse({"success": True,
+                    "messages": [{"message": f"{topic} has been successfully deleted.", "tags": "success"}]})
         except Topic.DoesNotExist:
             return JsonResponse({"success": False,  
                 "messages": [{"message": "Topic does not exist.", "tags": "danger"}]}, status=400)
-                  
-        try:
-            topic.delete() 
-            return JsonResponse({"success": True,
-                "messages": [{"message": f"{topic} has been successfully deleted.", "tags": "success"}]})               
-                        
-        except Exception as e:
-            return JsonResponse({"success": False,
-                "messages": [{"message": f"An error occurred while deleting this topic: {str(e)}", "tags": "danger"}]}, status=400)
-                
+                                  
     else:
         # Handle non-POST requests 
         return JsonResponse({"success": False,
-                "messages": [{"message": "Invalid request method for deleting a topic.", "tags": "danger"}]}, status=400) 
+                "messages": [{"message": "Invalid request method for deleting a topic.", "tags": "danger"}]}, 
+                    status=400) 
     
 @login_required(login_url='login')  
 def get_topics(request):
