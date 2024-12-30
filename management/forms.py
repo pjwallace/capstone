@@ -23,9 +23,9 @@ class AddTopicForm(forms.ModelForm):
     def clean_name(self):
         name =self.cleaned_data.get('name', '').strip().title()
         if not re.match(r'^[A-za-z0-9]', name):
-            raise ValidationError("Topic name must start with a letter or a number only.")
+            raise forms.ValidationError("Topic name must start with a letter or a number only.")
         if Topic.objects.filter(name=name).exists():
-            raise ValidationError("A topic with this name already exists. Please choose a different name.")
+            raise forms.ValidationError("A topic with this name already exists. Please choose a different name.")
         return name
 
 class RenameTopicForm(forms.ModelForm):
@@ -57,15 +57,15 @@ class RenameTopicForm(forms.ModelForm):
         new_topic_name = cleaned_data.get('new_topic_name')
 
         if topic and new_topic_name and topic.name == new_topic_name:
-            self.add_error('new_topic_name', 'The new topic name must be different from the current name.')
+            raise forms.ValidationError('The new topic name must be different from the current name.')
         return cleaned_data
     
     def clean_new_topic_name(self):
         new_topic_name =self.cleaned_data.get('new_topic_name', '').strip().title()
-        if not re.match(r'^[A-za-z0-9]', new_topic_name):
-            raise ValidationError("Topic name must start with a letter or a number only.")
+        if not re.match(r'^[A-Za-z0-9]', new_topic_name):
+            raise forms.ValidationError("Topic name must start with a letter or a number only.")
         if Topic.objects.filter(name=new_topic_name).exists():
-            raise ValidationError("A topic with this name already exists. Please choose a different name.")
+            raise forms.ValidationError("A topic with this name already exists. Please choose a different name.")
         return new_topic_name       
     
 class DeleteTopicForm(forms.ModelForm):
@@ -118,6 +118,21 @@ class AddSubtopicForm(forms.ModelForm):
            raise forms.ValidationError("Please select a valid topic.")
         return topic
     
+    def clean_name(self):
+        name =self.cleaned_data.get('name', '').strip().title()
+        if not re.match(r'^[A-Za-z0-9]', name):
+            raise forms.ValidationError("Subtopic name must start with a letter or a number only.")
+        return name
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        topic = cleaned_data.get('topic')
+        name = cleaned_data.get('name')
+
+        if topic and name and Subtopic.objects.filter(topic=topic, name=name).exists():
+            raise forms.ValidationError("This topic/subtopic combination already exists. Please choose a different subtopic name.")
+        return cleaned_data
+    
 class RenameSubtopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
         queryset=Topic.objects.all(),
@@ -138,7 +153,7 @@ class RenameSubtopicForm(forms.ModelForm):
         label='Select a subtopic to rename'     
     )
     new_subtopic_name = forms.CharField(
-        max_length=30,
+        max_length=60,
         label="",
         widget=forms.TextInput(attrs={
             'class': 'form-control',

@@ -7,7 +7,7 @@
         <div id="rename-subtopic-msg" class="msg-div">
             
         </div>
-        
+        <!--
         <div class="error-msg">
             {% if messages %}
                 {% for message in messages %}
@@ -17,10 +17,11 @@
                 {% endfor %}
             {% endif %}
         </div>
+        -->
 
         <h2>Rename a Subtopic</h2><br>
 
-        <form id="rename-subtopic-form" data-fetch="true" method="post" action="{% url 'rename_subtopic' %}">
+        <form id="rename-subtopic-form" data-fetch="true" method="post">
             {% csrf_token %}
             {{ rename_subtopic_form.as_p }}
 

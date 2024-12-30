@@ -7,9 +7,9 @@
             
         </div>
 
-        <h2>Add a subtopic for the chosen topic</h2><br>
+        <h2>Add a Subtopic</h2><br>
 
-        <form id="add-subtopic-form" data-fetch="true" method="post" action="{% url 'add_subtopic' %}">
+        <form id="add-subtopic-form" data-fetch="true" method="post">
             {% csrf_token %}
             {{ add_subtopic_form.as_p }}
 

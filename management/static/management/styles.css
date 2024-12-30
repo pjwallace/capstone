@@ -140,13 +140,19 @@ body, html {
 
 #add-topic-container, 
 #rename-topic-container,
-#delete-topic-container {
+#delete-topic-container,
+#add-subtopic-container,
+#rename-subtopic-container,
+#delete-subtopic-container {
     max-width: 500px;
 }
 
 #add-topic-btn,
 #rename-topic-btn,
-#delete-topic-btn {
+#delete-topic-btn,
+#add-subtopic-btn,
+#rename-subtopic-btn,
+#delete-subtopic-btn {
     margin-top: 25px;
     display: block;
     margin-left: auto;

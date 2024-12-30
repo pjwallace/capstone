@@ -65,8 +65,10 @@ function initializePage(){
     });
        
 
-    // delete topic    
-    setupDeleteTopicModal();
+    // delete topic 
+    if (document.getElementById('confirm-delete-topic-modal')){   
+        setupDeleteTopicModal();
+    }
     
     // rename subtopic
     setupSelectSubtopicToRename();
@@ -129,10 +131,10 @@ function loadSuptopicsForTopic(){
                     upIcon.style.display = 'none';
                     topicATag.appendChild(downIcon);
                     // Use a small delay to ensure the DOM updates are applied before logging
-                    setTimeout(() => {
-                        console.log('Down Icon:', downIcon.style.display); // Should be 'block'
-                        console.log('Up Icon:', upIcon.style.display);     // Should be 'none'
-                    }, 0);
+                    //setTimeout(() => {
+                    //    console.log('Down Icon:', downIcon.style.display); // Should be 'block'
+                    //    console.log('Up Icon:', upIcon.style.display);     // Should be 'none'
+                    //}, 0);
                 }
                
             }else{
@@ -246,9 +248,7 @@ function loadSuptopicsForTopic(){
                         // toggle the caret icons
                         downIcon.style.display = 'none';
                         upIcon.style.display = 'block';
-                        console.log(downIcon);
-                        console.log(upIcon);
-
+                        
                     }else{
                         alert('This topic has no subtopics yet.');
                     }
@@ -353,9 +353,9 @@ function addTopic(){
     })    
     .then(response => response.json())
     .then(data => {       
-        document.getElementById('new-topic').focus();
-        addTopicForm.reset();
-        if (data.success){              
+        document.getElementById('new-topic').focus();       
+        if (data.success){ 
+            addTopicForm.reset();             
             // update the sidebar with the new topic 
             const sidebar = document.querySelector('.sidebar');
             const aTag = document.createElement('a');
@@ -400,11 +400,11 @@ function renameTopic(){
     })   
     .then(response => response.json())
     .then(data =>{
-        document.getElementById('new-topic-name').focus();
-        renameTopicForm.reset();
+        document.getElementById('new-topic-name').focus();       
         clearMessages();
 
         if (data.success){  
+            renameTopicForm.reset();
             // update the topic select menu to reflect the name change
             updateTopicSelectMenu('rename-topic'); 
             
@@ -538,9 +538,9 @@ function deleteTopic(selectedTopicId, confirmDeleteTopicModal){
         },
     })
     .then(response => response.json())
-    .then(data => {
-        deleteTopicForm.reset(); // reset the form
+    .then(data => {        
         if (data.success){
+            deleteTopicForm.reset(); // reset the form
             // update the topic select menu to reflect the topic deletion
             updateTopicSelectMenu('topic-to-delete'); 
 
@@ -578,25 +578,31 @@ function deleteTopic(selectedTopicId, confirmDeleteTopicModal){
 }
         
 function addSubtopic(){
+    // create FormData object
+    const addSubtopicForm = document.getElementById('add-subtopic-form');
+    const formData = new FormData(addSubtopicForm);
+
     const route = `/management/portal/add_subtopic`;
 
     // Retrieve the django CSRF token from the form
-    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    // const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrftoken = formData.get('csrfmiddlewaretoken');
 
     fetch(route, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            //'Content-Type': 'application/json',
             'X-CSRFToken': csrftoken,
         },
-        body: JSON.stringify({
-            topic : document.getElementById('topic-name-subtopic').value,
-            name : document.getElementById('new-subtopic').value,
-                
-        })
+        //body: JSON.stringify({
+        //topic : document.getElementById('topic-name-subtopic').value,
+        //name : document.getElementById('new-subtopic').value,                
+        //})
+        body: formData,
     })
     .then(response => response.json())
     .then(data => {
+        document.getElementById('new-subtopic').focus();
         if (data.success){
             // reset the add subtopic form
             document.getElementById('add-subtopic-form').reset();

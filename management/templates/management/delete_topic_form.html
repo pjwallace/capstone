@@ -7,7 +7,7 @@
         <div id="delete-topic-msg" class="msg-div">
             
         </div>
-       
+       <!--
         <div class="error-msg">
             {% if messages %}
                 {% for message in messages %}
@@ -17,10 +17,11 @@
                 {% endfor %}
             {% endif %}
         </div>
+        -->
 
         <h2>Delete a Topic</h2><br>
 
-        <form id="delete-topic-form" data-fetch="true" method="post">
+        <form id="delete-topic-form" data-fetch="true" method="post" novalidate>
             {% csrf_token %}
             {{ delete_topic_form.as_p }}
 
