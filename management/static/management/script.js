@@ -63,15 +63,39 @@ function initializePage(){
         }              
            
     });
+
+    // add event listener for dynamic loading of dropdown menus
+    document.getElementById('management-container').addEventListener('change', function(e){
+        if (e.target.tagName === 'SELECT' && e.target.id === 'topic-for-renamed-subtopic'){
+            setupSelectSubtopicToRename();        
+        }
+
+    });
+
+    let confirmDeleteTopicModal = null;
+    // add event listener for dynamic click events (buttons other than 'submit')
+    document.getElementById('management-container').addEventListener('click', function(e){
+        if (e.target.tagName === 'BUTTON' && e.target.id === 'delete-topic-btn'){
+            confirmDeleteTopicModal = setupDeleteTopicModal(); 
+            
+        }
+        if (e.target.tagName === 'BUTTON' && e.target.id === 'confirm-delete-topic-button'){
+            confirmTopicDeletion(confirmDeleteTopicModal);    
+        }   
+        
+
+    });
        
 
     // delete topic 
-    if (document.getElementById('confirm-delete-topic-modal')){   
-        setupDeleteTopicModal();
-    }
+    //if (document.getElementById('confirm-delete-topic-modal')){   
+    //    setupDeleteTopicModal();
+    //}
     
-    // rename subtopic
-    setupSelectSubtopicToRename();
+    // rename subtopic - load subtopic menu after choosing a topic
+    //if (document.getElementById('topic-for-renamed-subtopic')){
+    //    setupSelectSubtopicToRename();
+    //}
 
     // delete subtopic
     setupDeleteSubtopicModal(); 
@@ -488,39 +512,33 @@ function setupDeleteTopicModal(){
 
     if (!modalElement || !deleteTopicButton || !selectTopicToDelete) {
         displayMessage('Unable to load the delete topic modal.', 'danger');
-        return;  // Exit early if essential elements are missing
+        return null;  // Exit early if essential elements are missing
+    }
+
+    if (selectTopicToDelete.options.length <= 1){
+        displayMessage('There are no topics to delete.', 'info');  
+            return null;  // No further setup needed if there are no valid topics
+    }
+
+    if (!selectTopicToDelete.value){
+        // Display an error message if no topic is selected
+        displayMessage('Please select a valid topic to delete.', 'danger');                        
+        return null;  
     }
        
     // instantiate the confirmation modal
     const confirmDeleteTopicModal = new bootstrap.Modal(document.getElementById('confirm-delete-topic-modal'), {});
        
-    if (selectTopicToDelete.options.length <= 1){
-        displayMessage('There are no topics to delete.', 'info');  
-            return;  // No further setup needed if there are no valid topics
-    }
-           
-    // Show the modal after confirming a topic has been selected when the delete button is clicked
-    deleteTopicButton.addEventListener('click', function() {
-        if (!selectTopicToDelete.value){
-            // Display an error message if no topic is selected
-            displayMessage('Please select a valid topic to delete.', 'danger');                        
-            return;  
-        }
+    clearMessages();
+    confirmDeleteTopicModal.show(); 
+    return confirmDeleteTopicModal;
+                                   
+}
 
-        clearMessages();
-        confirmDeleteTopicModal.show();        
-    }); 
-
-    // add the event listener for confirming topic deletion
-    confirmDeleteTopicButton.removeEventListener('click', confirmTopicDeletion);
-    confirmDeleteTopicButton.addEventListener('click', confirmTopicDeletion);
-
-    // Call deleteTopic and pass the  topic id and modal instance
-    function confirmTopicDeletion(){
-        const selectedTopicId = selectTopicToDelete.value;
-        deleteTopic(selectedTopicId, confirmDeleteTopicModal);
-    }
-                        
+function confirmTopicDeletion(confirmDeleteTopicModal){
+    const selectTopicToDelete = document.getElementById('topic-to-delete');
+    const selectedTopicId = selectTopicToDelete.value;
+    deleteTopic(selectedTopicId, confirmDeleteTopicModal);
 }
 
 function deleteTopic(selectedTopicId, confirmDeleteTopicModal){    
@@ -685,25 +703,27 @@ function renameSubtopic(){
     const route = `/management/portal/rename_subtopic`;
 
     // Retrieve the django CSRF token from the form
-    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     fetch(route, {
-        method: 'PUT',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': csrftoken,
         },
         body: JSON.stringify({
+            topic_id : document.getElementById('topic-for-renamed-subtopic').value,
             subtopic_id : document.getElementById('choose-subtopic-to-rename').value,
             new_subtopic_name : document.getElementById('new-subtopic-name').value               
         })
     })   
     .then(response => response.json())
     .then(data =>{
-        document.getElementById('rename-subtopic-form').reset(); // reset the form
+        document.getElementById('new-subtopic-name').focus();       
         clearMessages();
         
         if (data.success){  
+            document.getElementById('rename-subtopic-form').reset(); // reset the form
             
             // update the sidebar
             const subtopicATag = document.getElementById(`subtopic-${data.subtopic_id}`);
@@ -729,8 +749,10 @@ function renameSubtopic(){
 
 
 function setupSelectSubtopicToRename(){
-    const renameSubtopicButton = document.getElementById('rename-subtopic-btn');
+    // topic dropdown menu
     const selectTopicForRenamedSubtopic = document.getElementById('topic-for-renamed-subtopic');
+
+    // subtopic dropdown menu
     const selectSubtopicToRename = document.getElementById('choose-subtopic-to-rename');
     
     if (selectTopicForRenamedSubtopic){
@@ -741,19 +763,15 @@ function setupSelectSubtopicToRename(){
             displayMessage('There are no topics or subtopics to rename.', 'info');
             return;
         }
+        
+        const selectedTopicId = selectTopicForRenamedSubtopic.value;
+        if (!selectedTopicId){
+            displayMessage('There are no topics/subtopics to rename.', 'info');
+            return;
+        } else{            
+            getSubtopicsToRename(selectedTopicId, selectSubtopicToRename);
+        }                   
 
-        // add event listeneer for the topic dropdown menu
-        selectTopicForRenamedSubtopic.addEventListener('change', function(){
-            const selectedTopicId = selectTopicForRenamedSubtopic.value;
-            if (!selectedTopicId){
-                displayMessage('There are no topics/subtopics to rename.', 'info');
-                return;
-            } else{
-                
-                getSubtopicsToRename(selectedTopicId, selectSubtopicToRename);
-            }
-
-        })
     }
 }
 
@@ -767,15 +785,19 @@ function getSubtopicsToRename(selectedTopicId, selectSubtopicToRename){
         
         if (data.success){
             // clear the existing subtopic options
-            selectSubtopicToRename.innerHTML = '',
+            selectSubtopicToRename.innerHTML = '';
 
-            // load the new subtopics, including the placeholder option
-            selectSubtopicToRename.innerHTML = '<option value="" selected ="">--------</option>';
+            const placeholderOption= document.createElement('option');
+            placeholderOption.value = '';
+            placeholderOption.textContent = '--------';
+            placeholderOption.selected = true;
+            selectSubtopicToRename.appendChild(placeholderOption);
+            
             data.subtopics.forEach(subtopic => {
-                const option = document.createElement('option');
-                option.value = subtopic.id;
-                option.textContent = subtopic.name;
-                selectSubtopicToRename.appendChild(option);
+            const option = document.createElement('option');
+            option.value = subtopic.id;
+            option.textContent = subtopic.name;
+            selectSubtopicToRename.appendChild(option);
             }); 
             
             const validSubtopicOptions = selectSubtopicToRename.options.length > 1;

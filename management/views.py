@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError, transaction, OperationalError
-from django.http import HttpResponse, HttpResponseRedirect
+#from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 import json
 import time
-from django.http import JsonResponse
+import re
+from django.http import JsonResponse, HttpResponseNotAllowed
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
 
@@ -81,9 +82,7 @@ def add_topic(request):
             return JsonResponse({"success": False,
                 "messages": [{"message": add_topic_form.errors['name'][0], "tags": "danger"}]})
         
-    else: 
-        # Return an error response for unsupported methods
-        return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
+    return HttpResponseNotAllowed(["GET", "POST"])
 
 @login_required(login_url='login')  
 def rename_topic(request):
@@ -118,9 +117,7 @@ def rename_topic(request):
            return JsonResponse({"success": False,
                 "messages": [{"message": rename_topic_form.errors['new_topic_name'][0], "tags": "danger"}]})
         
-    else: 
-        # Return an error response for unsupported methods
-        return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
+    return HttpResponseNotAllowed(["GET", "POST"])
  
 @login_required(login_url='login')
 def delete_topic_form(request):
@@ -132,9 +129,8 @@ def delete_topic_form(request):
             'delete_topic_form' : delete_topic_form,
             'topics' : topics,
         })
-    else: 
-        # Return an error response for unsupported methods
-        return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
+    
+    return HttpResponseNotAllowed(["GET"])
 
 @login_required(login_url='login')
 def delete_topic(request, topic_id):    
@@ -148,11 +144,7 @@ def delete_topic(request, topic_id):
             return JsonResponse({"success": False,  
                 "messages": [{"message": "Topic does not exist.", "tags": "danger"}]}, status=400)
                                   
-    else:
-        # Handle non-POST requests 
-        return JsonResponse({"success": False,
-                "messages": [{"message": "Invalid request method for deleting a topic.", "tags": "danger"}]}, 
-                    status=400) 
+    return HttpResponseNotAllowed(["POST"])
     
 @login_required(login_url='login')  
 def get_topics(request):
@@ -194,11 +186,7 @@ def add_subtopic(request):
             return JsonResponse({"success": False,
                 "messages": [{"message": add_subtopic_form.errors['name'][0], "tags": "danger"}]})
 
-    else:
-        # Handle non-POST requests 
-        return JsonResponse({"success": False,
-                "messages": [{"message": "Invalid request method for adding a subtopic.", "tags": "danger"}]}, 
-                    status=400)       
+    return HttpResponseNotAllowed(["GET", "POST"])
         
 @login_required(login_url='login')  
 def rename_subtopic(request):
@@ -211,42 +199,63 @@ def rename_subtopic(request):
             'topics' : topics,
         })
     
-    elif request.method == 'PUT':
+    elif request.method == 'POST':
         data = json.loads(request.body)
-        subtopic_id = data.get("subtopic_id")
+        topic_id = int(data.get("topic_id", ""))
+        subtopic_id = int(data.get("subtopic_id", ""))
         new_subtopic_name = data.get("new_subtopic_name", "").strip().title()
 
-        if not new_subtopic_name:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "Please enter a valid subtopic name.", "tags": "danger"}]}, status=400)
-
-
-        # create a Subtopic instance
+        # make sure the topic exists
+        try:
+            topic = Topic.objects.get(pk=topic_id)
+        except Topic.DoesNotExist:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "Invalid topic.", "tags": "danger"}]}, status=400)
+        
+        # make sure the subtopic exists
         try:
             subtopic = Subtopic.objects.get(pk=subtopic_id)
-            old_subtopic_name = subtopic.name
         except Subtopic.DoesNotExist:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "Invalid subtopic selected.", "tags": "danger"}]}, status=400)
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "Invalid subtopic.", "tags": "danger"}]}, status=400)
+
+        # new subtopic name can't be empty
+        if not new_subtopic_name:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "The new subtopic name cannot be empty.", "tags": "danger"}]}, status=400)    
         
-        # Check if the new name is the same as the old name
-        if new_subtopic_name == old_subtopic_name:
-            return JsonResponse({"success": False,
-                                 "messages": [{"message": "The new subtopic name must be different from the current subtopic name.", 
-                                               "tags": "danger"}]}, status=400)
+        # subtopic name can't begin with a special character
+        if not re.match(r'^[A-Za-z0-9]', new_subtopic_name):
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "The new subtopic name must start with a letter or a number only.", 
+                              "tags": "danger"}]}, status=400)
         
-        # update subtopic name, modified by in Subtopic model
+        # new subtopic name can't be the same as the old subtopic name
+        old_subtopic_name = subtopic.name
+        if old_subtopic_name == new_subtopic_name:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "The new subtopic name must be different from the current subtopic name.", 
+                              "tags": "danger"}]}, status=400)
+        
+        # topic/new subtopic name must be unique
+        if Subtopic.objects.filter(topic=topic, name=new_subtopic_name).exists():
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "This topic/subtopic combination already exists. Please choose a different subtopic name.", 
+                              "tags": "danger"}]}, status=400)
+
+        # update the subtopic instance
         try:
             subtopic.name = new_subtopic_name
             subtopic.modified_by = request.user
             subtopic.save()
+            return JsonResponse({"success": True, "subtopic_id" : subtopic.id, "new_subtopic_name" : new_subtopic_name,
+                "messages": [{"message": f"{old_subtopic_name} has been renamed to {new_subtopic_name}.", 
+                            "tags": "success"}]})
         except Exception as e:
             return JsonResponse({"success": False, 
                 "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=500)
                 
-        return JsonResponse({"success": True, "subtopic_id" : subtopic_id, "new_subtopic_name" : new_subtopic_name,
-            "messages": [{"message": f"{old_subtopic_name} has been renamed to {new_subtopic_name}.", 
-                          "tags": "success"}]})
+    return HttpResponseNotAllowed(["GET", "POST"])      
         
 @login_required(login_url='login')  
 def delete_subtopic_form(request):

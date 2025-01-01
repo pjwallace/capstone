@@ -85,7 +85,7 @@ class DeleteTopicForm(forms.ModelForm):
     def clean_topic(self):
         topic = self.cleaned_data.get('topic')
         if not topic:
-            raise forms.ValidationError("Please select a valid topic.")
+            raise forms.ValidationError("Please select a topic.")
         return topic
     
 
@@ -115,7 +115,7 @@ class AddSubtopicForm(forms.ModelForm):
     def clean_topic(self):
         topic = self.cleaned_data.get('topic')
         if not topic:
-           raise forms.ValidationError("Please select a valid topic.")
+           raise forms.ValidationError("Please select a topic.")
         return topic
     
     def clean_name(self):
@@ -144,7 +144,7 @@ class RenameSubtopicForm(forms.ModelForm):
         })
     )
 
-    name = forms.ModelChoiceField(
+    subtopic = forms.ModelChoiceField(
         queryset = Subtopic.objects.none(),
         widget=forms.Select(attrs={
             'class' : 'form-control',
@@ -163,8 +163,8 @@ class RenameSubtopicForm(forms.ModelForm):
     )
     class Meta:
         model = Subtopic
-        fields = []
-   
+        fields = []   
+    
 class DeleteSubtopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
         queryset= Topic.objects.all(),
@@ -197,7 +197,7 @@ class DeleteSubtopicForm(forms.ModelForm):
     def clean_subtopic(self):
         name = self.cleaned_data.get('name')
         if not name:
-            raise forms.ValidationError("Please select a valid sub topic.")
+            raise forms.ValidationError("Please select a subtopic.")
         return name
     
 class AddQuestionForm(forms.ModelForm):

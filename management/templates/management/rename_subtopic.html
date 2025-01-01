@@ -7,17 +7,6 @@
         <div id="rename-subtopic-msg" class="msg-div">
             
         </div>
-        <!--
-        <div class="error-msg">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert {{ message.tags }}" role="alert">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        </div>
-        -->
 
         <h2>Rename a Subtopic</h2><br>
 
@@ -25,8 +14,8 @@
             {% csrf_token %}
             {{ rename_subtopic_form.as_p }}
 
-            <input class="btn btn-primary" id="rename-subtopic-btn" type="submit" 
-                    data-topic-id = "" data-subtopic-id = "" value="Rename Subtopic">
+            <button class="btn btn-primary" id="rename-subtopic-btn" type="submit" 
+                    data-topic-id = "" data-subtopic-id = "">Rename Subtopic</button>
         </form>
     </div>
 
