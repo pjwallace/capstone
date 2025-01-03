@@ -6,7 +6,7 @@
         <div id="delete-subtopic-msg" class="msg-div">
             
         </div>
-       <!--
+
         <div class="error-msg">
             {% if messages %}
                 {% for message in messages %}
@@ -16,11 +16,10 @@
                 {% endfor %}
             {% endif %}
         </div>
-        -->
-
+       
         <h2>Delete a Subtopic</h2><br>
 
-        <form id="delete-subtopic-form" data-fetch="true" method="post" action="#">
+        <form id="delete-subtopic-form" data-fetch="true" method="post">
             {% csrf_token %}
             {{ delete_subtopic_form.as_p }}
 
@@ -43,7 +42,8 @@
                     </div>
                     <div class="modal-body">
                         <p>Are you sure you want to delete this subtopic? All associated questions 
-                            and answer choices will also be deleted. This action cannot be undone!</p>
+                            and answer choices will also be deleted. <strong>This action cannot be undone!</strong>
+                        </p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"

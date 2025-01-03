@@ -69,20 +69,32 @@ function initializePage(){
         if (e.target.tagName === 'SELECT' && e.target.id === 'topic-for-renamed-subtopic'){
             setupSelectSubtopicToRename();        
         }
+        // after choosing a topic, load the subtopic menu
+        if (e.target.tagName === 'SELECT' && e.target.id === 'topic-to-choose'){
+            setupSelectSubtopicToDelete();        
+        }
 
     });
 
     let confirmDeleteTopicModal = null;
+    let confirmDeleteSubtopicModal = null;
     // add event listener for dynamic click events (buttons other than 'submit')
     document.getElementById('management-container').addEventListener('click', function(e){
+        // topic delete
         if (e.target.tagName === 'BUTTON' && e.target.id === 'delete-topic-btn'){
-            confirmDeleteTopicModal = setupDeleteTopicModal(); 
-            
+            confirmDeleteTopicModal = setupDeleteTopicModal();         
         }
         if (e.target.tagName === 'BUTTON' && e.target.id === 'confirm-delete-topic-button'){
             confirmTopicDeletion(confirmDeleteTopicModal);    
-        }   
+        }
         
+        // subtopic delete
+        if (e.target.tagName === 'BUTTON' && e.target.id === 'delete-subtopic-btn'){
+            confirmDeleteSubtopicModal = setupDeleteSubtopicModal();         
+        }
+        if (e.target.tagName === 'BUTTON' && e.target.id === 'confirm-delete-subtopic-button'){
+            confirmSubtopicDeletion(confirmDeleteSubtopicModal);    
+        }   
 
     });
        
@@ -98,7 +110,7 @@ function initializePage(){
     //}
 
     // delete subtopic
-    setupDeleteSubtopicModal(); 
+    //setupDeleteSubtopicModal(); 
     
     // select subtopics for question
     SelectSubtopicsForQuestion();
@@ -503,13 +515,11 @@ function updateTopicSelectMenu(formTopicId){
 
 }
 
-function setupDeleteTopicModal(){
-    
+function setupDeleteTopicModal(){   
     const selectTopicToDelete = document.getElementById('topic-to-delete');
     const deleteTopicButton = document.getElementById('delete-topic-btn');
     const modalElement = document.getElementById('confirm-delete-topic-modal');
-    const confirmDeleteTopicButton = document.getElementById('confirm-delete-topic-button');
-
+    
     if (!modalElement || !deleteTopicButton || !selectTopicToDelete) {
         displayMessage('Unable to load the delete topic modal.', 'danger');
         return null;  // Exit early if essential elements are missing
@@ -787,10 +797,7 @@ function getSubtopicsToRename(selectedTopicId, selectSubtopicToRename){
             // clear the existing subtopic options
             selectSubtopicToRename.innerHTML = '';
 
-            const placeholderOption= document.createElement('option');
-            placeholderOption.value = '';
-            placeholderOption.textContent = '--------';
-            placeholderOption.selected = true;
+            const placeholderOption = placeholderDefaultOption();
             selectSubtopicToRename.appendChild(placeholderOption);
             
             data.subtopics.forEach(subtopic => {
@@ -802,15 +809,15 @@ function getSubtopicsToRename(selectedTopicId, selectSubtopicToRename){
             
             const validSubtopicOptions = selectSubtopicToRename.options.length > 1;
 
-                if (!validSubtopicOptions){
-                    let rename_subtopic_msg = document.getElementById('rename-subtopic-msg');
-                    if (rename_subtopic_msg){
-                        rename_subtopic_msg.innerHTML = '';
-                    }
-                    clearMessages();
-                    displayMessage('There are no available subtopics for the chosen topic', 'info');
-                    return;
+            if (!validSubtopicOptions){
+                let rename_subtopic_msg = document.getElementById('rename-subtopic-msg');
+                if (rename_subtopic_msg){
+                    rename_subtopic_msg.innerHTML = '';
                 }
+                clearMessages();
+                displayMessage('There are no available subtopics for the chosen topic', 'info');
+                return;
+            }
         }else{
             let rename_subtopic_msg = document.getElementById('rename-subtopic-msg');
             if (rename_subtopic_msg){
@@ -823,16 +830,15 @@ function getSubtopicsToRename(selectedTopicId, selectSubtopicToRename){
     })
 }
 
-function setupDeleteSubtopicModal(){
-    setupSelectSubtopicToDelete();
-    setupSubtopicToDeleteButton(); 
-}
+//function setupDeleteSubtopicModal(){
+//    setupSelectSubtopicToDelete();
+//    setupSubtopicToDeleteButton(); 
+//}
 
 function setupSelectSubtopicToDelete(){
     const deleteSubtopicButton = document.getElementById('delete-subtopic-btn');
     const selectTopic = document.getElementById('topic-to-choose');
-    const selectSubtopic = document.getElementById('subtopic-to-choose');
-   
+    const selectSubtopic = document.getElementById('subtopic-to-choose');   
 
     if (selectTopic){
         // must be at least one valid topic
@@ -842,24 +848,22 @@ function setupSelectSubtopicToDelete(){
             displayMessage('There are no topics or subtopics to delete.', 'info');
             return;
         }
-
-        selectTopic.addEventListener('change', function(){
-            const selectedTopicId = selectTopic.value;
-            if (!selectedTopicId){
-                //deleteSubtopicButton.disabled = true;
-                displayMessage('There are no topics to delete.', 'info');
-                return;
-            } else{
-                
-                deleteSubtopicButton.setAttribute('data-topic-id', selectedTopicId);
-                getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicButton);
-            }
-        })
         
+        const selectedTopicId = selectTopic.value;
+        if (!selectedTopicId){
+            displayMessage('No topic was selected.', 'info');
+            return;
+        } else{            
+            deleteSubtopicButton.setAttribute('data-topic-id', selectedTopicId);
+            getSubtopicsToDelete(selectedTopicId, deleteSubtopicButton);
+        }
+              
     }
 }
 
-function getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicButton){
+function getSubtopicsToDelete(selectedTopicId, deleteSubtopicButton){
+    const selectSubtopic = document.getElementById('subtopic-to-choose');
+
     // get the subtopics for the chosen topic to populate the subtopics dropdown menu
     const route = `/management/portal/get_subtopics/${selectedTopicId}`;
    
@@ -868,10 +872,12 @@ function getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicBut
     .then(data => {
         if (data.success){
             // clear the existing subtopic options
-            selectSubtopic.innerHTML = '',
+            selectSubtopic.innerHTML = '';
 
             // load the subtopics, including the placeholder option
-            selectSubtopic.innerHTML = '<option value="" selected ="">--------</option>';
+            const placeholderOption = placeholderDefaultOption();
+            selectSubtopic.appendChild(placeholderOption);
+
             data.subtopics.forEach(subtopic => {
                 const option = document.createElement('option');
                 option.value = subtopic.id;
@@ -881,163 +887,152 @@ function getSubtopicsToDelete(selectedTopicId, selectSubtopic, deleteSubtopicBut
         
             if (selectSubtopic){
                 const validSubtopicOptions = selectSubtopic.options.length > 1;
-
                 if (!validSubtopicOptions){
                     displayMessage('There are no available subtopics for the chosen topic', 'info');
                     return;
                 }
-
-                // add eventlistener to the subtopic dropdown menu
-                selectSubtopic.addEventListener('change', function(){
-                    const selectedSubtopicId = this.value;
-                    
-                    if (!selectedSubtopicId){
-                        //deleteSubtopicButton.disabled = true;
-                        displayMessage('There are no available subtopics for the chosen topic', 'info');
-                        return;
-                    } else {
-                        deleteSubtopicButton.setAttribute('data-subtopic-id', selectedSubtopicId); 
-                        //setupSubtopicToDeleteButton(); 
-                                              
-                    }
-                })
-                
+                                           
             }
             
         }else{
-            displayMessage('There are no available subtopics for the chosen topic', 'info');
+            displayMessage('There was a problem retrieving subtopics for this topic', 'info');
             return;    
         }      
 
     })
 }
 
-function setupSubtopicToDeleteButton(){
+function setupDeleteSubtopicModal(){
     const deleteSubtopicButton = document.getElementById('delete-subtopic-btn');
+    const selectSubtopic = document.getElementById('subtopic-to-choose');
     const modalElement = document.getElementById('confirm-delete-subtopic-modal');  
         
-    // Check if the delete button exists before setting properties
-    if (!deleteSubtopicButton) {
-        return;  // Early exit to avoid further errors
-    }       
+    // Check if the delete button, modalElement, or subtopic menu exists before setting properties
+    if (!deleteSubtopicButton || !modalElement || !selectSubtopic) {
+        return null;  // Early exit to avoid further errors
+    }
+
+    const topicId = deleteSubtopicButton.dataset.topicId;
+    const selectedSubtopicId = selectSubtopic.value;
     
-    if (modalElement){
-        // instantiate the confirmation modal
-        const confirmDeleteSubtopicModal = new bootstrap.Modal(document.getElementById('confirm-delete-subtopic-modal'), {});
-
-        // add event listener
-        if (deleteSubtopicButton){
-            deleteSubtopicButton.addEventListener('click', function(){
-                const topicId = deleteSubtopicButton.dataset.topicId;
-                const subtopicId = deleteSubtopicButton.dataset.subtopicId;
+    if (!selectedSubtopicId){
+        displayMessage('No subtopic was selected', 'info');
+        return;
+    } else {
+        deleteSubtopicButton.setAttribute('data-subtopic-id', selectedSubtopicId);                                             
+    }  
+    const subtopicId = deleteSubtopicButton.getAttribute('data-subtopic-id');
                 
-                if (!topicId){
-                    // Display an error message if no topic is selected
-                    clearMessages();
-                    displayMessage('Please select a topic.', 'danger');                        
-                    return;  // Stop here if validation fails
-                }
+    if (!topicId){
+        // Display an error message if no topic is selected
+        clearMessages();
+        displayMessage('Please select a topic.', 'danger');                        
+        return null;  
+    }
 
-                if (!subtopicId){
-                    clearMessages();
-                    // Display an error message if no topic is selected
-                    displayMessage('Please select a subtopic to delete.', 'danger');                        
-                    return;  // Stop here if validation fails
-                }
-                
-                clearMessages();
-                confirmDeleteSubtopicModal.show();                
-            })
+    if (!subtopicId){
+        clearMessages();
+        // Display an error message if no topic is selected
+        displayMessage('Please select a subtopic.', 'danger');                        
+        return null;  
+    }
+
+    // instantiate the confirmation modal
+    const confirmDeleteSubtopicModal = new bootstrap.Modal(document.getElementById('confirm-delete-subtopic-modal'), {});
             
-        }
-        deleteSubtopic(deleteSubtopicButton, confirmDeleteSubtopicModal);
-    }   
+    clearMessages();
+    confirmDeleteSubtopicModal.show(); 
+    return confirmDeleteSubtopicModal;                               
     
 }
 
+function confirmSubtopicDeletion(confirmDeleteSubtopicModal){
+    const deleteSubtopicButton = document.getElementById('delete-subtopic-btn');
+    deleteSubtopic(deleteSubtopicButton, confirmDeleteSubtopicModal);
+}
+
 function deleteSubtopic(deleteSubtopicButton, confirmDeleteSubtopicModal){
-    // modal delete button logic
     const confirmDeleteSubtopicButton = document.getElementById('confirm-delete-subtopic-button');
     if (confirmDeleteSubtopicButton){
-        confirmDeleteSubtopicButton.addEventListener('click', function(){
-            const topicId = deleteSubtopicButton.getAttribute('data-topic-id');
-            const subtopicId = deleteSubtopicButton.getAttribute('data-subtopic-id');
+        
+        const topicId = deleteSubtopicButton.getAttribute('data-topic-id');
+        const subtopicId = deleteSubtopicButton.getAttribute('data-subtopic-id');
 
-            // get the remaining number of subtopics for the sidebar
-            const route1 = `/management/portal/get_subtopics/${topicId}`;
-            fetch(route1)
-            .then(response => response.json())
-            .then(subtopicsData => {
-                if (subtopicsData.success){                   
-                    let remainingSubtopics = subtopicsData.subtopics_count;
+        // get the remaining number of subtopics for the sidebar
+        const route1 = `/management/portal/get_subtopics/${topicId}`;
+        fetch(route1)
+        .then(response => response.json())
+        .then(subtopicsData => {
+            if (subtopicsData.success){                   
+                let remainingSubtopics = subtopicsData.subtopics_count;
 
-                    // delete the subtopic
-                    const route = `/management/portal/delete_subtopic/${subtopicId}`;
-                    // Retrieve the django CSRF token from the form
-                    let csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                // delete the subtopic
+                const route = `/management/portal/delete_subtopic/${subtopicId}`;
+                // Retrieve the django CSRF token from the form
+                let csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-                    fetch(route, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': csrftoken,
-                        },
+                fetch(route, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                    },
+                    
+                })
+                .then(response => response.json())
+                .then(data => {                
+                    if (data.success){
+                        document.getElementById('delete-subtopic-form').reset(); // reset the form
+    
+                        // clear the delete button data attributes
+                        deleteSubtopicButton.setAttribute('data-topic-id', '');
+                        deleteSubtopicButton.setAttribute('data-subtopic-id', '');
+    
+                        // Remove the deleted subtopic from the sidebar                   
+                        //const subtopicsContainer = document.getElementById(`subtopicscontainer-${topicId}`);
+                        const subtopicElement = document.getElementById(`subtopic-${subtopicId}`);                                       
                         
-                    })
-                    .then(response => response.json())
-                    .then(data => {                
-                        if (data.success){
-                            document.getElementById('delete-subtopic-form').reset(); // reset the form
-        
-                            // clear the delete button data attributes
-                            deleteSubtopicButton.setAttribute('data-topic-id', '');
-                            deleteSubtopicButton.setAttribute('data-subtopic-id', '');
-        
-                            // Remove the deleted subtopic from the sidebar                   
-                            //const subtopicsContainer = document.getElementById(`subtopicscontainer-${topicId}`);
-                            const subtopicElement = document.getElementById(`subtopic-${subtopicId}`);                                       
-                            
-                            if (subtopicElement){
-                                subtopicElement.remove();
-                                 
-                            }
-                            remainingSubtopics = remainingSubtopics - 1;
-                                                                               
-                            // if the last subtopic was deleted, remove the up/down caret from the sidebar
-                            if (remainingSubtopics == 0){
-                                let upIcon = document.getElementById(`caretup-${topicId}`);
-                                let downIcon = document.getElementById(`caretdown-${topicId}`);
+                        if (subtopicElement){
+                            subtopicElement.remove();
                                 
-                                if (upIcon){
-                                    upIcon.style.display = 'none';
-                                }
-                                if (downIcon){
-                                    downIcon.style.display = 'none';
-                                }
-                            }
-                                
-                            clearMessages();                                   
-                            // display success message
-                            let delete_subtopic_msg = document.getElementById('delete-subtopic-msg');
-                            delete_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-                            
-                        }else{
-                            clearMessages();
-                            // errors
-                            let delete_subtopic_msg = document.getElementById('delete-subtopic-msg');
-                            delete_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
                         }
-            
-                        // Close the modal
-                        confirmDeleteSubtopicModal.hide();
+                        remainingSubtopics = remainingSubtopics - 1;
+                                                                            
+                        // if the last subtopic was deleted, remove the up/down caret from the sidebar
+                        if (remainingSubtopics == 0){
+                            let upIcon = document.getElementById(`caretup-${topicId}`);
+                            let downIcon = document.getElementById(`caretdown-${topicId}`);
+                            
+                            if (upIcon){
+                                upIcon.style.display = 'none';
+                            }
+                            if (downIcon){
+                                downIcon.style.display = 'none';
+                            }
+                        }
+                            
+                        clearMessages();                                   
+                        // display success message
+                        let delete_subtopic_msg = document.getElementById('delete-subtopic-msg');
+                        delete_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
                         
-                    })
-                    .catch(error => console.error('Subtopic deletion failed:', error));
-                }
-            })
-            .catch(error => console.error('Failed to retrieve subtopics:', error));          
+                    }else{
+                        clearMessages();
+                        // errors
+                        let delete_subtopic_msg = document.getElementById('delete-subtopic-msg');
+                        delete_subtopic_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+                    }
+        
+                    // Close the modal
+                    confirmDeleteSubtopicModal.hide();
+                    
+                })
+                .catch(error => console.error('Subtopic deletion failed:', error));
+            }
+        })
+        .catch(error => console.error('Failed to retrieve subtopics:', error));          
                       
-        }) 
+        
     }
 }
 
@@ -2498,6 +2493,14 @@ function deleteExplanation(confirmDeleteExplanationModal){
 }  
 
 // Helper functions
+
+function placeholderDefaultOption(){
+    const placeholderOption= document.createElement('option');
+    placeholderOption.value = '';
+    placeholderOption.textContent = '--------';
+    placeholderOption.selected = true;
+    return placeholderOption;
+}
 
 function getSubtopics(selectedTopicId, subtopicMenu, callback){
     // get the subtopics for the chosen topic to populate the subtopics dropdown menu

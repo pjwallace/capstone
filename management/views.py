@@ -299,7 +299,7 @@ def delete_subtopic(request, subtopic_id):
                 "messages": [{"message": f"An error occurred while deleting this subtopic: {str(e)}", "tags": "danger"}]}, status=400)
                 
     else:
-        # Handle non-POST requests 
+        # Handle non-DELETE requests 
         return JsonResponse({"success": False,
                 "messages": [{"message": "Invalid request method for deleting a subtopic.", "tags": "danger"}]}, status=400) 
     

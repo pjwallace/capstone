@@ -82,13 +82,6 @@ class DeleteTopicForm(forms.ModelForm):
         model = Topic
         fields = []
 
-    def clean_topic(self):
-        topic = self.cleaned_data.get('topic')
-        if not topic:
-            raise forms.ValidationError("Please select a topic.")
-        return topic
-    
-
 class AddSubtopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
         queryset = Topic.objects.all(),
@@ -135,7 +128,8 @@ class AddSubtopicForm(forms.ModelForm):
     
 class RenameSubtopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
-        queryset=Topic.objects.all(),
+        # only load topics that have at least one subtopic to delete
+        queryset= Topic.objects.filter(subtopics__isnull=False).distinct(),
         label="Select a Topic",
        
         widget=forms.Select(attrs={
@@ -167,8 +161,8 @@ class RenameSubtopicForm(forms.ModelForm):
     
 class DeleteSubtopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
-        queryset= Topic.objects.all(),
-        #empty_label="Select a topic",
+        # only load topics that have at least one subtopic to delete
+        queryset= Topic.objects.filter(subtopics__isnull=False).distinct(),
         widget=forms.Select(attrs={
             'class' : 'form-control',
             'id' : 'topic-to-choose'
@@ -176,9 +170,8 @@ class DeleteSubtopicForm(forms.ModelForm):
         label='Select a Topic'     
     )
 
-    name = forms.ModelChoiceField(
+    subtopic = forms.ModelChoiceField(
         queryset = Subtopic.objects.none(),
-        #empty_label="Select a subtopic to delete",
         widget=forms.Select(attrs={
             'class' : 'form-control',
             'id' : 'subtopic-to-choose'
@@ -188,17 +181,17 @@ class DeleteSubtopicForm(forms.ModelForm):
 
     class Meta:
         model = Subtopic
-        fields = ['topic', 'name']
+        fields = []
 
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.fields['name'].queryset = Subtopic.objects.none()
+    #def __init__(self, *args, **kwargs):
+    #    super().__init__(*args, **kwargs)
+    #   self.fields['subtopic'].queryset = Subtopic.objects.none()
 
     def clean_subtopic(self):
-        name = self.cleaned_data.get('name')
-        if not name:
+        subtopic = self.cleaned_data.get('subtopic')
+        if not subtopic:
             raise forms.ValidationError("Please select a subtopic.")
-        return name
+        return subtopic
     
 class AddQuestionForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
