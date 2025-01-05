@@ -19,7 +19,7 @@ body, html {
 
 .sidebar{
     height: calc(100% - 55px);
-    width: 280px;
+    width: 300px;
     position: fixed;
     z-index: 1;
     top: 55px;
@@ -106,7 +106,7 @@ body, html {
 
 #management-container{
     height: calc(100vh - 55px); 
-    margin-left: 280px;
+    margin-left: 300px;
     padding: 10px;
     display: flex;
     justify-content: center; 
@@ -140,11 +140,14 @@ body, html {
 
 #add-topic-container, 
 #rename-topic-container,
-#delete-topic-container,
+#delete-topic-container{
+    max-width: 500px;
+}
+
 #add-subtopic-container,
 #rename-subtopic-container,
 #delete-subtopic-container {
-    max-width: 500px;
+    max-width: 600px;
 }
 
 #add-topic-btn,

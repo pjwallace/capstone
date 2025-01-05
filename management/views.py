@@ -139,7 +139,7 @@ def delete_topic(request, topic_id):
             topic = Topic.objects.get(pk=topic_id)
             topic.delete()
             return JsonResponse({"success": True,
-                    "messages": [{"message": f"{topic} has been successfully deleted.", "tags": "success"}]})
+                    "messages": [{"message": f"Topic '{topic}' has been successfully deleted.", "tags": "success"}]})
         except Topic.DoesNotExist:
             return JsonResponse({"success": False,  
                 "messages": [{"message": "Topic does not exist.", "tags": "danger"}]}, status=400)
@@ -167,24 +167,44 @@ def add_subtopic(request):
         })
     
     elif request.method == 'POST':
-        add_subtopic_form = AddSubtopicForm(request.POST)
-        if add_subtopic_form.is_valid():
-            topic = add_subtopic_form.cleaned_data['topic']    
-            name = add_subtopic_form.cleaned_data['name']
+        data = json.loads(request.body)
+        topic_id = int(data.get("topic_id", ""))
+        name = data.get("name", "").strip().title()
 
-            try:
-                subtopic = Subtopic(topic=topic, name=name, created_by=request.user, modified_by=request.user)
-                subtopic.save()
-                return JsonResponse({"success": True, "subtopic_id": subtopic.id, "subtopic_name": subtopic.name, "topic_id": topic.id,
-                    "messages": [{"message": f"{name} has been successfully added as a subtopic of {topic}.", "tags": "success"}]})
+        # make sure the topic exists
+        try:
+            topic = Topic.objects.get(pk=topic_id)
+        except Topic.DoesNotExist:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "Invalid topic.", "tags": "danger"}]}, status=400)
+        
+        # new subtopic name can't be empty
+        if not name:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "Subtopic name cannot be empty.", "tags": "danger"}]}, status=400)
+        
+        # subtopic name can't begin with a special character
+        if not re.match(r'^[A-Za-z0-9]', name):
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "Subtopic name must start with a letter or a number only.", 
+                              "tags": "danger"}]}, status=400)
+        
+        # topic/subtopic combination must be unique
+        if Subtopic.objects.filter(topic=topic, name=name).exists():
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "This topic/subtopic combination already exists. Please choose a different subtopic name.", 
+                              "tags": "danger"}]}, status=400)
 
-            except IntegrityError:
-                return JsonResponse({"success": False,  
-                    "messages": [{"message": "An error occurred while saving this subtopic. Please try again.", 
-                    "tags": "danger"}]}, status=500)
-        else:
-            return JsonResponse({"success": False,
-                "messages": [{"message": add_subtopic_form.errors['name'][0], "tags": "danger"}]})
+        try:
+            subtopic = Subtopic(topic=topic, name=name, created_by=request.user, modified_by=request.user)
+            subtopic.save()
+            return JsonResponse({"success": True, "subtopic_id": subtopic.id, "subtopic_name": subtopic.name, "topic_id": topic.id,
+                "messages": [{"message": f"{name} has been successfully added as a subtopic of {topic}.", "tags": "success"}]})
+
+        except IntegrityError:
+            return JsonResponse({"success": False,  
+                "messages": [{"message": "An error occurred while saving this subtopic. Please try again.", 
+                "tags": "danger"}]}, status=500)
 
     return HttpResponseNotAllowed(["GET", "POST"])
         

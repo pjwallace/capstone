@@ -606,27 +606,21 @@ function deleteTopic(selectedTopicId, confirmDeleteTopicModal){
 }
         
 function addSubtopic(){
-    // create FormData object
-    const addSubtopicForm = document.getElementById('add-subtopic-form');
-    const formData = new FormData(addSubtopicForm);
-
     const route = `/management/portal/add_subtopic`;
 
     // Retrieve the django CSRF token from the form
-    // const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    const csrftoken = formData.get('csrfmiddlewaretoken');
-
+     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
     fetch(route, {
         method: 'POST',
         headers: {
-            //'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
             'X-CSRFToken': csrftoken,
         },
-        //body: JSON.stringify({
-        //topic : document.getElementById('topic-name-subtopic').value,
-        //name : document.getElementById('new-subtopic').value,                
-        //})
-        body: formData,
+        body: JSON.stringify({
+        topic_id : document.getElementById('topic-name-subtopic').value,
+        name : document.getElementById('new-subtopic').value,                
+        })
     })
     .then(response => response.json())
     .then(data => {
@@ -735,13 +729,19 @@ function renameSubtopic(){
         if (data.success){  
             document.getElementById('rename-subtopic-form').reset(); // reset the form
             
-            // update the sidebar
+            // update the sidebar with the new subtopic name
             const subtopicATag = document.getElementById(`subtopic-${data.subtopic_id}`);
             
             if (subtopicATag){
+                // get the iconSpan associated with the subtopcicATag
+                const iconSpan = subtopicATag.querySelector('.icon-with-badge');
+
                 subtopicATag.textContent = data.new_subtopic_name;
-            }
-            
+
+                if (iconSpan){
+                    subtopicATag.appendChild(iconSpan);
+                }
+            }        
 
             // display success message
             let rename_subtopic_msg = document.getElementById('rename-subtopic-msg');
