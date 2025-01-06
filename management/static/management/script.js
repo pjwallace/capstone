@@ -73,6 +73,14 @@ function initializePage(){
         if (e.target.tagName === 'SELECT' && e.target.id === 'topic-to-choose'){
             setupSelectSubtopicToDelete();        
         }
+        // load the subtopic menu when adding a question
+        if (e.target.tagName === 'SELECT' && e.target.id === 'topic-for-question'){
+            setupSelectSubtopicsForQuestion();        
+        }
+        // retrieve the question type name when adding a question
+        if (e.target.tagName === 'SELECT' && e.target.id === 'question-type'){
+            selectQuestionType();        
+        }
 
     });
 
@@ -97,24 +105,10 @@ function initializePage(){
         }   
 
     });
-       
-
-    // delete topic 
-    //if (document.getElementById('confirm-delete-topic-modal')){   
-    //    setupDeleteTopicModal();
-    //}
-    
-    // rename subtopic - load subtopic menu after choosing a topic
-    //if (document.getElementById('topic-for-renamed-subtopic')){
-    //    setupSelectSubtopicToRename();
-    //}
-
-    // delete subtopic
-    //setupDeleteSubtopicModal(); 
-    
+           
     // select subtopics for question
-    SelectSubtopicsForQuestion();
-    selectQuestionType();
+    //setupSelectSubtopicsForQuestion();
+    //selectQuestionType();
 
     // add another choice to the AddChoiceForm
     addAnotherChoice();
@@ -319,8 +313,8 @@ function addQuestion(topicId, subtopic_id){
                 // subtopic menu won't be initialized until the menu has finished loading
                 subtopicMenu.value = subtopic_id;
             });
-            SelectSubtopicsForQuestion();
-            selectQuestionType(); 
+            //setupSelectSubtopicsForQuestion();
+            //selectQuestionType(); 
             addAnotherChoice();          
 
         }else{
@@ -1146,7 +1140,7 @@ function addQuestionAndChoices(){
 
 }
 
-function SelectSubtopicsForQuestion(){
+function setupSelectSubtopicsForQuestion(){
     const topicMenu = document.getElementById('topic-for-question');
     const subtopicMenu = document.getElementById('subtopic-for-question');
     
@@ -1160,7 +1154,7 @@ function SelectSubtopicsForQuestion(){
         }
 
         // add event listeneer for the topic dropdown menu
-        topicMenu.addEventListener('change', function(){
+        //topicMenu.addEventListener('change', function(){
             const selectedTopicId = topicMenu.value;
            
             if (!selectedTopicId){
@@ -1171,7 +1165,8 @@ function SelectSubtopicsForQuestion(){
                 getSubtopics(selectedTopicId, subtopicMenu);
             }
 
-        })
+        //})
+        
     }
 }
 
@@ -1182,11 +1177,9 @@ function selectQuestionType(){
     if (questionType){
 
          // add event listeneer for the question type dropdown menu
-         questionType.addEventListener('change', function(){
+         //questionType.addEventListener('change', function(){
             const selectedQuestionType = questionType.value;
 
-            // save the question type in session storage for use in page reload
-            //sessionStorage.setItem('selectedQuestionType', selectedQuestionType);
             const route = `/management/portal/get_question_type_name/${selectedQuestionType}`; 
             
             // get the question type name from the QuestionType table
@@ -1266,7 +1259,7 @@ function selectQuestionType(){
             })
             .catch(error => console.error('Error retrieving questiontype name:', error));
              
-        });
+        //});
 
     }
 }
@@ -2515,7 +2508,9 @@ function getSubtopics(selectedTopicId, subtopicMenu, callback){
             subtopicMenu.innerHTML = '';
            
             // load the new subtopics, including the placeholder option
-            subtopicMenu.innerHTML = '<option value="" selected ="">--------</option>';
+            //subtopicMenu.innerHTML = '<option value="" selected ="">--------</option>';
+            placeholderOption = placeholderDefaultOption();
+            subtopicMenu.appendChild(placeholderOption);
             data.subtopics.forEach(subtopic => {
                 const option = document.createElement('option');
                 option.value = subtopic.id;
