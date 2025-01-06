@@ -157,10 +157,6 @@ class DeleteSubtopicForm(forms.ModelForm):
         model = Subtopic
         fields = []
 
-    #def __init__(self, *args, **kwargs):
-    #    super().__init__(*args, **kwargs)
-    #   self.fields['subtopic'].queryset = Subtopic.objects.none()
-
     def clean_subtopic(self):
         subtopic = self.cleaned_data.get('subtopic')
         if not subtopic:
@@ -169,7 +165,7 @@ class DeleteSubtopicForm(forms.ModelForm):
     
 class AddQuestionForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
-        queryset= Topic.objects.all(),
+        queryset= Topic.objects.filter(subtopics__isnull=False).distinct(),
         widget=forms.Select(attrs={
             'class' : 'form-control',
             'id' : 'topic-for-question'
@@ -196,13 +192,12 @@ class AddQuestionForm(forms.ModelForm):
     )
 
     text = forms.CharField(
-        max_length=255,
         label="",
         widget=forms.Textarea(attrs={
             'class': 'form-control',
             'id': 'new-question',
             'placeholder': 'Enter Question',
-            'rows': 3,
+            'rows': 1,
         })
     )
 
@@ -212,9 +207,9 @@ class AddQuestionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AddQuestionForm, self).__init__(*args, **kwargs)
-        self.fields['topic'].queryset = Topic.objects.all()  
+        #self.fields['topic'].queryset = Topic.objects.filter(subtopics__isnull=False).distinct()  
         self.fields['subtopic'].queryset = Subtopic.objects.none()
-        self.fields['question_type'].queryset = QuestionType.objects.all()
+        #self.fields['question_type'].queryset = QuestionType.objects.all()
 
         # Set initial value for question_type to the default value (Multiple Choice), if it exists.
         try:

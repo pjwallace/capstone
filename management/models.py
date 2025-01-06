@@ -65,7 +65,7 @@ class Question(models.Model):
     subtopic = models.ForeignKey(Subtopic, related_name='questions', on_delete=models.CASCADE)
     question_type = models.ForeignKey(QuestionType, related_name='questions', on_delete=models.CASCADE, 
         default=get_default_question_type)
-    text = models.CharField(max_length=255)
+    text = models.TextField()
     date_created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, 
         null=True, related_name='created_questions')
