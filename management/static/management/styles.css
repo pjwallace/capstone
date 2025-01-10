@@ -165,19 +165,20 @@ body, html {
 #add-question-and-choices-form {
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Adds space between form elements */
+    gap: 10px; 
 }
 
-.add-question-fields {
-    display: flex;
-    align-items: center; /* Align items vertically centered */
-    gap: 100px; /* Adds space between the fields */
-    margin-left: 5px;
+#answer-choice-instructions {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 0px;
+    margin-top: 0;
 }
 
 #new-question {
     width: 100%;
-    resize: vertical;  /* Allows the user to resize the textarea vertically */
+    resize: vertical;  
+    margin-top: 20px;
 }
 
 .form-group {

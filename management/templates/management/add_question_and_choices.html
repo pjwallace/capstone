@@ -33,17 +33,22 @@
                     {{ add_question_form.subtopic }}
                 </div>
                 <div class="form-group col-md-4">
-                    {{ add_question_form.question_type.label_tag }}
-                    {{ add_question_form.question_type }}
+                    {{ add_question_form.question_type.label_tag }}                    
+                    {{ add_question_form.question_type }}                   
+                    
                 </div>
-                
-                
+                                
                 <div class="form-group" id="add-question-text">
                     {{ add_question_form.text}}
                 </div>
             </div>
+
+            <div id="answer-choice-instructions" class="ms-3 text-muted">
+
+            </div>
                         
             <div id="add-choices-container">
+                
                 {% for add_choice_form in add_choice_forms %}
                     <div class="choice-form" id="add-choice-{{ forloop.counter }}">
                         <div class="add-choice-fields">

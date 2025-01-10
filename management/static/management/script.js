@@ -10,6 +10,14 @@ function initializePage(){
     // load subtopics for the chosen topic in the sidebar
     loadSuptopicsForTopic();
 
+    // Display the instruction for the default question type (Multiple Choice)
+    //selectQuestionType(true);
+    const questionType = document.getElementById('question-type');
+    if (questionType){
+        console.log(questionType);
+        selectQuestionType(true);
+    }
+
     // form submission event listeners
     document.getElementById('management-container').addEventListener('submit', function(e){
         // Ensure the event is coming from forms that are processed asynchronously
@@ -79,7 +87,7 @@ function initializePage(){
         }
         // retrieve the question type name when adding a question
         if (e.target.tagName === 'SELECT' && e.target.id === 'question-type'){
-            selectQuestionType();        
+            selectQuestionType();      
         }
 
     });
@@ -102,7 +110,11 @@ function initializePage(){
         }
         if (e.target.tagName === 'BUTTON' && e.target.id === 'confirm-delete-subtopic-button'){
             confirmSubtopicDeletion(confirmDeleteSubtopicModal);    
-        }   
+        } 
+        // add another choice to the add question and choices form
+        if (e.target.tagName === 'BUTTON' && e.target.id === 'add-choice-btn'){
+            addAnotherChoice();         
+        }  
 
     });
            
@@ -111,7 +123,7 @@ function initializePage(){
     //selectQuestionType();
 
     // add another choice to the AddChoiceForm
-    addAnotherChoice();
+    //addAnotherChoice();
     
     // select topic, subtopic for edited question
     selectTopicForQuestionToEdit();
@@ -160,11 +172,6 @@ function loadSuptopicsForTopic(){
                     downIcon.style.display = 'block';
                     upIcon.style.display = 'none';
                     topicATag.appendChild(downIcon);
-                    // Use a small delay to ensure the DOM updates are applied before logging
-                    //setTimeout(() => {
-                    //    console.log('Down Icon:', downIcon.style.display); // Should be 'block'
-                    //    console.log('Up Icon:', upIcon.style.display);     // Should be 'none'
-                    //}, 0);
                 }
                
             }else{
@@ -314,8 +321,8 @@ function addQuestion(topicId, subtopic_id){
                 subtopicMenu.value = subtopic_id;
             });
             //setupSelectSubtopicsForQuestion();
-            //selectQuestionType(); 
-            addAnotherChoice();          
+            selectQuestionType(true); 
+            //addAnotherChoice();          
 
         }else{
             console.error('Failed to load the form.');
@@ -1100,32 +1107,19 @@ function addQuestionAndChoices(){
             const addChoicesContainer = document.getElementById('add-choices-container');
             addChoicesContainer.innerHTML = '';
 
+            // load the instruction message
+            //const instructions = document.createElement('div');
+            //instructions.id = 'answer-choice-instructions';
+            //instructions.className = 'ms-3 text-muted';
+            //addChoicesContainer.appendChild(instructions);
+
             // load blank choice forms
             data.add_choice_forms.forEach(addChoiceForm =>{
                 const addChoiceDiv = document.createElement('div');
                 addChoiceDiv.innerHTML = addChoiceForm;
                 addChoicesContainer.appendChild(addChoiceDiv);
             });
-            if (data.question_type_name === 'True/False'){
-                    
-                // prepopulate the choices with True and False
-                // Set the text fields to "True" and "False" and make them read-only
-                document.getElementById('id_0-text').value = "True";
-                document.getElementById('id_0-text').readOnly = true;
-                document.getElementById('id_1-text').value = "False";
-                document.getElementById('id_1-text').readOnly = true;
-
-                // hide any other choice forms
-                // disable the additional choice fields
-                if (document.getElementById('id_2-text')) {
-                    document.getElementById('id_2-text').disabled = true;
-                    document.getElementById('id_2-is_correct').disabled = true;
-                }
-                if (document.getElementById('id_3-text')) {
-                    document.getElementById('id_3-text').disabled = true;
-                    document.getElementById('id_3-is_correct').disabled = true;
-                }
-            }
+            selectQuestionType(onLoad=true);
 
             // display success message
             let add_question_and_choices_msg = document.getElementById('add-question-and-choices-msg');
@@ -1170,154 +1164,145 @@ function setupSelectSubtopicsForQuestion(){
     }
 }
 
-function selectQuestionType(){
+function selectQuestionType(onLoad=false){
     const questionType = document.getElementById('question-type');
     const addChoiceButton = document.getElementById('add-choice-btn');
+    const instructions = document.getElementById('answer-choice-instructions');
     
-    if (questionType){
-
-         // add event listeneer for the question type dropdown menu
-         //questionType.addEventListener('change', function(){
-            const selectedQuestionType = questionType.value;
-
-            const route = `/management/portal/get_question_type_name/${selectedQuestionType}`; 
+    if (questionType){         
+        const selectedQuestionType = questionType.value;
+        
+        const route = `/management/portal/get_question_type_name/${selectedQuestionType}`; 
             
-            // get the question type name from the QuestionType table
-            fetch(route)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success){
-                    const questionTypeName = data.name;
-                    
-                    if (questionTypeName === 'True/False'){
-                        // only 2 choices allowed in the form
-                        // prepopulate the choices with True and False
-                        // Set the text fields to "True" and "False" and make them read-only
-                        document.getElementById('id_0-text').value = "True";
-                        document.getElementById('id_0-text').readOnly = true;
-                        document.getElementById('id_1-text').value = "False";
-                        document.getElementById('id_1-text').readOnly = true;
-
-                        
-                        // hide any other choice forms
-                        // disable the additional choice fields
-                        if (document.getElementById('id_2-text')) {
-                            document.getElementById('id_2-text').disabled = true;
-                            document.getElementById('id_2-is_correct').disabled = true;
+        // get the question type name from the QuestionType table
+        fetch(route)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success){
+                const questionTypeName = data.name;
+                
+                if (questionTypeName === 'True/False'){
+                    // only 2 choices allowed in the form
+                    // prepopulate the choices with True and False
+                    // Set the text fields to "True" and "False" and make them read-only
+                    document.getElementById('id_0-text').value = "True";
+                    document.getElementById('id_0-text').readOnly = true;
+                    document.getElementById('id_1-text').value = "False";
+                    document.getElementById('id_1-text').readOnly = true;
+                                      
+                    // hide any other choice forms
+                    for (i=2; i<=5; i++){
+                        if (document.getElementById(`id_${i}-text`)) {
+                            document.getElementById(`id_${i}-text`).value = "";
+                            document.getElementById(`id_${i}-text`).disabled = true;
+                            document.getElementById(`id_${i}-is_correct`).disabled = true;
                         }
-                        if (document.getElementById('id_3-text')) {
-                            document.getElementById('id_3-text').disabled = true;
-                            document.getElementById('id_3-is_correct').disabled = true;
-                        }
-                        if (document.getElementById('id_4-text')) {
-                            document.getElementById('id_4-text').disabled = true;
-                            document.getElementById('id_4-is_correct').disabled = true;
-                        }
-                        if (document.getElementById('id_5-text')) {
-                            document.getElementById('id_5-text').disabled = true;
-                            document.getElementById('id_5-is_correct').disabled = true;
-                        }
-                        
-                        // Hide the add choice button
-                        addChoiceButton.style.display = 'none';
-
-                    }else{
-                        // Clear the text fields and make them editable
-                        document.getElementById('id_0-text').value = "";
-                        document.getElementById('id_0-text').readOnly = false;
-                        document.getElementById('id_1-text').value = "";
-                        document.getElementById('id_1-text').readOnly = false;
-
-                        // enable the additional choice fields
-                        if (document.getElementById('id_2-text')) {
-                            document.getElementById('id_2-text').disabled = false;
-                            document.getElementById('id_2-is_correct').disabled = false;
-                        }
-                        if (document.getElementById('id_3-text')) {
-                            document.getElementById('id_3-text').disabled = false;
-                            document.getElementById('id_3-is_correct').disabled = false;
-                        }
-                        if (document.getElementById('id_4-text')) {
-                            document.getElementById('id_4-text').disabled = false;
-                            document.getElementById('id_4-is_correct').disabled = false;
-                        }
-                        if (document.getElementById('id_5-text')) {
-                            document.getElementById('id_5-text').disabled = false;
-                            document.getElementById('id_5-is_correct').disabled = false;
-                        }
-
-                        // enable the add choice button for the other question types
-                        addChoiceButton.style.display = 'block';
                     }
+                    
+                    // Hide the add choice button
+                    addChoiceButton.style.display = 'none';
 
                 }else{
-                    // errors
-                    let add_question_and_choices_msg = document.getElementById('add-question-and-choices-msg');
-                    add_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-                }
-            
-            })
-            .catch(error => console.error('Error retrieving questiontype name:', error));
-             
-        //});
+                    for (let i = 0; i <= 5; i++) {
+                        if (document.getElementById(`id_${i}-text`)) {
+                            document.getElementById(`id_${i}-text`).value = "";
+                            document.getElementById(`id_${i}-text`).readOnly = false;
+                            document.getElementById(`id_${i}-text`).disabled = false;
+                            document.getElementById(`id_${i}-is_correct`).disabled = false;
+                        }
+                    }
 
+                    // enable the add choice button for the other question types
+                    addChoiceButton.style.display = 'block';
+                }
+                // load the instructions for answering the question
+                if (questionTypeName === 'True/False' || questionTypeName === 'Multiple Choice'){
+                    instructions.textContent = 'Choose one correct answer only.';
+                }
+                else if (questionTypeName === 'Multiple Answer'){
+                    instructions.textContent = 'Choose two or more correct answers.';    
+                }
+                // on form load, ensure the message is displayed immediately
+                if (onLoad) {
+                    instructions.style.display = 'block';
+                }
+
+            }else{
+                // errors
+                let add_question_and_choices_msg = document.getElementById('add-question-and-choices-msg');
+                add_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            }
+        
+        })
+        .catch(error => console.error('Error retrieving questiontype name:', error));            
+        
     }
 }
 
-function addAnotherChoice(){
-   
-    addChoicesContainer = document.getElementById('add-choices-container');
-    
+function questionTypeInstructions(questionTypeName){
+    const instructions = document.getElementById('question-type-instructions');
+    if (questionTypeName === 'True/False' || questionTypeName === 'Multiple Choice'){
+        instructions.textContent = 'Choose one correct answer only.';
+    }
+    else if (questionTypeName === ' Multiple Answer'){
+        instructions.textContent = 'Choose two or more correct answers.';    
+    }
+}
+
+function addAnotherChoice(){   
+    addChoicesContainer = document.getElementById('add-choices-container');    
     const addChoiceButton = document.getElementById('add-choice-btn');
 
-    if (addChoiceButton){
-        addChoiceButton.addEventListener('click', function(e){
-            e.preventDefault();
-
-            // clone the choice form and get all the fields and labels           
-            const newChoiceForm = addChoicesContainer.firstElementChild.cloneNode(true);
-                        
-            let choiceFields = newChoiceForm.querySelectorAll('input');
-            let choiceLabels = newChoiceForm.querySelectorAll('label');
-          
-            let choiceCount = addChoicesContainer.childElementCount;       
-                        
-            // clear the values from the cloned choice form
-            choiceFields.forEach(function(field){
-                field.value = '';
-                if (field.type === 'checkbox'){
-                    field.checked = false;
-                }
-            });
-
-            // create the id for the new choice form
-            choiceCount++;
-            newChoiceForm.id = 'add-choice-' + choiceCount;
+    if (addChoiceButton){   
             
-            // update the form prefix
-            const newPrefix = (choiceCount-1).toString();
-            
-            choiceFields.forEach(function(field){
-                if (field.name){
-                    field.name = field.name.replace(/\d+/, newPrefix);
-                }
-                if (field.id){
-                    field.id = field.id.replace(/\d+/, newPrefix);
-                }
-                
-            });
-
-            // Update the for attribute of labels
-            choiceLabels.forEach(function(label) {
-                if (label.htmlFor) {
-                    label.htmlFor = label.htmlFor.replace(/\d+/, newPrefix);
-                }
-                
-            });
-           
-            addChoicesContainer.appendChild(newChoiceForm);
-                      
+        // clone the choice form and get all the fields and labels           
+        const newChoiceForm = addChoicesContainer.firstElementChild.cloneNode(true);
+                    
+        let choiceFields = newChoiceForm.querySelectorAll('input');
+        let choiceLabels = newChoiceForm.querySelectorAll('label');
+        
+        let choiceCount = addChoicesContainer.childElementCount;       
+                        
+        // clear the values from the cloned choice form
+        choiceFields.forEach(function(field){
+            field.value = '';
+            if (field.type === 'checkbox'){
+                field.checked = false;
+            }
         });
+        
+        choiceCount++;
+        // only 6 choices per question allowed
+        if (choiceCount > 6){
+            displayMessage('There is a maximum of 6 answer choices.', 'info');
+            return;
+        }
+
+        // create the id for the new choice form
+        newChoiceForm.id = 'add-choice-' + choiceCount;
+        
+        // update the form prefix
+        const newPrefix = (choiceCount-1).toString();
+            
+        choiceFields.forEach(function(field){
+            if (field.name){
+                field.name = field.name.replace(/\d+/, newPrefix);
+            }
+            if (field.id){
+                field.id = field.id.replace(/\d+/, newPrefix);
+            }
+            
+        });
+
+        // Update the for attribute of labels
+        choiceLabels.forEach(function(label) {
+            if (label.htmlFor) {
+                label.htmlFor = label.htmlFor.replace(/\d+/, newPrefix);
+            }
+            
+        });
+           
+        addChoicesContainer.appendChild(newChoiceForm);        
     }   
 }
 

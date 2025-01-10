@@ -1,3 +1,4 @@
+
 {% block body %}   
     
     <div class="form-container" id="add-question-and-choices-container">
@@ -18,7 +19,7 @@
 
         <h2>Add Question and Answer Choices</h2><br>
 
-        <form id="add-question-and-choices-form" data-fetch="true" method="post" action="#">
+        <form id="add-question-and-choices-form" data-fetch="true" method="post">
             {% csrf_token %}
             <div id="add-question-container">
                 
@@ -39,8 +40,12 @@
                     {{ add_question_form.text}}
                 </div>
             </div>
+
+            <div id="answer-choice-instructions" class="ms-3 text-muted">
+
+            </div>
                         
-            <div id="add-choices-container">
+            <div id="add-choices-container">               
                 {% for add_choice_form in add_choice_forms %}
                     <div class="choice-form" id="add-choice-{{ forloop.counter }}">
                         <div class="add-choice-fields">

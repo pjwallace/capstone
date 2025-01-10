@@ -136,10 +136,12 @@ def delete_topic_form(request):
 def delete_topic(request, topic_id):    
     if request.method == 'POST':        
         try:
-            topic = Topic.objects.get(pk=topic_id)
-            topic.delete()
-            return JsonResponse({"success": True,
-                    "messages": [{"message": f"Topic '{topic}' has been successfully deleted.", "tags": "success"}]})
+            with transaction.atomic():
+                topic = Topic.objects.get(pk=topic_id)
+                topic.delete()
+                return JsonResponse({"success": True,
+                        "messages": [{"message": f"Topic '{topic}' has been successfully deleted.", 
+                                      "tags": "success"}]})
         except Topic.DoesNotExist:
             return JsonResponse({"success": False,  
                 "messages": [{"message": "Topic does not exist.", "tags": "danger"}]}, status=400)
@@ -371,19 +373,13 @@ def add_question_and_choices(request):
         # Question must be at least 10 characters long
         if len(question_text) < 10:
             return JsonResponse({"success": False, 
-                "messages": [{"message": "This question is too short. Please provide more details", "tags": "danger"}]}, 
+                "messages": [{"message": "This question is too short. Please provide more information.", "tags": "danger"}]}, 
                     status=400)
-
-        # Question can't be greater than 255 characters
-        if len(question_text) > 255:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "This question is too long. Please shorten it.", "tags": "danger"}]},
-                     status=400)     
             
         # Subtopic/question text must be unique
         if Question.objects.filter(subtopic=subtopic, text=question_text).exists():
             return JsonResponse({"success": False, 
-                "messages": [{"message": "This subtopic/question combination already exists.", "tags": "danger"}]}, 
+                "messages": [{"message": "This is a duplicate question.", "tags": "danger"}]}, 
                     status=400)
                                       
         # validate the choice forms           
