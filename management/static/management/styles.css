@@ -284,3 +284,14 @@ body, html {
     background-color: #f0f0f0; /* Light gray background */
     cursor: not-allowed;     
 }
+
+.is-error {
+    border-style: solid;
+    border-color: #dc3545;
+    border-width: 2px;
+}
+
+.error-feedback {
+    color: #dc3545;
+    display: block;
+}

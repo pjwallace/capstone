@@ -347,7 +347,10 @@ def add_question_and_choices(request):
         subtopic_id = int(data.get("subtopic_id", ""))
         question_type_id = int(data.get("question_type", ""))
         question_text = data.get("question_text", "").strip()
-        choice_forms = data.get("choices", [])       
+        choice_forms = data.get("choices", [])  
+
+        # error dictionary
+        errors = {}     
 
         # Make sure the subtopic exists
         try:
@@ -365,92 +368,41 @@ def add_question_and_choices(request):
             return JsonResponse({"success": False, 
                 "messages": [{"message": "Invalid question type selected.", "tags": "danger"}]}, status=400)
         
-            # Question can't be blank. 
+
+        # validate the question_text field
         if not question_text:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "Please enter a question.", "tags": "danger"}]}, status=400)
-
-        # Question must be at least 10 characters long
-        if len(question_text) < 10:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "This question is too short. Please provide more information.", "tags": "danger"}]}, 
-                    status=400)
-            
-        # Subtopic/question text must be unique
-        if Question.objects.filter(subtopic=subtopic, text=question_text).exists():
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "This is a duplicate question.", "tags": "danger"}]}, 
-                    status=400)
-                                      
-        # validate the choice forms           
-
-        # every question type must have at least 2 choices
-        if len(choice_forms) < 2:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "Every question requires two or more answer choices", "tags": "danger"}]},
-                 status=400)
-        
-        # True/False questions can only have 2 answer choices
-        if question_type_name == 'True/False' and len(choice_forms) != 2:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "True/False questions require 2 answer choices", "tags": "danger"}]},
-                 status=400)
-        
-        # Other question types must have at least 4 answer choices
-        if not question_type_name == 'True/False' and len(choice_forms) < 4:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": f"{question_type_name} questions require 4 or more answer choices", "tags": "danger"}]},
-                 status=400)
-        
+            errors['question_text'] = "Please enter a question."
+        elif len(question_text) < 10:
+            errors['question_text'] = "This question is too short. Please provide more information."
+        elif Question.objects.filter(subtopic=subtopic, text=question_text).exists():
+            errors['question_text'] = "This is a duplicate question."     
+                                     
+        # validate the choice forms               
                 
         # create a list of answer choices
         choice_texts = [choice_form['text'] for choice_form in choice_forms]
 
-        # answer choices can't be blank
-        if any(len(choice_text.strip()) == 0 for choice_text in choice_texts):
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "Answer choices cannot be empty.", "tags": "danger"}]},
-                status=400)
-
         # each answer choice must be unique
         # Get the choice text from each choice form
         if len(choice_texts) != len(set(choice_texts)): # sets don't have duplicate members
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "Duplicate answer choices are not allowed.", "tags": "danger"}]},
-                 status=400)
-        
-        # each answer choice must be <= 75 characters
-        choice_text_length = [choice_text for choice_text in choice_texts if len(choice_text.strip()) > 75]
-        
-        if choice_text_length:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "Answer choices must 75 characters or less.", "tags": "danger"}]},
-                 status=400)
-        
+            errors['choices'] = "Duplicate answer choices are not allowed."
+                            
         # validate the is_correct field        
         choice_answers = [choice_form['is_correct'] for choice_form in choice_forms]
-        
-        # Each question must have at least one correct answer
-        if choice_answers.count(False) == len(choice_answers):
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "You haven't chosen a correct answer.", "tags": "danger"}]},
-                 status=400)     
-        
+                
         # True/False and multiple choice questions can have only one correct answer checked
         if question_type_name == 'True/False' or question_type_name == 'Multiple Choice':
             if choice_answers.count(True) != 1:
-                return JsonResponse({"success": False, 
-                    "messages": [{"message": f"{question_type_name} questions can only have one correct answer.", "tags": "danger"}]},
-                    status=400) 
-            
+                errors['choices'] = f"{question_type_name} questions can only have one correct answer."
+                            
         # Multiple answer questions must have at least 2 correct answers
-        if question_type_name == 'Multiple Answer' and choice_answers.count(True) < 2:
-            return JsonResponse({"success": False, 
-                    "messages": [{"message": f"{question_type_name} questions must have at least two correct answers.", "tags": "danger"}]},
-                    status=400)
+        elif question_type_name == 'Multiple Answer' and choice_answers.count(True) < 2:
+            errors['choices'] = f"{question_type_name} questions must have at least two correct answers."
+           
+        if errors:
+            return JsonResponse({"success": False, "errors": errors}, status=400)
         
-        # after form validation save the data                
-        
+        # after form validation save the data                       
         try:
             with transaction.atomic():  # if any save operation fails, the database will be rolled back 
             # save the question

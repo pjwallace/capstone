@@ -1107,12 +1107,13 @@ function addQuestionAndChoices(){
             const addChoicesContainer = document.getElementById('add-choices-container');
             addChoicesContainer.innerHTML = '';
 
-            // load the instruction message
-            //const instructions = document.createElement('div');
-            //instructions.id = 'answer-choice-instructions';
-            //instructions.className = 'ms-3 text-muted';
-            //addChoicesContainer.appendChild(instructions);
+            // clear out any error messages on form fields
+            document.getElementById('new-question').classList.remove('is-error');
+            document.getElementById('question-text-error').textContent = '';
 
+            // clear out error messages in the answer-choice-instructions div
+            document.getElementById('answer-choice-instruction').textContent = '';
+            
             // load blank choice forms
             data.add_choice_forms.forEach(addChoiceForm =>{
                 const addChoiceDiv = document.createElement('div');
@@ -1126,7 +1127,30 @@ function addQuestionAndChoices(){
             add_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
                         
         } else {
-            // errors
+            // question field errors
+            const questionField = document.getElementById('new-question');
+            const questionError = document.getElementById('question-text-error');
+            questionField.classList.remove('is-error');
+            questionError.textContent = '';
+
+            if (data.errors && data.errors.question_text){
+                questionField.classList.add('is-error');
+                questionError.textContent = data.errors.question_text;
+            }
+
+            // answer choice errors
+            const instructionsDiv = document.getElementById('answer-choice-instruction');
+            instructionsDiv.textContent = '';
+
+            if (data.errors && data.errors.choices){
+                data.errors.choices.forEach(error =>{
+                    const errorMessage = document.createElement('div');
+                    errorMessage.classList.add('text-danger') // bootstrap class
+                    errorMessage.textContent = error;
+                    instructionsDiv.appendChild(errorMessage);
+                })
+            }
+
             let add_question_and_choices_msg = document.getElementById('add-question-and-choices-msg');
             add_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
         }
