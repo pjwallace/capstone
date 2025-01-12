@@ -347,10 +347,7 @@ def add_question_and_choices(request):
         subtopic_id = int(data.get("subtopic_id", ""))
         question_type_id = int(data.get("question_type", ""))
         question_text = data.get("question_text", "").strip()
-        choice_forms = data.get("choices", [])  
-
-        # error dictionary
-        errors = {}     
+        choice_forms = data.get("choices", [])   
 
         # Make sure the subtopic exists
         try:
@@ -368,39 +365,50 @@ def add_question_and_choices(request):
             return JsonResponse({"success": False, 
                 "messages": [{"message": "Invalid question type selected.", "tags": "danger"}]}, status=400)
         
+        # question error dictionary
+        question_errors = {} 
 
         # validate the question_text field
         if not question_text:
-            errors['question_text'] = "Please enter a question."
+            question_errors['question_text'] = "Please enter a question."
         elif len(question_text) < 10:
-            errors['question_text'] = "This question is too short. Please provide more information."
+            question_errors['question_text'] = "This question is too short. Please provide more information."
         elif Question.objects.filter(subtopic=subtopic, text=question_text).exists():
-            errors['question_text'] = "This is a duplicate question."     
+            question_errors['question_text'] = "This is a duplicate question."     
                                      
-        # validate the choice forms               
+        # validate the choice forms 
+
+        # choice error dictionary
+        choice_errors = {}              
                 
         # create a list of answer choices
         choice_texts = [choice_form['text'] for choice_form in choice_forms]
 
+        # create a list of answer choices        
+        choice_answers = [choice_form['is_correct'] for choice_form in choice_forms]
+
         # each answer choice must be unique
         # Get the choice text from each choice form
         if len(choice_texts) != len(set(choice_texts)): # sets don't have duplicate members
-            errors['choices'] = "Duplicate answer choices are not allowed."
-                            
-        # validate the is_correct field        
-        choice_answers = [choice_form['is_correct'] for choice_form in choice_forms]
-                
+            choice_errors['choices'] = "Duplicate answer choices are not allowed."  
+
+        # no correct answers chosen
+        elif choice_answers.count(True) == 0:
+            choice_errors['choices'] = "You didn't choose a correct answer." 
+
         # True/False and multiple choice questions can have only one correct answer checked
-        if question_type_name == 'True/False' or question_type_name == 'Multiple Choice':
-            if choice_answers.count(True) != 1:
-                errors['choices'] = f"{question_type_name} questions can only have one correct answer."
+        elif question_type_name == 'True/False' or question_type_name == 'Multiple Choice':
+            if choice_answers.count(True) > 1:
+                choice_errors['choices'] = f"{question_type_name} questions can only have one correct answer."
                             
         # Multiple answer questions must have at least 2 correct answers
         elif question_type_name == 'Multiple Answer' and choice_answers.count(True) < 2:
-            errors['choices'] = f"{question_type_name} questions must have at least two correct answers."
+            choice_errors['choices'] = f"{question_type_name} questions must have at least two correct answers."
            
-        if errors:
-            return JsonResponse({"success": False, "errors": errors}, status=400)
+        if question_errors or choice_errors:
+            return JsonResponse({"success": False, 
+                                 "question_errors": question_errors,
+                                 "choice_errors": choice_errors}, status=400)
         
         # after form validation save the data                       
         try:

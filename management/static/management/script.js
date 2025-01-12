@@ -1112,7 +1112,7 @@ function addQuestionAndChoices(){
             document.getElementById('question-text-error').textContent = '';
 
             // clear out error messages in the answer-choice-instructions div
-            document.getElementById('answer-choice-instruction').textContent = '';
+            document.getElementById('answer-choice-instructions').textContent = '';
             
             // load blank choice forms
             data.add_choice_forms.forEach(addChoiceForm =>{
@@ -1133,26 +1133,26 @@ function addQuestionAndChoices(){
             questionField.classList.remove('is-error');
             questionError.textContent = '';
 
-            if (data.errors && data.errors.question_text){
+            if (data.question_errors && data.question_errors.question_text){
                 questionField.classList.add('is-error');
-                questionError.textContent = data.errors.question_text;
+                questionError.textContent = data.question_errors.question_text;
             }
 
             // answer choice errors
-            const instructionsDiv = document.getElementById('answer-choice-instruction');
-            instructionsDiv.textContent = '';
-
-            if (data.errors && data.errors.choices){
-                data.errors.choices.forEach(error =>{
-                    const errorMessage = document.createElement('div');
-                    errorMessage.classList.add('text-danger') // bootstrap class
-                    errorMessage.textContent = error;
-                    instructionsDiv.appendChild(errorMessage);
-                })
+            const instructionsDiv = document.getElementById('answer-choice-instructions');
+            instructionsDiv.innerHTML = '';
+           
+            if (data.choice_errors && data.choice_errors.choices){            
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('text-danger') // bootstrap class
+                errorMessage.textContent = data.choice_errors.choices;
+                instructionsDiv.appendChild(errorMessage);                
             }
 
-            let add_question_and_choices_msg = document.getElementById('add-question-and-choices-msg');
-            add_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            if (data.messages && data.messages.length > 0){
+                let add_question_and_choices_msg = document.getElementById('add-question-and-choices-msg');
+                add_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            }
         }
     })
 
