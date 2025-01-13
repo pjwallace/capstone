@@ -20,21 +20,21 @@
 
         <h2>Select a Question to Edit or Delete</h2><br>
 
-        <form id="edit-question-form" data-fetch="true" method="post" action="#">
+        <form id="edit-question-form" data-fetch="true" method="post">
             {% csrf_token %}
             <input type="hidden" id="subtopic-id" name="subtopic-id" value="">
             <div id="edit-question-container">
-                <div class="edit-question-fields">
-                    <div class="form-group">
-                        {{ edit_question_form.topic.label_tag }}
-                        {{ edit_question_form.topic }}
-                    </div>
-                    <div class="form-group">
-                        {{ edit_question_form.subtopic.label_tag }}
-                        {{ edit_question_form.subtopic }}
-                    </div>
+                
+                <div class="form-group col-md-6">
+                    {{ edit_question_form.topic.label_tag }}
+                    {{ edit_question_form.topic }}
                 </div>
-                <div class="form-group" id="edit-question-text">
+                <div class="form-group col-md-8">
+                    {{ edit_question_form.subtopic.label_tag }}
+                    {{ edit_question_form.subtopic }}
+                </div>
+                
+                <div class="form-group col-md-12" id="edit-question-text">
                     {{ edit_question_form.text.label_tag }}
                     {{ edit_question_form.text}}
                 </div>

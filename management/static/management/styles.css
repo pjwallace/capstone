@@ -217,7 +217,7 @@ body, html {
     gap: 10px; /* Adds space between form elements */
 }
 
-.edit-question-fields, .edit-question-and-choice-fields {
+.edit-question-and-choice-fields {
     display: flex;
     align-items: center; /* Align items vertically centered */
     gap: 75px; /* Adds space between the fields */

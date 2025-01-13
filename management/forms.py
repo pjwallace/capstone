@@ -206,10 +206,8 @@ class AddQuestionForm(forms.ModelForm):
         fields = ['subtopic', 'question_type', 'text']
 
     def __init__(self, *args, **kwargs):
-        super(AddQuestionForm, self).__init__(*args, **kwargs)
-        #self.fields['topic'].queryset = Topic.objects.filter(subtopics__isnull=False).distinct()  
+        super(AddQuestionForm, self).__init__(*args, **kwargs)         
         self.fields['subtopic'].queryset = Subtopic.objects.none()
-        #self.fields['question_type'].queryset = QuestionType.objects.all()
 
         # Set initial value for question_type to the default value (Multiple Choice), if it exists.
         try:
@@ -248,7 +246,8 @@ class AddChoiceForm(forms.ModelForm):
 
 class EditQuestionForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
-        queryset= Topic.objects.all(),
+        # only select topics that have subtopics with questions
+        queryset= Topic.objects.filter(subtopics__questions__isnull=False).distinct(),
         widget=forms.Select(attrs={
             'class' : 'form-control',
             'id' : 'topic-for-edit-question'
@@ -291,7 +290,8 @@ class EditQuestionForm(forms.ModelForm):
 
 class GetAllQuestionsForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
-        queryset= Topic.objects.all(),
+        # only select topics that have subtopics with questions
+        queryset= Topic.objects.filter(subtopics__questions__isnull=False).distinct(),
         widget=forms.Select(attrs={
             'class' : 'form-control',
             'id' : 'topic-for-get-all-questions'

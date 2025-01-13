@@ -14,7 +14,6 @@ function initializePage(){
     //selectQuestionType(true);
     const questionType = document.getElementById('question-type');
     if (questionType){
-        console.log(questionType);
         selectQuestionType(true);
     }
 
@@ -89,6 +88,15 @@ function initializePage(){
         if (e.target.tagName === 'SELECT' && e.target.id === 'question-type'){
             selectQuestionType();      
         }
+        // load the subtopic menu when editing a question
+        if (e.target.tagName === 'SELECT' && e.target.id === 'topic-for-edit-question'){
+            selectTopicForQuestionToEdit();        
+        }
+        // load the menu menu after selecting a subtopic when editing a question
+        if (e.target.tagName === 'SELECT' && e.target.id === 'subtopic-for-edit-question'){
+            const selectedSubtopicId = document.getElementById('subtopic-for-edit-question').value;
+            loadQuestionsToEdit(selectedSubtopicId);        
+        }
 
     });
 
@@ -117,16 +125,9 @@ function initializePage(){
         }  
 
     });
-           
-    // select subtopics for question
-    //setupSelectSubtopicsForQuestion();
-    //selectQuestionType();
-
-    // add another choice to the AddChoiceForm
-    //addAnotherChoice();
     
     // select topic, subtopic for edited question
-    selectTopicForQuestionToEdit();
+    //selectTopicForQuestionToEdit();
 
     // select topic, subtopic, question for adding an explanation
     selectTopicForAddExplanation();
@@ -252,7 +253,6 @@ function loadSuptopicsForTopic(){
                             
                             if (badgeValue > 0){
                                 sidebarMenu.appendChild(editQuestionOption);
-                                //sidebarMenu.appendChild(editAllQuestionsOption);
                             }                           
 
                             // Append the menu to the subtopic link
@@ -320,9 +320,8 @@ function addQuestion(topicId, subtopic_id){
                 // subtopic menu won't be initialized until the menu has finished loading
                 subtopicMenu.value = subtopic_id;
             });
-            //setupSelectSubtopicsForQuestion();
-            selectQuestionType(true); 
-            //addAnotherChoice();          
+            
+            selectQuestionType(true);          
 
         }else{
             console.error('Failed to load the form.');
@@ -357,7 +356,7 @@ function getQuestionToEditFromSidebar(topicId, subtopicId, messages=[]){
             });
 
             loadQuestionsToEdit(subtopicId);
-            selectTopicForQuestionToEdit();
+            //selectTopicForQuestionToEdit();
         }else{
             console.error('Failed to load the form.');
         }
@@ -1405,22 +1404,16 @@ function selectTopicForQuestionToEdit(){
             displayMessage('There are no topics available.', 'info');
             return;
         }
-
-        // add event listeneer for the topic dropdown menu
-        topicMenu.addEventListener('change', function(){
-            const selectedTopicId = topicMenu.value;
-           
-            if (!selectedTopicId){
-                displayMessage('There are no topics available.', 'info');
-                return;
-            } else{  
-                         
-                getSubtopicsForQuestionToEdit(selectedTopicId, subtopicMenu);
-            }
-
-        })
+        
+        const selectedTopicId = topicMenu.value;
+        
+        if (!selectedTopicId){
+            displayMessage('There are no topics available.', 'info');
+            return;
+        } else{                         
+            getSubtopicsForQuestionToEdit(selectedTopicId, subtopicMenu);
+        }   
     }
-
 }
 
 function getSubtopicsForQuestionToEdit(selectedTopicId, subtopicMenu){
@@ -1432,10 +1425,11 @@ function getSubtopicsForQuestionToEdit(selectedTopicId, subtopicMenu){
         
         if (data.success){
             // clear the existing subtopic options
-            subtopicMenu.innerHTML = '',
+            subtopicMenu.innerHTML = '';
            
             // load the new subtopics, including the placeholder option
-            subtopicMenu.innerHTML = '<option value="" selected ="">--------</option>';
+            const placeholderOption = placeholderDefaultOption();
+            subtopicMenu.appendChild(placeholderOption);
             data.subtopics.forEach(subtopic => {
                 const option = document.createElement('option');
                 option.value = subtopic.id;
@@ -1453,13 +1447,13 @@ function getSubtopicsForQuestionToEdit(selectedTopicId, subtopicMenu){
                 clearMessages();
                 displayMessage('There are no available subtopics for the chosen topic', 'info');
                 return;
-            }else{
+            }//else{
                 // add event listener to subtopic menu
-                subtopicMenu.addEventListener('change', function(){
-                    const selectedSubtopicId = subtopicMenu.value;
-                    loadQuestionsToEdit(selectedSubtopicId);
-                }) 
-            }
+                //subtopicMenu.addEventListener('change', function(){
+                //    const selectedSubtopicId = subtopicMenu.value;
+                //    loadQuestionsToEdit(selectedSubtopicId);
+                //}) 
+            //}
                 
         }else{
             let edit_question_msg = document.getElementById('edit-question-msg');
@@ -1707,66 +1701,93 @@ function selectQuestionToEdit(){
     topicId = document.getElementById('topic-for-edit-question').value;
     subtopicId = document.getElementById('subtopic-for-edit-question').value;
     questionId = document.getElementById('question-to-edit').value;
+
+    // use promises so that the asynchronous operations all complete before executing code that
+    // depends upon their results
   
     // retrieve the topic name from the topic id
-    let topicName = '';
     const route1 = `/management/portal/get_topic_name/${topicId}`;
-    fetch(route1)
+    const topicNamePromise = fetch(route1)
     .then(response => response.json())
     .then(data =>{
         if (data.success){
-            topicName = data.topic_name;
+            return data.topic_name;
         }else{
         // errors
         let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
-        edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;  
+        edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+        return '';  
         }     
     })
-    .catch(error => console.error('Error loading the form:', error));
+    .catch(error => {
+        console.error('Error fetching topic name:', error);
+        return '';
+    });
 
     // retrieve the subtopic name from the subtopic id
-    let subtopicName = '';
     const route2 = `/management/portal/get_subtopic_name/${subtopicId}`;
-    fetch(route2)
+    const subtopicNamePromise = fetch(route2)
     .then(response => response.json())
     .then(data =>{
         if (data.success){
-            subtopicName = data.subtopic_name;
+            return data.subtopic_name;
             
         }else{
             // errors
             let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
             edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            return '';
         }      
     })
-    .catch(error => console.error('Error loading the form:', error));
+    .catch(error => {
+        console.error('Error fetching subtopic name:', error);
+        return '';
+    });
 
+    // retrieve the question data
     const route = `/management/portal/load_question_to_edit/${questionId}`;
     
-    fetch(route)
+    const questionDataPromise = fetch(route)
     .then(response => response.json())
     .then(data =>{
         if (data.success){
-                       
+            return data;        
+        }else{
+            // errors
+            let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
+            edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            return null;
+        }
+    }) 
+    .catch(error => {
+        console.error('Error loading question data:', error);
+        return null;
+    });
+
+    // resolve all the promises
+    Promise.all([topicNamePromise, subtopicNamePromise, questionDataPromise])
+    .then(([topicName, subtopicName, questionData]) => {
+        if (questionData) {
             // Insert the form HTML into the management container
             const managementContainer = document.getElementById('management-container');
-            managementContainer.innerHTML = data.edit_question_and_choices_form_html;
+            managementContainer.innerHTML = questionData.edit_question_and_choices_form_html;
 
+            // set form values
             document.getElementById('topic-name').value = topicName;
             document.getElementById('subtopic-name').value = subtopicName;
             document.getElementById('subtopic-id').value = subtopicId;
-            document.getElementById('question-name').value = data.question.question_type.name;
-            document.getElementById('question-text').value = data.question.text;
-            document.getElementById('question-type-id').value = data.question.question_type.id;
+            document.getElementById('question-name').value = questionData.question.question_type.name;
+            document.getElementById('question-text').value = questionData.question.text;
+            document.getElementById('question-type-id').value = questionData.question.question_type.id;
 
             // iterate over the choice forms array and prepopulate the blank choice forms
-            data.choices.forEach((choice, index) => {
+            questionData.choices.forEach((choice, index) => {
                 document.querySelector(`#edit-choice-${index + 1} input[name$="text"]`).value = choice.text;
                 document.querySelector(`#edit-choice-${index + 1} input[name$="is_correct"]`).checked = choice.is_correct;
             });
 
             // Can't change the value of True and False
-            if (data.question.question_type.name === 'True/False'){                
+            if (QuestionData.question.question_type.name === 'True/False'){                
                 document.getElementById('id_0-text').readOnly = true;
                 document.getElementById('id_1-text').readOnly = true;
 
@@ -1776,16 +1797,12 @@ function selectQuestionToEdit(){
             }else{
                 addChoiceToEditForm();
             }
-            setupDeleteQuestionModal();           
-            
-        }else{
-            // errors
-            let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
-            edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            setupDeleteQuestionModal();
         }
-
-    }) 
-    .catch(error => console.error('Error loading the form:', error));
+    })
+    .catch(error => {
+        console.error('Error processing form data:', error);
+    });
 }
 
 function setupDeleteQuestionModal(){
