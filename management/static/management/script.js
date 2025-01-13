@@ -122,13 +122,14 @@ function initializePage(){
         // add another choice to the add question and choices form
         if (e.target.tagName === 'BUTTON' && e.target.id === 'add-choice-btn'){
             addAnotherChoice();         
-        }  
+        }
+        // add another choice to the edit question and choices form
+        if (e.target.tagName === 'BUTTON' && e.target.id === 'add-choice-btn-edit'){
+            addChoiceToEditForm();         
+        }    
 
     });
     
-    // select topic, subtopic for edited question
-    //selectTopicForQuestionToEdit();
-
     // select topic, subtopic, question for adding an explanation
     selectTopicForAddExplanation();
 
@@ -1335,7 +1336,7 @@ function addChoiceToEditForm(){
     
     if (addChoiceButtonEdit){
 
-        addChoiceButtonEdit.addEventListener('click', function (e){
+        //addChoiceButtonEdit.addEventListener('click', function (e){
             if (editChoicesContainer){
                 // clone the choice form and get all the fields and labels           
                 const newChoiceForm = editChoicesContainer.firstElementChild.cloneNode(true);                            
@@ -1382,7 +1383,7 @@ function addChoiceToEditForm(){
                 console.error('edit choice container not found.');
             }
 
-        });
+        //});
 
     }
 
@@ -1447,13 +1448,7 @@ function getSubtopicsForQuestionToEdit(selectedTopicId, subtopicMenu){
                 clearMessages();
                 displayMessage('There are no available subtopics for the chosen topic', 'info');
                 return;
-            }//else{
-                // add event listener to subtopic menu
-                //subtopicMenu.addEventListener('change', function(){
-                //    const selectedSubtopicId = subtopicMenu.value;
-                //    loadQuestionsToEdit(selectedSubtopicId);
-                //}) 
-            //}
+            }
                 
         }else{
             let edit_question_msg = document.getElementById('edit-question-msg');
@@ -1481,7 +1476,9 @@ function loadQuestionsToEdit(selectedSubtopicId){
             questionMenu.innerHTML = '';
 
             // load the new questions, including the placeholder option
-            questionMenu.innerHTML = '<option value="" selected ="">--------</option>';
+            const placeholderOption = placeholderDefaultOption();
+            questionMenu.appendChild(placeholderOption);
+
             data.questions.forEach(question => {
                 const option = document.createElement('option');
                 option.value = question.id;
@@ -1787,17 +1784,15 @@ function selectQuestionToEdit(){
             });
 
             // Can't change the value of True and False
-            if (QuestionData.question.question_type.name === 'True/False'){                
+            if (questionData.question.question_type.name === 'True/False'){                
                 document.getElementById('id_0-text').readOnly = true;
                 document.getElementById('id_1-text').readOnly = true;
 
                 // 'read-only' class will be used to gray out the choice text field 
                 document.getElementById('id_0-text').classList.add('read-only');               
                 document.getElementById('id_1-text').classList.add('read-only');
-            }else{
-                addChoiceToEditForm();
             }
-            setupDeleteQuestionModal();
+            //setupDeleteQuestionModal();
         }
     })
     .catch(error => {

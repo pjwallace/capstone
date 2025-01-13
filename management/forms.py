@@ -323,14 +323,14 @@ class GetAllQuestionsForm(forms.ModelForm):
         ])
 
 class EditQuestionTextForm(forms.Form):
-    topic = forms.CharField(label='Topic', max_length=30, 
+    topic = forms.CharField(label='Topic', max_length=40, 
             widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'topic-name', 'readonly': 'readonly'}))
-    subtopic = forms.CharField(label='Subtopic', max_length=30, 
+    subtopic = forms.CharField(label='Subtopic', max_length=60, 
             widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'subtopic-name', 'readonly': 'readonly'}))
     question_type = forms.CharField(label='Question Type', max_length=25, 
             widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'question-name', 'readonly': 'readonly'}))
     text = forms.CharField(label='Question', 
-            widget=forms.Textarea(attrs={'rows':3, 'class': 'form-control', 'id': 'question-text'}))
+            widget=forms.Textarea(attrs={'rows':1, 'class': 'form-control', 'id': 'question-text'}))
 
 class AddExplanationForm(forms.ModelForm):
     topic = forms.ModelChoiceField(

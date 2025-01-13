@@ -18,31 +18,31 @@
 
         <h2>Edit Question and Answer Choices</h2><br>
 
-        <form id="edit-question-and-choices-form" data-fetch="true" method="post" action="#">
+        <form id="edit-question-and-choices-form" data-fetch="true" method="post">
             {% csrf_token %}
             <input type="hidden" id="question-id" name="question-id" value="{{ question_id }}">
             <input type="hidden" id="question-name" name="question-name" value="{{ question_type }}">
             <input type="hidden" id="subtopic-id" name="subtopic-id" value="">
             <input type="hidden" id="question-type-id" name="question-type-id" value="">
             <div id="edit-question-container">
-                <div class="edit-question-and-choice-fields">   
+                <!--<div class="edit-question-and-choice-fields">-->   
                     
-                    <div class="form-group">
+                    <div class="form-group col-md-6">
                         {{ edit_question_text_form.topic.label_tag }}
                         {{ edit_question_text_form.topic }}
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-md-8">
                         {{ edit_question_text_form.subtopic.label_tag }}
                         {{ edit_question_text_form.subtopic }}
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-md-4">
                         {{ edit_question_text_form.question_type.label_tag }}
                         {{ edit_question_text_form.question_type }}
                     </div>
                                        
-                </div>
+                <!--</div>-->
                 
-                <div class="form-group" id="edit-question-and-choice-text">
+                <div class="form-group col-md-12">
                     {{ edit_question_text_form.text.label_tag }}
                     {{ edit_question_text_form.text }}
                 </div>
@@ -66,13 +66,13 @@
 
             <div class="btn-group" role="group">
                 {% if question_type != 'True/False' %}
-                    <button class="btn btn-secondary" id="add-choice-btn-edit" type="button" >
+                    <button class="btn btn-success" id="add-choice-btn-edit" type="button" >
                         Add Another Choice
                     </button>
                 {% endif %}
                 
                 <button class="btn btn-primary" id="edit-question-and-choices-btn" type="submit">
-                        Modify This Question
+                        Modify Question and Choices
                 </button>
 
                 <button class="btn btn-danger" id="delete-question-btn" type="button" 
