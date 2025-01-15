@@ -33,11 +33,7 @@ def validate_question_and_choices(subtopic_id, question_type_id, question_text, 
 
         # Question must be at least 10 characters long
         if len(question_text) < 10:
-            errors.append({"message": "This question is too short. Please provide more details.", "tags": "danger"})        
-
-        # Question can't be greater than 255 characters
-        if len(question_text) > 255:
-            errors.append({"message": "This question is too long. Please shorten it.", "tags": "danger"})             
+            errors.append({"message": "This question is too short. Please provide more details.", "tags": "danger"})                  
             
         # Subtopic/question text must be unique
         if Question.objects.filter(subtopic=subtopic, text=question_text).exists():

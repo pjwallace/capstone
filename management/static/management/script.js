@@ -1297,10 +1297,10 @@ function addAnotherChoice(){
         
         choiceCount++;
         // only 6 choices per question allowed
-        if (choiceCount > 6){
-            displayMessage('There is a maximum of 6 answer choices.', 'info');
-            return;
-        }
+        //if (choiceCount > 6){
+        //    displayMessage('There is a maximum of 6 answer choices.', 'info');
+        //    return;
+        //}
 
         // create the id for the new choice form
         newChoiceForm.id = 'add-choice-' + choiceCount;
@@ -1563,22 +1563,46 @@ function editQuestionAndChoices(){
         clearMessages();
         let messageContainer = document.querySelector('.error-msg');
         
-        if (data.success){
-            console.log('success');
-            getQuestionToEditDynamically(data.messages);
-            
-                       
+        if (data.success){           
+            getQuestionToEditDynamically(data.messages);                                  
         }else{
             // errors
-            console.error('Form submission failed:', data.messages);
-            if (data.messages){
-                data.messages.forEach(message =>{
-                    let msgDiv = document.createElement('div');
-                    msgDiv.className = `alert alert-${message.tags}`;
-                    msgDiv.role = 'alert';
-                    msgDiv.textContent = message.message;
-                    messageContainer.appendChild(msgDiv);
-                });
+            
+            //if (data.messages){
+            //    data.messages.forEach(message =>{
+            //        let msgDiv = document.createElement('div');
+            //        msgDiv.className = `alert alert-${message.tags}`;
+            //        msgDiv.role = 'alert';
+            //        msgDiv.textContent = message.message;
+            //        messageContainer.appendChild(msgDiv);
+            //    });
+            //}
+
+            // question field errors
+            const questionField = document.getElementById('question-text');
+            const questionError = document.getElementById('question-text-error');
+            questionField.classList.remove('is-error');
+            questionError.textContent = '';
+
+            if (data.question_errors && data.question_errors.question_text){
+                questionField.classList.add('is-error');
+                questionError.textContent = data.question_errors.question_text;
+            }
+
+            // answer choice errors
+            const answerChoiceErrors = document.getElementById('answer-choice-errors');
+            answerChoiceErrors.innerHTML = '';
+
+            if (data.choice_errors && data.choice_errors.choices){
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('text-danger');
+                errorMessage.textContent = data.choice_errors.choices;
+                answerChoiceErrors.appendChild(errorMessage);
+            }
+
+            if (data.messages && data.messages.length > 0){
+                let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
+                edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
             }
             
         }
@@ -1598,7 +1622,7 @@ function getQuestionToEditDynamically(messages=[]){
             const managementContainer = document.getElementById('management-container');
             managementContainer.innerHTML = '';
             managementContainer.innerHTML = data.edit_question_form_html;
-
+            
             let messageContainer = document.querySelector('.error-msg');
             if (messages){
                 messages.forEach(message =>{
@@ -1608,11 +1632,7 @@ function getQuestionToEditDynamically(messages=[]){
                     msgDiv.textContent = message.message;
                     messageContainer.appendChild(msgDiv);
                 });
-            }
-
-            // load the edit question form
-            selectTopicForQuestionToEdit();
-            
+            }            
         }
     })
     .catch(error => console.error('Error loading the form', error));
