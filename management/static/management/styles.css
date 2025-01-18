@@ -217,15 +217,6 @@ body, html {
     gap: 10px; 
 }
 
-/*
-.edit-question-and-choice-fields {
-    display: flex;
-    align-items: center; 
-    gap: 75px; 
-    margin-left: 5px;
-}
-*/
-
 #add-explanation-form, #edit-explanation-form{
     display: flex;
     flex-direction: column;
@@ -296,4 +287,53 @@ body, html {
 .error-feedback {
     color: #dc3545;
     display: block;
+}
+
+/* Dialog box */
+dialog {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    padding: 20px;
+    max-width: 400px;
+    width: 90%;
+}
+
+dialog::backdrop {
+    background-color: rgba(0,0,0,0.5);
+}
+
+dialog h5 {
+    margin: 0 0 10px;
+    font-size: 1.25rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+dialog p {
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-right: 30px;
+}
+
+.btn-close {
+    background-color: lightgray;
+    color: black;
+}
+
+.btn-danger {
+    background-color: red;
+    color: white;
 }

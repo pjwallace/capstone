@@ -1,6 +1,10 @@
 
+let confirmDeleteTopicModal = null;
+let confirmDeleteSubtopicModal = null;
+
+
 document.addEventListener('DOMContentLoaded', function(){
-    
+        
     initializePage();       
 }); 
 
@@ -100,8 +104,7 @@ function initializePage(){
 
     });
 
-    let confirmDeleteTopicModal = null;
-    let confirmDeleteSubtopicModal = null;
+    
     // add event listener for dynamic click events (buttons other than 'submit')
     document.getElementById('management-container').addEventListener('click', function(e){
         // topic delete
@@ -126,10 +129,23 @@ function initializePage(){
         // add another choice to the edit question and choices form
         if (e.target.tagName === 'BUTTON' && e.target.id === 'add-choice-btn-edit'){
             addChoiceToEditForm();         
-        }    
+        } 
+        // question delete dialog
+        if (e.target.tagName === 'BUTTON' && e.target.id === 'delete-question-btn'){
+            setupDeleteQuestionDialog();         
+        }
+        // cancel question delete dialog
+        if (e.target.tagName === 'BUTTON' && e.target.id === 'cancel-button'){
+            cancelQuestionDialog(); 
 
+        // delete question
+        }
+        if (e.target.tagName === 'BUTTON' && e.target.id === 'confirm-delete-question-button'){
+            deleteQuestion();    
+        }
     });
-    
+
+        
     // select topic, subtopic, question for adding an explanation
     selectTopicForAddExplanation();
 
@@ -137,7 +153,7 @@ function initializePage(){
     selectTopicForEditExplanation();
 
     // select topic/subtopic to review all questions
-    selectTopicForAllQuestionsToEdit();
+    //selectTopicForAllQuestionsToEdit();
 
     // add another choice form for edit all questions
     addAnotherChoiceForEditAllQuestions();  
@@ -1566,17 +1582,6 @@ function editQuestionAndChoices(){
         if (data.success){           
             getQuestionToEditDynamically(data.messages);                                  
         }else{
-            // errors
-            
-            //if (data.messages){
-            //    data.messages.forEach(message =>{
-            //        let msgDiv = document.createElement('div');
-            //        msgDiv.className = `alert alert-${message.tags}`;
-            //        msgDiv.role = 'alert';
-            //        msgDiv.textContent = message.message;
-            //        messageContainer.appendChild(msgDiv);
-            //    });
-            //}
 
             // question field errors
             const questionField = document.getElementById('question-text');
@@ -1812,7 +1817,7 @@ function selectQuestionToEdit(){
                 document.getElementById('id_0-text').classList.add('read-only');               
                 document.getElementById('id_1-text').classList.add('read-only');
             }
-            //setupDeleteQuestionModal();
+            
         }
     })
     .catch(error => {
@@ -1820,80 +1825,96 @@ function selectQuestionToEdit(){
     });
 }
 
+function setupDeleteQuestionDialog(){
+    
+    const dialogElement = document.getElementById('confirm-delete-question-dialog');
+
+    if (dialogElement){
+        
+        dialogElement.showModal();
+    }else {
+        console.error('Dialog element with ID confirm-delete-question-dialog not found.');
+        return; 
+    }
+
+}
+
+function cancelQuestionDialog(){
+    const dialogElement = document.getElementById('confirm-delete-question-dialog');
+    dialogElement.close();
+}
+
 function setupDeleteQuestionModal(){
     const deleteQuestionButton = document.getElementById('delete-question-btn');
     const modalElement = document.getElementById('confirm-delete-question-modal'); 
-        
+            
     if (modalElement){
         // Check if the delete button exists before setting properties
         if (!deleteQuestionButton) {
             return;  // Early exit to avoid further errors
         }  
 
-        // instantiate the confirmation modal
         const confirmDeleteQuestionModal = new bootstrap.Modal(document.getElementById('confirm-delete-question-modal'), {});
+        
+        deleteQuestionButton.addEventListener('click', function(e){        
+            confirmDeleteQuestionModal.show();
+            deleteQuestion(confirmDeleteQuestionModal); 
+        })
                          
-        // Show the modal when the delete button is clicked
-        deleteQuestionButton.addEventListener('click', function() {  
-                      
-            confirmDeleteQuestionModal.show();           
-        }); 
-                                      
-        deleteQuestion(confirmDeleteQuestionModal);
-
+    }else {
+        console.error('Modal element with ID confirm-delete-question-modal not found.');
+        return; 
     }
+    
 }
 
-function deleteQuestion(confirmDeleteQuestionModal){  
+function deleteQuestion(){  
+    const dialogElement = document.getElementById('confirm-delete-question-dialog');          
+    const questionId = document.getElementById('question-id').value;
+    const subtopicId = document.getElementById('subtopic-id').value;
+    const route = `/management/portal/delete_question/${questionId}`;        
+       
+    // Retrieve the django CSRF token from the form
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         
-    // modal delete button logic
-    const confirmDeleteQuestionButton = document.getElementById('confirm-delete-question-button');
-    
-    if (confirmDeleteQuestionButton){
-        const questionId = document.getElementById('question-id').value;
-        const subtopicId = document.getElementById('subtopic-id').value;
-        const route = `/management/portal/delete_question/${questionId}`;
-        confirmDeleteQuestionButton.addEventListener('click', function(e){
-            e.preventDefault();
+    fetch(route, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+            subtopic_id : subtopicId, 
+                
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success){
             
-            // Retrieve the django CSRF token from the form
-            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    
-            fetch(route, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken,
-                },
-                body: JSON.stringify({
-                    subtopic_id : subtopicId, 
-                     
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success){
-                    
-                    // update sidebar menu with new question count
-                    badge = document.getElementById(`badge-${subtopicId}`);
-                    badge.textContent = data.question_count;
+            // update sidebar menu with new question count
+            badge = document.getElementById(`badge-${subtopicId}`);
+            if (badge){
+                badge.textContent = data.question_count;
+            }
 
-                    // reload the form
-                    getQuestionToEditDynamically(data.messages);
+            dialogElement.close();
+            getQuestionToEditDynamically(data.messages);
+            
 
-                }else{
-                    // errors
-                    let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
-                    edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-                }
-                // Close the modal
-                confirmDeleteQuestionModal.hide();
-            })
-            .catch(error => console.error('Question deletion failed:', error));
-        })     
-
-    }
-    
+        }else{
+            // errors
+            let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
+            edit_question_and_choices_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            
+            // reload the form
+            dialogElement.close();
+            getQuestionToEditDynamically(data.messages);
+        }
+        
+    })
+    .catch(error => console.error('Question deletion failed:', error));  
+    dialogElement.close();
 }  
 
 function deleteAllQuestions(){

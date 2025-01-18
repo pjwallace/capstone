@@ -77,13 +77,26 @@
                         Modify Question and Choices
                 </button>
 
-                <button class="btn btn-danger" id="delete-question-btn" type="button" 
-                        data-bs-toggle="modal" data-bs-target="#confirm-delete-question-modal">Delete Question
+                <button class="btn btn-danger" id="delete-question-btn" type="button"> 
+                        Delete Question
                 </button>
             </div>
         </form>
 
-        <!-- Confirmation Modal -->
+        <!-- Confirmation Dialog-->
+         <dialog id="confirm-delete-question-dialog">
+            <h5>Confirm Question Deletion</h5>
+
+            <p>Are you sure you want to delete this question? All associated answer choices
+                and explanations will also be deleted. <strong>This action cannot be undone!</strong></p>
+
+            <div class="dialog-buttons">
+                <button type="button" id="cancel-button" class="btn btn-close"></button>
+                <button type="button" id="confirm-delete-question-button" class="btn btn-danger">Delete</button>
+            </div>
+         </dialog>
+
+        <!-- Confirmation Modal 
         <div class="modal" id="confirm-delete-question-modal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -97,7 +110,7 @@
                     </div>
                     <div class="modal-body">
                         <p>Are you sure you want to delete this question? All associated answer choices
-                            and explanations will also be deleted. This action cannot be undone!</p>
+                            and explanations will also be deleted. <strong>This action cannot be undone!</strong></p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"
@@ -110,6 +123,7 @@
                 </div>
             </div>
         </div>
+        -->
 
     </div>
 
