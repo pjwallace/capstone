@@ -13,6 +13,8 @@ urlpatterns = [
      path("rename_subtopic", views.rename_subtopic, name="rename_subtopic"),
      path("delete_subtopic_form", views.delete_subtopic_form, name="delete_subtopic_form"),
      path("get_subtopics/<int:topic_id>", views.get_subtopics, name="get_subtopics"),
+     path("get_subtopics_with_questions/<int:topic_id>", views.get_subtopics_with_questions, 
+          name="get_subtopics_with_questions"),
      path("delete_subtopic/<int:subtopic_id>", views.delete_subtopic, name="delete_subtopic"),
      path("add_question_and_choices", views.add_question_and_choices, name="add_question_and_choices"),
      path("add_question_and_choices_dynamically", views.add_question_and_choices_dynamically, 

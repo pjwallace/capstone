@@ -96,10 +96,14 @@ function initializePage(){
         if (e.target.tagName === 'SELECT' && e.target.id === 'topic-for-edit-question'){
             selectTopicForQuestionToEdit();        
         }
-        // load the menu menu after selecting a subtopic when editing a question
+        // load the menu after selecting a subtopic when editing a question
         if (e.target.tagName === 'SELECT' && e.target.id === 'subtopic-for-edit-question'){
             const selectedSubtopicId = document.getElementById('subtopic-for-edit-question').value;
             loadQuestionsToEdit(selectedSubtopicId);        
+        }
+        // load the subtopic menu when editing all questions for a topic/subtopic
+        if (e.target.tagName === 'SELECT' && e.target.id === 'topic-for-get-all-questions'){
+            selectTopicForAllQuestionsToEdit();        
         }
 
     });
@@ -373,7 +377,7 @@ function getQuestionToEditFromSidebar(topicId, subtopicId, messages=[]){
             });
 
             loadQuestionsToEdit(subtopicId);
-            //selectTopicForQuestionToEdit();
+            
         }else{
             console.error('Failed to load the form.');
         }
@@ -1435,7 +1439,7 @@ function selectTopicForQuestionToEdit(){
 
 function getSubtopicsForQuestionToEdit(selectedTopicId, subtopicMenu){
     // get the subtopics for the chosen topic to populate the subtopics dropdown menu
-    const route = `/management/portal/get_subtopics/${selectedTopicId}`;
+    const route = `/management/portal/get_subtopics_with_questions/${selectedTopicId}`;
     fetch(route)
     .then(response => response.json())
     .then(data =>{
@@ -1657,36 +1661,33 @@ function selectTopicForAllQuestionsToEdit(){
             return;
         }
 
-        // add event listeneer for the topic dropdown menu
-        topicMenu.addEventListener('change', function(){
-            const selectedTopicId = topicMenu.value;
-           
-            if (!selectedTopicId){
-                displayMessage('There are no topics available.', 'info');
-                return;
-            } else{  
-                         
-                getSubtopicsForAllQuestionsToEdit(selectedTopicId, subtopicMenu);
-            }
-
-        })
+        
+        const selectedTopicId = topicMenu.value;
+        
+        if (!selectedTopicId){
+            displayMessage('There are no topics available.', 'info');
+            return;
+        } else{                          
+            getSubtopicsForAllQuestionsToEdit(selectedTopicId, subtopicMenu);
+        }        
     }   
 }
 
 function getSubtopicsForAllQuestionsToEdit(selectedTopicId, subtopicMenu){
 // get the subtopics for the chosen topic to populate the subtopics dropdown menu
-    const route = `/management/portal/get_subtopics/${selectedTopicId}`;
+    const route = `/management/portal/get_subtopics_with_questions/${selectedTopicId}`;
     
     fetch(route)
     .then(response => response.json())
-    .then(data =>{
-        
+    .then(data =>{        
         if (data.success){
             // clear the existing subtopic options
             subtopicMenu.innerHTML = '',
            
             // load the new subtopics, including the placeholder option
-            subtopicMenu.innerHTML = '<option value="" selected ="">--------</option>';
+            //subtopicMenu.innerHTML = '<option value="" selected ="">--------</option>';
+            placeholderOption = placeholderDefaultOption();
+            subtopicMenu.appendChild(placeholderOption);
             data.subtopics.forEach(subtopic => {
                 const option = document.createElement('option');
                 option.value = subtopic.id;

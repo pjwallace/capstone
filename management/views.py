@@ -300,7 +300,25 @@ def get_subtopics(request, topic_id):
                 safe=False)
     else:
         return JsonResponse({"success": False,  
-                "messages": [{"message": "An error occurred while retrieving subtopics.", "tags": "info"}]}, status=500)
+                "messages": [{"message": "An error occurred while retrieving subtopics.", 
+                              "tags": "info"}]}, status=500)
+    
+@login_required(login_url='login')  
+def get_subtopics_with_questions(request, topic_id):
+    # Ensure the topic exists
+    get_object_or_404(Topic, id=topic_id)
+
+    # only retrieve subtopics that have available questions
+    subtopics = Subtopic.objects.filter(topic_id=topic_id, questions__isnull=False).values('id', 'name').distinct()
+    subtopics_count = subtopics.count() # used for updating the sidebar up/down caret
+    
+    if subtopics:
+        return JsonResponse({'success': True, 'subtopics': list(subtopics), 'subtopics_count': subtopics_count},  
+                safe=False)
+    else:
+        return JsonResponse({"success": False,  
+                "messages": [{"message": "An error occurred while retrieving subtopics.", 
+                              "tags": "info"}]}, status=404)
     
 @login_required(login_url='login')
 def delete_subtopic(request, subtopic_id):
