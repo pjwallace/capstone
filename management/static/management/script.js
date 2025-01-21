@@ -156,12 +156,6 @@ function initializePage(){
     // select topic, subtopic, question for editing an explanation
     selectTopicForEditExplanation();
 
-    // select topic/subtopic to review all questions
-    //selectTopicForAllQuestionsToEdit();
-
-    // add another choice form for edit all questions
-    addAnotherChoiceForEditAllQuestions();  
-
     // delete explanation
     setupDeleteExplanationModal();
 
@@ -1316,12 +1310,7 @@ function addAnotherChoice(){
         });
         
         choiceCount++;
-        // only 6 choices per question allowed
-        //if (choiceCount > 6){
-        //    displayMessage('There is a maximum of 6 answer choices.', 'info');
-        //    return;
-        //}
-
+        
         // create the id for the new choice form
         newChoiceForm.id = 'add-choice-' + choiceCount;
         
@@ -1329,13 +1318,26 @@ function addAnotherChoice(){
         const newPrefix = (choiceCount-1).toString();
             
         choiceFields.forEach(function(field){
-            if (field.name){
-                field.name = field.name.replace(/\d+/, newPrefix);
-            }
-            if (field.id){
-                field.id = field.id.replace(/\d+/, newPrefix);
-            }
-            
+            //if (field.name){
+            //    field.name = field.name.replace(/\d+/, newPrefix);
+            //}
+            //if (field.id){
+            //    field.id = field.id.replace(/\d+/, newPrefix);
+            //} 
+            if (field.name.includes('choice-id')) {
+                // Assign a unique index for the new choice-id field
+                field.name = `choice-id-${choiceCount}`;
+                field.id = `choice-id-${choiceCount}`;
+                field.value = ''; // Ensure the new choice-id is blank
+            } else {
+                // Update the name and ID for other fields
+                if (field.name) {
+                    field.name = field.name.replace(/\d+/, newPrefix);
+                }
+                if (field.id) {
+                    field.id = field.id.replace(/\d+/, newPrefix);
+                }
+            }           
         });
 
         // Update the for attribute of labels
@@ -1345,8 +1347,11 @@ function addAnotherChoice(){
             }
             
         });
-           
-        addChoicesContainer.appendChild(newChoiceForm);        
+          
+        addChoicesContainer.appendChild(newChoiceForm); 
+        document.querySelectorAll('[name^="choice-id"]').forEach(input => {
+            console.log(`Name: ${input.name}, Value: ${input.value}`);
+        });       
     }   
 }
 
@@ -1356,62 +1361,70 @@ function addChoiceToEditForm(){
     
     if (addChoiceButtonEdit){
 
-        //addChoiceButtonEdit.addEventListener('click', function (e){
-            if (editChoicesContainer){
-                // clone the choice form and get all the fields and labels           
-                const newChoiceForm = editChoicesContainer.firstElementChild.cloneNode(true);                            
-                let choiceFields = newChoiceForm.querySelectorAll('input');
-                let choiceLabels = newChoiceForm.querySelectorAll('label');           
-                let choiceCount = editChoicesContainer.childElementCount; 
+        if (editChoicesContainer){
+            // clone the choice form and get all the fields and labels           
+            const newChoiceForm = editChoicesContainer.firstElementChild.cloneNode(true);                      
+            let choiceFields = newChoiceForm.querySelectorAll('input');
+            let choiceLabels = newChoiceForm.querySelectorAll('label');           
+            let choiceCount = editChoicesContainer.childElementCount; 
 
-                // clear the values from the cloned choice form
-                choiceFields.forEach(function(field){
-                    field.value = '';
-                    if (field.type === 'checkbox'){
-                        field.checked = false;
-                    }
-                });
+            // clear the values from the cloned choice form
+            choiceFields.forEach(function(field){
+                field.value = '';
+                if (field.type === 'checkbox'){
+                    field.checked = false;
+                }
+            });
 
-                // create the id for the new choice form
-                choiceCount++;
-                newChoiceForm.id = 'edit-choice-' + choiceCount;
+            // create the id for the new choice form
+            choiceCount++;
+            newChoiceForm.id = 'edit-choice-' + choiceCount;
 
-                // update the form prefix
-                const newPrefix = (choiceCount-1).toString();
+            // update the form prefix
+            const newPrefix = (choiceCount-1).toString();
 
-                choiceFields.forEach(function(field){
-                    if (field.name){
+            choiceFields.forEach(function(field){
+                
+                if (field.name.includes('choice-id')) {
+                    // Assign a unique index for the new choice-id field
+                    field.name = `choice-id-${choiceCount}`;
+                    field.id = `choice-id-${choiceCount}`;
+                    field.value = ''; // Ensure the new choice-id is blank
+                } else {
+                    // Update the name and ID for other fields
+                    if (field.name) {
                         field.name = field.name.replace(/\d+/, newPrefix);
                     }
-                    if (field.id){
+                    if (field.id) {
                         field.id = field.id.replace(/\d+/, newPrefix);
                     }
-                    
-                });
+                }
+                       
+            });
 
-                // Update the for attribute of labels
-                choiceLabels.forEach(function(label) {
-                    if (label.htmlFor) {
-                        label.htmlFor = label.htmlFor.replace(/\d+/, newPrefix);
-                    }
-                    
-                });
+            // Update the for attribute of labels
+            choiceLabels.forEach(function(label) {
+                if (label.htmlFor) {
+                    label.htmlFor = label.htmlFor.replace(/\d+/, newPrefix);
+                }               
+            });
+            
+            editChoicesContainer.appendChild(newChoiceForm);
+            document.querySelectorAll('[name^="choice-id"]').forEach(input => {
+                console.log(`Name: ${input.name}, Value: ${input.value}`);
+            });
+            
 
-                editChoicesContainer.appendChild(newChoiceForm);
-
-            }else{
-                console.error('edit choice container not found.');
-            }
-
-        //});
-
+        }else{
+            console.error('edit choice container not found.');
+        }
     }
 
 }
 
-function addAnotherChoiceForEditAllQuestions(){
-    addChoiceToEditForm();
-}
+//function addAnotherChoiceForEditAllQuestions(){
+//    addChoiceToEditForm();
+//}
 
 function selectTopicForQuestionToEdit(){
     const topicMenu = document.getElementById('topic-for-edit-question');
@@ -1583,7 +1596,8 @@ function editQuestionAndChoices(){
         clearMessages();
         let messageContainer = document.querySelector('.error-msg');
         
-        if (data.success){           
+        if (data.success){ 
+            document.getElementById('edit-choices-container').innerHTML = '';              
             getQuestionToEditDynamically(data.messages);                                  
         }else{
 

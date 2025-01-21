@@ -674,7 +674,7 @@ def get_subtopic_name(request, pk):
 @login_required(login_url='login')
 def edit_question_and_choices(request):    
     if request.method == 'POST':
-        #try:
+        
         data = json.loads(request.body)
         question_id = int(data.get("question_id", ""))
         question_text = data.get("question_text", "").strip()
@@ -683,7 +683,9 @@ def edit_question_and_choices(request):
         question_name = data.get("question_name", "")
         question_type_id = data.get("question_type_id", "")
 
-            # Make sure the subtopic exists
+        print(choice_forms)
+       
+        # Make sure the subtopic exists
         try:
             subtopic = Subtopic.objects.get(id=subtopic_id)
         except Subtopic.DoesNotExist:
@@ -805,7 +807,7 @@ def edit_question_and_choices(request):
                                     created_by=request.user, modified_by=request.user)
                             new_choice.save()
                         success_msg.append({"message": "New choices successfully added", "tags": "success"})
-                #break   
+                break   
 
         except IntegrityError:
             return JsonResponse({"success": False, 
@@ -816,7 +818,7 @@ def edit_question_and_choices(request):
                 if retry < MAX_RETRIES - 1:
                     time.sleep(RETRY_DELAY)  # Wait before retrying
                 else:
-                    return JsonResponse({"success": False, 
+                    return JsonResponse({"success": False,  
                         "messages": [{"message": f"OperationalError: {str(e)}", 
                         "tags": "danger"}]}, status=500)
                     
@@ -835,10 +837,8 @@ def edit_all_questions_and_choices(request):
         
         topic_id = request.GET.get('topic')
         topic = get_object_or_404(Topic, id=topic_id)
-        topic_name = topic.name
         subtopic_id = request.GET.get('subtopic')
         subtopic = get_object_or_404(Subtopic, id=subtopic_id)
-        subtopic_name = subtopic.name
 
         # load topics for sidebar
         topics = Topic.objects.all()
@@ -873,7 +873,9 @@ def edit_all_questions_and_choices(request):
 
         #load the answer choice forms
         edit_choice_forms = [AddChoiceForm(prefix=str(i), instance=choices[i]) for i in range(len(choices_data))]
-                
+
+        for i, form in enumerate(edit_choice_forms):
+            print(f"Form {i}: Prefix = {form.prefix}, ID = {form.initial.get('id')}, Text = {form.initial.get('text')}")
 
         # can't modify the text field for True/False questions
         if question.question_type.name == 'True/False':
@@ -903,17 +905,19 @@ def edit_all_questions_and_choices(request):
         return render(request, 'management/edit_all_questions_and_choices.html', context)
 
     elif request.method == 'POST':
+        print("POST Data:")
+        for key, value in request.POST.items():
+            print(f"{key}: {value}")
         # load topics for sidebar
         topics = Topic.objects.all()
 
         question_id = request.POST.get('question-id')
         question_text = request.POST.get('text').strip()
-        subtopic_id = request.POST.get('subtopic-id')
-        
+        subtopic_id = request.POST.get('subtopic-id')        
         subtopic = get_object_or_404(Subtopic, id=subtopic_id)
+
         question_type = request.POST.get('question-type')
         question_type_id = request.POST.get('question-type-id')
-
         question = get_object_or_404(Question, id=question_id)
 
         # load all the questions for the topic/subtopic
@@ -940,15 +944,21 @@ def edit_all_questions_and_choices(request):
         
         for key, value in request.POST.items():
             if key.endswith('-text'):
-                index = key.split('-')[0]
-                choice_id = request.POST.get(f'choice-id-{int(index)+1}', None)
+                index = int(key.split('-')[0])
+                choice_id = request.POST.get(f'choice-id-{index+1}', None)
                 choice_text = value
                 is_correct = f'{index}-is_correct' in request.POST
+                # Debugging output to confirm alignment
+                print(f"Processing: Text Index = {index}, Choice ID Index = {index + 1}, Choice ID = {choice_id}, Text = {value}")
                 choice_forms.append({
                     'id': choice_id,
                     'text': choice_text,
                     'is_correct': is_correct,
                 })
+        for key, value in request.POST.items():
+            if key.startswith('choice-id'):
+                print(f"{key}: {value}")
+
 
         #load the answer choice forms
         choices = Choice.objects.filter(question=question)
@@ -1006,48 +1016,68 @@ def edit_all_questions_and_choices(request):
         
         else:
             success_msgs = [] 
-           
+            for retry in range(MAX_RETRIES): 
+
             # update the data base
-            try:
-                with transaction.atomic(): # if any save operation fails, database will be rolled back
-                    # update the question table
-                    # only update if question text has changed
-                                      
-                    if original_question.text != question_text:
-                        original_question.text = question_text
-                        original_question.modified_by = request.user
-                        original_question.save()
-                        success_msgs.append({"message": "Question text successfully updated", "tags": "success"})
+                try:
+                    with transaction.atomic(): # if any save operation fails, database will be rolled back
+                        # update the question table
+                        # only update if question text has changed
+                                        
+                        if original_question.text != question_text:
+                            original_question.text = question_text
+                            original_question.modified_by = request.user
+                            original_question.save()
+                            success_msgs.append({"message": "Question text successfully updated", 
+                                                 "tags": "success"})
 
-                    # update answer choices table if any changes
-                    modified = 'no'
-                    for choice_form in choice_forms:
-                        if choice_form['id']:
-                            original_choice = Choice.objects.get(id=choice_form['id'])
-                            if choice_form['text'] != original_choice.text or choice_form['is_correct'] != original_choice.is_correct:
-                                original_choice.text = choice_form['text']
-                                original_choice.is_correct = choice_form['is_correct']
-                                original_choice.modified_by = request.user
-                                original_choice.save()
-                                modified = 'yes'      
-                    
-                    if modified == 'yes':
-                        success_msgs.append({"message": "Answer choices successfully updated", "tags": "success"})   
+                        # update answer choices table if any changes
+                        modified = 'no'
+                        for choice_form in choice_forms:
+                            print(choice_form)
+                            if choice_form['id']:
+                                
+                                original_choice = Choice.objects.get(id=choice_form['id'])
+                                if choice_form['text'] != original_choice.text or choice_form['is_correct'] != original_choice.is_correct:
+                                    original_choice.text = choice_form['text']
+                                    original_choice.is_correct = choice_form['is_correct']
+                                    original_choice.modified_by = request.user
+                                    original_choice.save()
+                                    modified = 'yes'      
+                        
+                        if modified == 'yes':
+                            success_msgs.append({"message": "Answer choices successfully updated", 
+                                                 "tags": "success"})   
 
-                    # add additional answer choices (if any)
-                    if new_choices:
-                        for new_choice in new_choices:
-                            new_choice = Choice(question=original_question, text=new_choice['text'], is_correct=new_choice['is_correct'],
-                                    created_by=request.user, modified_by=request.user)
-                            new_choice.save()
-                        success_msgs.append({"message": "New choices successfully added", "tags": "success"})
-                            
+                        # add additional answer choices (if any)
+                        if new_choices:
+                            for new_choice in new_choices:
+                                new_choice = Choice(question=original_question, text=new_choice['text'], is_correct=new_choice['is_correct'],
+                                        created_by=request.user, modified_by=request.user)
+                                new_choice.save()
+                            success_msgs.append({"message": "New choices successfully added", 
+                                                 "tags": "success"})
+                    break
+                                
+                except IntegrityError:
+                    messages.error(request, "An error occurred while saving this form. Please try again.")
+                except OperationalError as e:
+                    if 'database is locked' in str(e):
+                        if retry < MAX_RETRIES - 1:
+                            time.sleep(RETRY_DELAY)  # Wait before retrying
+                        else:
+                            messages.error(request, f"OperationalError: {str(e)}")
+                    else:
+                        messages.error(request, f"OperationalError: {str(e)}") 
 
-            except IntegrityError:
-                messages.error(request,  "An error occurred while saving this form. Please try again.")
+        # update with form with new choices
+        choices = Choice.objects.filter(question=question)
+        # Prepare the forms with the updated choices
+        edit_choice_forms = [AddChoiceForm(prefix=str(i), instance=choice) for i, choice in enumerate(choices)]
+        context['edit_choice_forms'] = edit_choice_forms
         
         for success_msg in success_msgs:
-            messages.add_message(request, messages.SUCCESS, success_msg['message'])
+                    messages.add_message(request, messages.SUCCESS, success_msg['message'])
 
         return render(request, 'management/edit_all_questions_and_choices.html', context)
 
