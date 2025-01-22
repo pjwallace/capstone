@@ -105,7 +105,18 @@ function initializePage(){
         if (e.target.tagName === 'SELECT' && e.target.id === 'topic-for-get-all-questions'){
             selectTopicForAllQuestionsToEdit();        
         }
-
+        // load the subtopic menu when adding an explanation
+        if (e.target.tagName === 'SELECT' && e.target.id === 'topic-for-add-explanation'){
+            selectTopicForAddExplanation();        
+        }
+        // load the question menu when adding an explanation
+        if (e.target.tagName === 'SELECT' && e.target.id === 'subtopic-for-add-explanation'){
+            loadQuestionsToAddExplanationForm();        
+        }
+        // load the answer choices when adding an explanation
+        if (e.target.tagName === 'SELECT' && e.target.id === 'question-for-add-explanation'){
+            loadChoicesToAddExplanationForm();        
+        }
     });
 
     
@@ -151,7 +162,7 @@ function initializePage(){
 
         
     // select topic, subtopic, question for adding an explanation
-    selectTopicForAddExplanation();
+    //selectTopicForAddExplanation();
 
     // select topic, subtopic, question for editing an explanation
     selectTopicForEditExplanation();
@@ -1995,25 +2006,20 @@ function selectTopicForAddExplanation(){
             return;
         }
 
-        // add event listeneer for the topic dropdown menu
-        topicMenu.addEventListener('change', function(){
-            const selectedTopicId = topicMenu.value;
-            clearMessages();
-            if (!selectedTopicId){
-                displayMessage('There are no topics available.', 'info');
-                return;
-            } else{  
-                         
-                getSubtopicsForAddExplanationForm(selectedTopicId, subtopicMenu);
-            }
-
-        })
+        const selectedTopicId = topicMenu.value;
+        clearMessages();
+        if (!selectedTopicId){
+            displayMessage('There are no topics available.', 'info');
+            return;
+        } else{                          
+            getSubtopicsForAddExplanationForm(selectedTopicId, subtopicMenu);
+        }        
     }    
 }
 
 function getSubtopicsForAddExplanationForm(selectedTopicId, subtopicMenu){
     // get the subtopics for the chosen topic to populate the subtopics dropdown menu
-    const route = `/management/portal/get_subtopics/${selectedTopicId}`;
+    const route = `/management/portal/get_subtopics_with_questions_without_explanations/${selectedTopicId}`;
     fetch(route)
     .then(response => response.json())
     .then(data =>{
@@ -2023,7 +2029,9 @@ function getSubtopicsForAddExplanationForm(selectedTopicId, subtopicMenu){
             subtopicMenu.innerHTML = '',
         
             // load the new subtopics, including the placeholder option
-            subtopicMenu.innerHTML = '<option value="" selected ="">--------</option>';
+            placeholderOption = placeholderDefaultOption();
+            subtopicMenu.appendChild(placeholderOption);
+            
             data.subtopics.forEach(subtopic => {
                 const option = document.createElement('option');
                 option.value = subtopic.id;
@@ -2043,26 +2051,26 @@ function getSubtopicsForAddExplanationForm(selectedTopicId, subtopicMenu){
                 return;
             }else{
                 // add event listener to subtopic menu
-                subtopicMenu.addEventListener('change', function(){
-                    const selectedSubtopicId = subtopicMenu.value;
-                    loadQuestionsToAddExplanationForm(selectedSubtopicId);
-                }) 
+                //.addEventListener('change', function(){
+                //    const selectedSubtopicId = subtopicMenu.value;
+                //    loadQuestionsToAddExplanationForm(selectedSubtopicId);
+                //}) 
             }
                 
-        }else{
-            let add_explanation_msg = document.getElementById('add-explanation-msg');
-            if (add_explanation_msg){
-                add_explanation_msg.innerHTML = '';
-            }
+        }else{           
             clearMessages();
-            displayMessage('There are no available subtopics for the chosen topic', 'info');
-            return;    
+            // errors
+            let add_explanation_msg = document.getElementById('add-explanation-msg');
+            add_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;   
         } 
-    })   
+    }) 
+    .catch(error => console.error('Failed to retrieve subtopics:', error));  
 }
 
-function loadQuestionsToAddExplanationForm(selectedSubtopicId) {
-    let questionMenu = document.getElementById('question-for-add-explanation');
+function loadQuestionsToAddExplanationForm() {
+    const subtopicMenu = document.getElementById('subtopic-for-add-explanation');
+    const selectedSubtopicId = subtopicMenu.value;
+    const questionMenu = document.getElementById('question-for-add-explanation');
     const addExplanationMsg = document.getElementById('add-explanation-msg');
     
     // Clear existing messages and options
@@ -2076,10 +2084,7 @@ function loadQuestionsToAddExplanationForm(selectedSubtopicId) {
         .then(data => {
             if (data.success) {
                 // Add placeholder option
-                const placeholderOption = document.createElement('option');
-                placeholderOption.value = '';
-                placeholderOption.textContent = '--------';
-                placeholderOption.selected = true;
+                placeholderOption = placeholderDefaultOption();
                 questionMenu.appendChild(placeholderOption);
 
                 // Add new question options
@@ -2100,43 +2105,33 @@ function loadQuestionsToAddExplanationForm(selectedSubtopicId) {
                     );
                 } else {
                     // Remove any existing 'change' event listeners
-                    const newQuestionMenu = questionMenu.cloneNode(true); 
-                    questionMenu.parentNode.replaceChild(newQuestionMenu, questionMenu);
+                    //const newQuestionMenu = questionMenu.cloneNode(true); 
+                    //questionMenu.parentNode.replaceChild(newQuestionMenu, questionMenu);
 
                     // Add a new event listener
-                    newQuestionMenu.addEventListener('change', function () {
-                        const selectedQuestionId = newQuestionMenu.value;
-                        loadChoicesToAddExplanationForm(selectedQuestionId);
-                    });
+                    //newQuestionMenu.addEventListener('change', function () {
+                    //    const selectedQuestionId = newQuestionMenu.value;
+                    //    loadChoicesToAddExplanationForm(selectedQuestionId);
+                    //});
 
                     // Update the reference
-                    questionMenu = newQuestionMenu;
+                    //questionMenu = newQuestionMenu;
                 }
             } else {
                 clearMessages();
-                if (data.messages && data.messages.length > 0) {
-                    addExplanationMsg.innerHTML = `
-                        <div class="alert alert-${data.messages[0].tags}" role="alert">
-                            ${data.messages[0].message}
-                        </div>
-                    `;
-                } else {
-                    displayMessage(
-                        'An unexpected error occurred while retrieving questions.',
-                        'error'
-                    );
-                }
+                // errors
+                let add_explanation_msg = document.getElementById('add-explanation-msg');
+                add_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;   
             }
         })
-        .catch(error => {
-            console.error('Error loading questions:', error);
-            clearMessages();
-            displayMessage('Failed to load questions. Please try again later.', 'error');
-        });
+        .catch(error => console.error('Failed to load questions:', error));
 }
 
 
-function loadChoicesToAddExplanationForm(selectedQuestionId){
+function loadChoicesToAddExplanationForm(){
+    const questionMenu = document.getElementById('question-for-add-explanation');
+    const selectedQuestionId = questionMenu.value;
+
     // get all the questions for the chosen subtopic
     const route = `/management/portal/load_choices/${selectedQuestionId}`;
 
@@ -2152,24 +2147,24 @@ function loadChoicesToAddExplanationForm(selectedQuestionId){
             const choiceFields = document.querySelectorAll('.choice-fields input, .choice-fields select');
     
             choiceFields.forEach(function(field) {
-            field.setAttribute('disabled', true);  
-    });
+                field.setAttribute('disabled', true);  
+            });
 
         }else{
-            let add_explanation_msg = document.getElementById('add-explanation-msg');
-            if (add_explanation_msg){
-                add_explanation_msg.innerHTML = '';
-            }
             clearMessages();
-            displayMessage('There are no available choices for this question', 'info');
-            return
-
+            // errors
+            let add_explanation_msg = document.getElementById('add-explanation-msg');
+            add_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;   
         }
     })
+    .catch(error => console.error('Failed to load answer choices for this question:', error));
 
 }
 
 function addExplanation(){
+    const topicMenu = document.getElementById('topic-for-add-explanation');
+    const add_explanation_msg = document.getElementById('add-explanation-msg');
+
     const route = `/management/portal/add_explanation`;
 
     // Retrieve the django CSRF token from the form
@@ -2188,16 +2183,38 @@ function addExplanation(){
         })
     })   
     .then(response => response.json())
-    .then(data => {
-        document.getElementById('add-explanation-form').reset(); // reset the form
-        document.getElementById('choices-container').innerHTML = '';
+    .then(data => {        
                 
-        if (data.success){  
-            clearMessages();
-            
-            // display success message
-            let add_explanation_msg = document.getElementById('add-explanation-msg');
-            add_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+        if (data.success){ 
+            document.getElementById('add-explanation-form').reset(); // reset the form
+            document.getElementById('choices-container').innerHTML = '';
+            topicMenu.innerHTML = '';
+            // Add placeholder option for topic menu
+            placeholderOption = placeholderDefaultOption();
+            topicMenu.appendChild(placeholderOption); 
+
+            data.topics.forEach(topic => {
+                const option = document.createElement('option');
+                option.value = topic.id;
+                option.textContent = topic.name;
+                topicMenu.appendChild(option);
+            }); 
+
+            const validTopicOptions = topicMenu.options.length > 1;
+
+            if (!validTopicOptions){
+               
+                if (add_explanation_msg){
+                    add_explanation_msg.innerHTML = '';
+                }
+                clearMessages();
+                displayMessage('There are no available subtopics for the chosen topic', 'info');
+                return;
+            }else{
+                clearMessages();            
+                // display success message
+                add_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            }
             
         } else {
             // errors

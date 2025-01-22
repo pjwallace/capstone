@@ -20,22 +20,19 @@
 
         <h2>Add an Explanation for a Question</h2><br>
 
-        <form id="add-explanation-form" data-fetch="true" method="post" action="#">
+        <form id="add-explanation-form" data-fetch="true" method="post">
             {% csrf_token %}
             
-            <div id="add-explanation-container">
-                <div class="add-explanation-fields">
-                    <div class="form-group">
-                        {{ add_explanation_form.topic.label_tag }}
-                        {{ add_explanation_form.topic }}
-                    </div>
-                    <div class="form-group">
-                        {{ add_explanation_form.subtopic.label_tag }}
-                        {{ add_explanation_form.subtopic }}
-                    </div>
-                                   
+            <div id="add-explanation-container">                
+                <div class="form-group col-md-6">
+                    {{ add_explanation_form.topic.label_tag }}
+                    {{ add_explanation_form.topic }}
                 </div>
-
+                <div class="form-group col-md-8">
+                    {{ add_explanation_form.subtopic.label_tag }}
+                    {{ add_explanation_form.subtopic }}
+                </div>
+                                   
                 <div class="form-group">
                     {{ add_explanation_form.question.label_tag}}
                     {{ add_explanation_form.question}}

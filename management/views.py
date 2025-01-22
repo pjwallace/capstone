@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError, transaction, OperationalError
-#from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 import json
 import time
@@ -318,6 +317,26 @@ def get_subtopics_with_questions(request, topic_id):
     else:
         return JsonResponse({"success": False,  
                 "messages": [{"message": "An error occurred while retrieving subtopics.", 
+                              "tags": "info"}]}, status=404)
+
+@login_required(login_url='login')  
+def get_subtopics_with_questions_without_explanations(request, topic_id):
+    # Ensure the topic exists
+    get_object_or_404(Topic, id=topic_id)
+
+    # only retrieve subtopics that have available questions
+    #subtopics = Subtopic.objects.filter(topic_id=topic_id, questions__isnull=False).values('id', 'name').distinct()
+    subtopics = Subtopic.objects.filter(
+        topic_id=topic_id, 
+        questions__isnull = False, # subtopic has questions
+        questions__explanation__isnull=True # questions don't already have explanations 
+    ).values('id', 'name').distinct()
+       
+    if subtopics:
+        return JsonResponse({'success': True, 'subtopics': list(subtopics)}, safe=False)
+    else:
+        return JsonResponse({"success": False,  
+                "messages": [{"message": "This subtopic's questions already have explanations.", 
                               "tags": "info"}]}, status=404)
     
 @login_required(login_url='login')
@@ -1136,16 +1155,30 @@ def add_explanation(request):
                                 created_by = request.user, modified_by = request.user)
                 explanation.save()
 
+                # update the topic list
+                updated_topics = get_topics_for_add_explanation(request)
+
+                return JsonResponse({"success": True, "topics": list(updated_topics),
+                    "messages": [{"message": "Explanation has been successfully added.", "tags": "success"}]}, safe=False)
+
         except Question.DoesNotExist:
             return JsonResponse({"success": False,
                 "messages": [{"message": f"Question with id {question_id} does not exist.", "tags": "danger"}]}, status=400)    
        
         except Exception as e:
             return JsonResponse({"success": False,
-                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=400)
-        
-        return JsonResponse({"success": True,
-            "messages": [{"message": "Explanation has been successfully added.", "tags": "success"}]})
+                "messages": [{"message": f"An error occurred: {str(e)}", "tags": "danger"}]}, status=400)  
+              
+@login_required(login_url='login')
+def get_topics_for_add_explanation(request):
+    topics = Topic.objects.filter(
+        subtopics__isnull=False,
+        subtopics__questions__isnull=False,
+        subtopics__questions__explanation__isnull=True
+    ).distinct().values('id', 'name')
+
+    return topics
+ 
     
 @login_required(login_url='login')
 def load_choices(request, question_id):

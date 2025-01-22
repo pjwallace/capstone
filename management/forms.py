@@ -334,7 +334,11 @@ class EditQuestionTextForm(forms.Form):
 
 class AddExplanationForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
-        queryset= Topic.objects.all(),
+        queryset=Topic.objects.filter(
+            subtopics__isnull = False, # topic must have a subtopic
+            subtopics__questions__isnull = False, # subtopic must have questions
+            subtopics__questions__explanation__isnull = True # question can't have an explanation already
+        ).distinct(),  
         widget=forms.Select(attrs={
             'class' : 'form-control',
             'id' : 'topic-for-add-explanation'
