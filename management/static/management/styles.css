@@ -223,13 +223,14 @@ body, html {
     gap: 10px;
 }
 
+/*
 .edit-explanation-fields{
     display: flex;
-    align-items: center; /* Align items vertically centered */
-    gap: 75px; /* Adds space between the fields */
+    align-items: center; 
+    gap: 75px; 
     margin-left: 5px;
 }
-
+*/
 
 #topic-name-subtopic, #rename-topic, #topic-to-delete, #topic-to-choose, #subtopic-to-choose{
     -webkit-appearance: menulist; /* Safari and Chrome */

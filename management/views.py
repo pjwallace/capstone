@@ -324,8 +324,7 @@ def get_subtopics_with_questions_without_explanations(request, topic_id):
     # Ensure the topic exists
     get_object_or_404(Topic, id=topic_id)
 
-    # only retrieve subtopics that have available questions
-    #subtopics = Subtopic.objects.filter(topic_id=topic_id, questions__isnull=False).values('id', 'name').distinct()
+    # only retrieve subtopics that have available questions without explanations
     subtopics = Subtopic.objects.filter(
         topic_id=topic_id, 
         questions__isnull = False, # subtopic has questions
@@ -337,6 +336,25 @@ def get_subtopics_with_questions_without_explanations(request, topic_id):
     else:
         return JsonResponse({"success": False,  
                 "messages": [{"message": "This subtopic's questions already have explanations.", 
+                              "tags": "info"}]}, status=404)
+    
+@login_required(login_url='login')  
+def get_subtopics_with_questions_with_explanations(request, topic_id):
+    # Ensure the topic exists
+    get_object_or_404(Topic, id=topic_id)
+
+    # only retrieve subtopics that have available questions without explanations
+    subtopics = Subtopic.objects.filter(
+        topic_id=topic_id, 
+        questions__isnull = False, # subtopic has questions
+        questions__explanation__isnull=False # questions with explanations 
+    ).values('id', 'name').distinct()
+       
+    if subtopics:
+        return JsonResponse({'success': True, 'subtopics': list(subtopics)}, safe=False)
+    else:
+        return JsonResponse({"success": False,  
+                "messages": [{"message": "This subtopic's questions don't have explanations.", 
                               "tags": "info"}]}, status=404)
     
 @login_required(login_url='login')
