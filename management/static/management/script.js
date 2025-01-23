@@ -165,19 +165,27 @@ function initializePage(){
         // cancel question delete dialog
         if (e.target.tagName === 'BUTTON' && e.target.id === 'cancel-button'){
             cancelQuestionDialog(); 
-
-        // delete question
         }
+        // delete question
         if (e.target.tagName === 'BUTTON' && e.target.id === 'confirm-delete-question-button'){
             deleteQuestion();    
         }
+        // explanation delete dialog
+        if (e.target.tagName === 'BUTTON' && e.target.id === 'delete-explanation-btn'){
+            setupDeleteExplanationDialog();         
+        }
+        // cancel question delete dialog
+        if (e.target.tagName === 'BUTTON' && e.target.id === 'cancel-delete-explanation-button'){
+            cancelExplanationDialog(); 
+        }
+        // delete question
+        if (e.target.tagName === 'BUTTON' && e.target.id === 'confirm-delete-explanation-button'){
+            deleteExplanation();    
+        }
     });
     
-    // select topic, subtopic, question for editing an explanation
-    //selectTopicForEditExplanation();
-
     // delete explanation
-    setupDeleteExplanationModal();
+    //setupDeleteExplanationModal();
 
 }
 
@@ -1864,8 +1872,7 @@ function setupDeleteQuestionDialog(){
     
     const dialogElement = document.getElementById('confirm-delete-question-dialog');
 
-    if (dialogElement){
-        
+    if (dialogElement){        
         dialogElement.showModal();
     }else {
         console.error('Dialog element with ID confirm-delete-question-dialog not found.');
@@ -1936,7 +1943,6 @@ function deleteQuestion(){
             dialogElement.close();
             getQuestionToEditDynamically(data.messages);
             
-
         }else{
             // errors
             let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
@@ -2136,7 +2142,6 @@ function loadQuestionsToAddExplanationForm() {
         .catch(error => console.error('Failed to load questions:', error));
 }
 
-
 function loadChoicesToAddExplanationForm(){
     const questionMenu = document.getElementById('question-for-add-explanation');
     const selectedQuestionId = questionMenu.value;
@@ -2167,7 +2172,6 @@ function loadChoicesToAddExplanationForm(){
         }
     })
     .catch(error => console.error('Failed to load answer choices for this question:', error));
-
 }
 
 function addExplanation(){
@@ -2255,8 +2259,7 @@ function selectTopicForEditExplanation(){
         } else{  
                         
             getSubtopicsForEditExplanation(selectedTopicId, subtopicMenu);
-        }
-       
+        }      
     }
 }
 
@@ -2266,7 +2269,7 @@ function getSubtopicsForEditExplanation(selectedTopicId, subtopicMenu){
     fetch(route)
     .then(response => response.json())
     .then(data =>{
-        
+        console.log(data);
         if (data.success){
             // clear the existing subtopic options
             subtopicMenu.innerHTML = '',
@@ -2292,22 +2295,13 @@ function getSubtopicsForEditExplanation(selectedTopicId, subtopicMenu){
                 clearMessages();
                 displayMessage('There are no available subtopics for the chosen topic', 'info');
                 return;
-            }//else{
-                // add event listener to subtopic menu
-                //subtopicMenu.addEventListener('change', function(){
-                //    const selectedSubtopicId = subtopicMenu.value;
-                //    loadQuestionsToEditExplanationForm(selectedSubtopicId);
-                //}) 
-            //}
-                
-        }else{
-            let edit_explanation_msg = document.getElementById('edit-explanation-msg');
-            if (edit_explanation_msg){
-                edit_explanation_msg.innerHTML = '';
             }
+
+        }else{
+            // errors
             clearMessages();
-            displayMessage('There are no available subtopics for the chosen topic', 'info');
-            return;    
+            let edit_explanation_msg = document.getElementById('edit-explanation-msg');
+            edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;   
         } 
     })    
 }
@@ -2350,21 +2344,8 @@ function loadQuestionsToEditExplanationForm() {
                         'There was a problem retrieving questions for the chosen subtopic',
                         'info'
                     );
-                } //else {
-                    // Remove previous event listener and add a new one
-                    // Remove any existing 'change' event listeners
-                    //const newQuestionMenu = questionMenu.cloneNode(true); 
-                    //questionMenu.parentNode.replaceChild(newQuestionMenu, questionMenu);
+                } 
 
-                    //newQuestionMenu.addEventListener('change', function () {
-                    //    const selectedQuestionId = newQuestionMenu.value;
-                    //    loadChoicesToEditExplanationForm(selectedQuestionId);
-                    //    getExplanationForQuestion(selectedQuestionId);
-                    //});
-
-                    // Update the reference
-                    //questionMenu = newQuestionMenu;
-                //}
             } else {
                 clearMessages();
                 if (data.messages && data.messages.length > 0) {
@@ -2388,7 +2369,6 @@ function loadQuestionsToEditExplanationForm() {
         });
 }
 
-
 function loadChoicesToEditExplanationForm(){
     const questionMenu = document.getElementById('question-for-edit-explanation');
     const selectedQuestionId = questionMenu.value;
@@ -2408,7 +2388,7 @@ function loadChoicesToEditExplanationForm(){
     
             choiceFields.forEach(function(field) {
             field.setAttribute('disabled', true);  
-    });
+            });
 
         }else{
             let edit_explanation_msg = document.getElementById('edit-explanation-msg');
@@ -2418,7 +2398,6 @@ function loadChoicesToEditExplanationForm(){
             clearMessages();
             displayMessage('There was a problem retrieving choices for this question', 'info');
             return;
-
         }
     })
 }
@@ -2506,6 +2485,22 @@ function editExplanation(){
     .catch(error => console.error('Error submitting the form', error));
 }
 
+function setupDeleteExplanationDialog(){    
+    const dialogElement = document.getElementById('confirm-delete-explanation-dialog');
+
+    if (dialogElement){        
+        dialogElement.showModal();
+    }else {
+        console.error('Dialog element with ID confirm-delete-explanation-dialog not found.');
+        return; 
+    }
+}
+
+function cancelExplanationDialog(){
+    const dialogElement = document.getElementById('confirm-delete-explanation-dialog');
+    dialogElement.close();
+}
+
 function setupDeleteExplanationModal(){
     const selectExplanationToDelete = document.getElementById('text-for-edit-explanation');
     const deleteExplanationButton = document.getElementById('delete-explanation-btn');
@@ -2536,60 +2531,52 @@ function setupDeleteExplanationModal(){
 }
 
 
-function deleteExplanation(confirmDeleteExplanationModal){    
-    // modal delete button logic
-    const confirmDeleteExplanationButton = document.getElementById('confirm-delete-explanation-button');
-       
-    if (confirmDeleteExplanationButton){
-                
-        confirmDeleteExplanationButton.addEventListener('click', function(e){
-            e.preventDefault();           
+function deleteExplanation(){ 
+    const dialogElement = document.getElementById('confirm-delete-explanation-dialog');
+    const explanationTextArea = document.getElementById('text-for-edit-explanation');   
+          
+    // Fetch the explanation ID at the time of button click
+    const explanationId = document.getElementById('explanation-id').value;                                  
+
+    const route = `/management/portal/delete_explanation/${explanationId}`;
+
+    // Retrieve the django CSRF token from the form
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(route, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },        
+    })
+    .then(response => response.json())
+    .then(data => {                
+        if (data.success){
+            document.getElementById('edit-explanation-form').reset(); // reset the form
             
-            // Fetch the explanation ID at the time of button click
-            const explanationId = document.getElementById('explanation-id').value;                                  
-        
-            const route = `/management/portal/delete_explanation/${explanationId}`;
-            // Retrieve the django CSRF token from the form
-            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    
-            fetch(route, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken,
-                },
-                
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('edit-explanation-form').reset(); // reset the form
-                if (data.success){
-                    clearMessages();
-                    document.getElementById('text-for-edit-explanation').innerHTML = '';
-                    document.getElementById('choices-container').innerHTML = '';
-                    document.getElementById('delete-explanation-btn').disabled = true;
-                    // display success message
-                    let edit_explanation_msg = document.getElementById('edit-explanation-msg');
-                    edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-                    
-                }else{
-                    // errors
-                    document.getElementById('delete-explanation-btn').disabled = true;
-                    let edit_explanation_msg = document.getElementById('edit-explanation-msg');
-                    edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-                }
+            explanationTextArea.innerHTML = '';
+            explanationTextArea.setAttribute('disabled', 'disabled');
+            document.getElementById('choices-container').innerHTML = '';
+            document.getElementById('delete-explanation-btn').disabled = true;
+            
+            // display success message
+            clearMessages();
+            let edit_explanation_msg = document.getElementById('edit-explanation-msg');
+            edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            dialogElement.close();
+            
+        }else{
+            // errors
+            document.getElementById('delete-explanation-btn').disabled = true;
+            let edit_explanation_msg = document.getElementById('edit-explanation-msg');
+            edit_explanation_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+            dialogElement.close();
+        }
 
-                // Close the modal
-                confirmDeleteExplanationModal.hide();
-            })
-            .catch(error => console.error('Explanation deletion failed:', error));
-                
-        });
-
-    }else {
-        console.log('Delete explanation button not found.');
-    }
-    
+    })
+    .catch(error => console.error('Explanation deletion failed:', error));
+    dialogElement.close();   
 }  
 
 // Helper functions

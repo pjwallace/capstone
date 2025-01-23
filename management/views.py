@@ -354,7 +354,7 @@ def get_subtopics_with_questions_with_explanations(request, topic_id):
         return JsonResponse({'success': True, 'subtopics': list(subtopics)}, safe=False)
     else:
         return JsonResponse({"success": False,  
-                "messages": [{"message": "This subtopic's questions don't have explanations.", 
+                "messages": [{"message": "This topic's subtopics don't have questions with explanations.", 
                               "tags": "info"}]}, status=404)
     
 @login_required(login_url='login')

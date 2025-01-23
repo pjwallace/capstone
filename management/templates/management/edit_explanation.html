@@ -20,7 +20,7 @@
 
         <h2>Edit or Delete a Question Explanation</h2><br>
 
-        <form id="edit-explanation-form" data-fetch="true" method="post" action="#">
+        <form id="edit-explanation-form" data-fetch="true" method="post">
             {% csrf_token %}
             <input type="hidden" id="explanation-id" name="explanation-id" value="">
             <div id="edit-explanation-container">
@@ -54,8 +54,7 @@
                     Edit Explanation
                 </button>
 
-                <button class="btn btn-danger" id="delete-explanation-btn" type="button"
-                    data-bs-toggle="modal" data-bs-target="#confirm-delete-explanation-modal" disabled>
+                <button class="btn btn-danger" id="delete-explanation-btn" type="button" disabled>
                     Delete Explanation
                 </button>
 
@@ -63,7 +62,19 @@
             
         </form>
 
-        <!-- Modal -->
+        <!-- Confirmation Dialog-->
+        <dialog id="confirm-delete-explanation-dialog">
+            <h5>Confirm Explanation Deletion</h5>
+
+            <p>Are you sure you want to delete this explanation? <strong>This action cannot be undone!</strong></p>
+
+            <div class="dialog-buttons">
+                <button type="button" id="cancel-delete-explanation-button" class="btn btn-close"></button>
+                <button type="button" id="confirm-delete-explanation-button" class="btn btn-danger">Delete</button>
+            </div>
+         </dialog>
+
+        <!-- Modal 
         <div class="modal" id="confirm-delete-explanation-modal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -90,6 +101,7 @@
                 </div>
             </div>
         </div>
+        -->
 
 
     </div>
