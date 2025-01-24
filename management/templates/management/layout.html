@@ -21,10 +21,21 @@
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" id= "brand" href="#">Database Management</a>
+            <button 
+                class="navbar-toggler ms-auto" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#navbarContent" 
+                aria-controls="navbarContent" 
+                aria-expanded="false" 
+                aria-label="Toggle navigation"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
           
-            <div>
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item dropdown">
+            <div class="collapse navbar-collapse justify-content-center " id="navbarContent">
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown ms-auto text-end">
                         <a class="nav-link dropdown-toggle"
                             href="#" id="navbardrop-topic" data-bs-toggle="dropdown">Topics
                         </a>
@@ -35,7 +46,7 @@
                         </div>
                     </li>
 
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown ms-auto text-end">
                         <a class="nav-link dropdown-toggle"
                             href="#" id="navbardrop-subtopic" data-bs-toggle="dropdown">Subtopics
                         </a>
@@ -46,7 +57,7 @@
                         </div>
                     </li>
                     
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown ms-auto text-end">
                         <a class="nav-link dropdown-toggle"
                             href="#" id="navbardrop-question" data-bs-toggle="dropdown">Questions/Choices
                         </a>
@@ -58,9 +69,9 @@
                             <a class="dropdown-item" id="dropdown-edit-all-questions" href="{% url 'get_all_questions_to_edit' %}">
                                 Review/Edit All Questions</a>  
                         </div>
-                    </li>
-
-                    <li class="nav-item dropdown">
+                    </li>                
+                
+                    <li class="nav-item dropdown ms-auto text-end">
                         <a class="nav-link dropdown-toggle"
                             href="#" id="navbardrop-choice" data-bs-toggle="dropdown">Explanations
                         </a>
@@ -70,34 +81,14 @@
                             <a class="dropdown-item" id="dropdown-edit-explanation" href="{% url 'edit_explanation' %}">
                                 Edit/Delete Explanation</a>
                         </div>
-                    </li>                
-                </ul>
-            </div>
-
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">                    
-                    <li class="nav-item dropdown">
-                        <a 
-                            class="nav-link dropdown-toggle d-flex align-items-center" 
-                            href="#" 
-                            id="user-dropdown" 
-                            role="button" 
-                            data-bs-toggle="dropdown" 
-                            aria-expanded="false"
-                        >
-                            <i class="fa fa-solid fa-user" id="user-icon"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="{% url 'edit_profile' %}">Edit Profile</a></li>
-                        </ul>
                     </li>
-                    
-                    <li class="nav-item">
+                  
+                    <li class="nav-item ms-auto">
                         <a class="nav-link" id="dashboard-link"  href="{% url 'dashboard' %}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
+                    </li> 
+                    <li class="nav-item ms-auto">
                         <a class="nav-link" id="logout-link"  href="{% url 'logout' %}">Log Out</a>
-                    </li>
+                    </li>              
                 </ul>
             </div>
           </nav>

@@ -223,15 +223,6 @@ body, html {
     gap: 10px;
 }
 
-/*
-.edit-explanation-fields{
-    display: flex;
-    align-items: center; 
-    gap: 75px; 
-    margin-left: 5px;
-}
-*/
-
 #topic-name-subtopic, #rename-topic, #topic-to-delete, #topic-to-choose, #subtopic-to-choose{
     -webkit-appearance: menulist; /* Safari and Chrome */
     -moz-appearance: menulist; /* Firefox */
@@ -337,4 +328,19 @@ dialog p {
 .btn-danger {
     background-color: red;
     color: white;
+}
+
+#dashboard-link {
+    margin-left: 5rem;
+}
+
+/* Responsive layout for small screens */
+@media (max-width: 576px){
+    .sidebar {
+        display: none;
+    }
+    #management-container{
+        margin-left: 0;
+    }
+    
 }
