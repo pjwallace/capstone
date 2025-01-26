@@ -9,7 +9,7 @@
 
         <h2>Rename a Topic</h2><br>
 
-        <form id="rename-topic-form" data-fetch="true" method="post">
+        <form id="rename-topic-form" data-fetch="true">
             {% csrf_token %}
             {{ rename_topic_form.as_p }}
 

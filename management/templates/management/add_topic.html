@@ -9,7 +9,7 @@
 
         <h2>Add a New Topic</h2><br>
 
-        <form id="add-topic-form" data-fetch="true" method="post">
+        <form id="add-topic-form" data-fetch="true">
             {% csrf_token %}
             {{ add_topic_form.as_p }}
 
