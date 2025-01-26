@@ -21,6 +21,14 @@ function initializePage(){
         selectQuestionType(true);
     }
 
+    // display the appropriate database management instructions based on screen size
+    const welcomeContainer = document.getElementById('welcome-container')
+        if (welcomeContainer){
+            changeWelcomeMessageBasedOnScreenSize();
+        }
+
+    window.addEventListener('resize', changeWelcomeMessageBasedOnScreenSize);
+
     // form submission event listeners
     document.getElementById('management-container').addEventListener('submit', function(e){
         // Ensure the event is coming from forms that are processed asynchronously
@@ -2530,7 +2538,6 @@ function setupDeleteExplanationModal(){
 
 }
 
-
 function deleteExplanation(){ 
     const dialogElement = document.getElementById('confirm-delete-explanation-dialog');
     const explanationTextArea = document.getElementById('text-for-edit-explanation');   
@@ -2688,5 +2695,22 @@ function updatePagination(newPageNumber){
         initializePage(); // Re-initialize the page after loading new content
     })
     .catch(error => console.error('Error loading updated content:', error));
+}
 
+function changeWelcomeMessageBasedOnScreenSize(){
+    const screenWidth = window.innerWidth;
+    const welcomeMessage = document.getElementById('welcome-message');
+
+    if (welcomeMessage){
+        welcomeMessage.innerHTML = '';
+        
+        if (screenWidth < 576){
+            welcomeMessage.innerHTML = 
+            'To manage your quiz database, click on the appropriate menu in the top navigation bar.'; 
+        } else {
+            welcomeMessage.innerHTML = 
+            'To manage your quiz database, you may click on the appropriate menu in the top navigation bar.\
+            Questions and answer choices may also be managed from the sidebar.'        
+        }
+    }
 }

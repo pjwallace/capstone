@@ -22,6 +22,10 @@ RETRY_DELAY = 1  # Delay in seconds
 def management_portal(request): 
     # load topics for sidebar
     topics = Topic.objects.all()
+    print(request.session)
+    # returning from dashboard
+    if 'show_welcome' not in request.session:
+        request.session['show_welcome'] = True
 
     # Check if welcome message should be displayed
     show_welcome = request.session.pop('show_welcome', False)  # Retrieve and remove the flag

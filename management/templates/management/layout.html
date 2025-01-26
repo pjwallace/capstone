@@ -20,7 +20,7 @@
     <body>
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" id= "brand" href="#">Database Management</a>
+            <h2 class="navbar-brand" id= "brand">Database Management</h2>
             <button 
                 class="navbar-toggler ms-auto" 
                 type="button" 
@@ -118,14 +118,12 @@
 
             {% block body %}
                 {% if show_welcome %}
-                    <div class="welcome-container text-center" id="welcome">
+                    <div class="text-center" id="welcome-container">
                         <h2>Welcome to the Quiz Database Management Portal</h2><br>
-                        <p>To <strong>add, rename, or delete</strong> a topic or subtopic, click on the 
-                            appropriate menu in the <strong>top navigation bar</strong>.</p>
-                        <p>To <strong>add, edit, or delete</strong> questions, answer choices, or explanations, 
-                            you may use either the <strong>sidebar menu</strong> or the <strong>top navigation bar</strong>.</p>
-                        <p class="mt-4">Ready to get started? Use the menus above or to the left to 
-                            begin managing your quiz database.</p>
+                                               
+                        <p id="welcome-message">
+
+                        </p>
                     </div>
                 {% endif %}
             {% endblock %}
