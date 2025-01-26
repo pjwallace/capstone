@@ -91,9 +91,10 @@ class AddSubtopicForm(forms.ModelForm):
         model = Subtopic
         fields = ['topic', 'name']
         widgets = {
-            'name' : forms.TextInput(attrs={
+            'name' : forms.Textarea(attrs={
             'class' : 'form-control',
             'id' : 'new-subtopic',
+            'rows': 1,
             })
         }
         labels = {
@@ -102,7 +103,7 @@ class AddSubtopicForm(forms.ModelForm):
             
 class RenameSubtopicForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
-        # only load topics that have at least one subtopic to delete
+        # only load topics that have at least one subtopic to rename
         queryset= Topic.objects.filter(subtopics__isnull=False).distinct(),
         label="Select a Topic",
        
@@ -123,10 +124,11 @@ class RenameSubtopicForm(forms.ModelForm):
     new_subtopic_name = forms.CharField(
         max_length=60,
         label="",
-        widget=forms.TextInput(attrs={
+        widget=forms.Textarea(attrs={
             'class': 'form-control',
             'id': 'new-subtopic-name',
-            'placeholder': 'Enter new subtopic name'
+            'rows': 1,
+            'placeholder': 'Enter new subtopic name (up to 60 characters)'
         })
     )
     class Meta:

@@ -165,6 +165,10 @@ body, html {
     margin-right: auto;
 }
 
+#new-subtopic{
+    resize: none;
+}
+
 #add-question-and-choices-form {
     display: flex;
     flex-direction: column;
@@ -363,16 +367,26 @@ dialog p {
     #new-topic,
     #rename-topic,
     #new-topic-name,
-    #topic-to-delete{
+    #topic-to-delete,
+    #topic-name-subtopic{
         height: 50px;
         font-size: 1rem;
     }
     #add-topic-btn,
     #rename-topic-btn,
-    #delete-topic-btn{
+    #delete-topic-btn,
+    #add-subtopic-btn,
+    #rename-subtopic-btn,
+    #delete-subtopic-button{
         padding: 10px 20px;
         font-size: 1.1rem;
         margin-bottom: 10px;
     }
+    #new-subtopic,
+    #new-subtopic-name{
+        font-size: 1rem;
+        height: 50px;
+    }
+    
     
 }
