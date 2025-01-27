@@ -28,12 +28,13 @@ body, html {
     overflow-y: auto;
     overflow-x: hidden;
     padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 .sidebar a {
-    padding: 6px, 8px, 6px, 16px;
+    padding: 6px 8px 6px 16px;
     text-decoration: none;    
-    color: #818181;
+    color: #C0C0C0;
     display: block;
     border: none;
     background: none;
@@ -65,17 +66,17 @@ body, html {
     padding-top: 6px;
     display: none;
 }
-
+/* subtopic container */
 .subtopics{
     display: none;
-    background-color: #262626;
+    background-color: #3C3C3C;
     
 }
-
-.subtopic{
-    padding-left: 10px;
+/* subtopic links */
+.subtopics .subtopic{
+    padding-left: 16px;
     font-size: 12px;
-    color: #A9A9A9;
+    color: #40E0D0;
 }
 
 .suptopic:hover, .suptopic:focus {

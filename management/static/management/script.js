@@ -1385,9 +1385,7 @@ function addAnotherChoice(){
         });
           
         addChoicesContainer.appendChild(newChoiceForm); 
-        document.querySelectorAll('[name^="choice-id"]').forEach(input => {
-            console.log(`Name: ${input.name}, Value: ${input.value}`);
-        });       
+           
     }   
 }
 
@@ -1446,11 +1444,7 @@ function addChoiceToEditForm(){
             });
             
             editChoicesContainer.appendChild(newChoiceForm);
-            document.querySelectorAll('[name^="choice-id"]').forEach(input => {
-                console.log(`Name: ${input.name}, Value: ${input.value}`);
-            });
             
-
         }else{
             console.error('edit choice container not found.');
         }
@@ -1858,7 +1852,7 @@ function selectQuestionToEdit(){
                 document.querySelector(`#edit-choice-${index + 1} textarea[name$="text"]`).value = choice.text;
                 document.querySelector(`#edit-choice-${index + 1} input[name$="is_correct"]`).checked = choice.is_correct;
             });
-            console.log(questionData.choices);
+            
             // Can't change the value of True and False
             if (questionData.question.question_type.name === 'True/False'){                
                 document.getElementById('id_0-text').readOnly = true;
@@ -2000,9 +1994,7 @@ function deleteAllQuestions(){
             .then(response => response.json())
             .then(data => {
                 if (data.success){
-                    console.log('success');
                     updatePagination(data.new_page_number)
-
                 }else{
                     // errors
                     let edit_question_and_choices_msg = document.getElementById('edit-question-and-choices-msg');
@@ -2277,7 +2269,6 @@ function getSubtopicsForEditExplanation(selectedTopicId, subtopicMenu){
     fetch(route)
     .then(response => response.json())
     .then(data =>{
-        console.log(data);
         if (data.success){
             // clear the existing subtopic options
             subtopicMenu.innerHTML = '',
