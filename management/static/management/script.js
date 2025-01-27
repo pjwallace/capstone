@@ -2166,7 +2166,7 @@ function loadChoicesToAddExplanationForm(){
             document.getElementById('choices-container').innerHTML = data.choice_forms;
 
             // choice fields shouldn't be editable
-            const choiceFields = document.querySelectorAll('.choice-fields input, .choice-fields select');
+            const choiceFields = document.querySelectorAll('.choice-fields input, .choice-fields textarea, .choice-fields select');
     
             choiceFields.forEach(function(field) {
                 field.setAttribute('disabled', true);  
@@ -2392,7 +2392,7 @@ function loadChoicesToEditExplanationForm(){
             document.getElementById('choices-container').innerHTML = data.choice_forms;
 
             // choice fields shouldn't be editable
-            const choiceFields = document.querySelectorAll('.choice-fields input, .choice-fields select');
+            const choiceFields = document.querySelectorAll('.choice-fields input, .choice-fields textarea, .choice-fields select');
     
             choiceFields.forEach(function(field) {
             field.setAttribute('disabled', true);  

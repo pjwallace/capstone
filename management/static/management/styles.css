@@ -160,11 +160,18 @@ body, html {
 #rename-subtopic-btn,
 #delete-subtopic-btn,
 #edit-question-btn,
-#get-edit-all-questions-btn {
+#get-edit-all-questions-btn
+ {
     margin-top: 25px;
     display: block;
     margin-left: auto;
     margin-right: auto;
+}
+
+#add-explanation-btn{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;    
 }
 
 #new-subtopic{
@@ -395,7 +402,10 @@ dialog p {
     #rename-subtopic-btn,
     #delete-subtopic-button,
     #edit-question-btn,
-    #get-edit-all-questions-btn{
+    #get-edit-all-questions-btn,
+    #add-explanation-btn,
+    #edit-explanation-btn,
+    #delete-explanation-btn{
         padding: 10px 20px;
         font-size: 1.1rem;
         margin-bottom: 10px;
