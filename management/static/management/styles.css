@@ -158,7 +158,9 @@ body, html {
 #delete-topic-btn,
 #add-subtopic-btn,
 #rename-subtopic-btn,
-#delete-subtopic-btn {
+#delete-subtopic-btn,
+#edit-question-btn,
+#get-edit-all-questions-btn {
     margin-top: 25px;
     display: block;
     margin-left: auto;
@@ -208,10 +210,9 @@ body, html {
 
 .btn-group {
     display: flex;
-    justify-content: space-between; /* Distributes space between the buttons */
+    justify-content: center; /* Distributes space between the buttons */
     gap: 50px; 
-    margin-left: 5px;
-    margin-right: 5px;
+    width: 100%;
 }
 
 .btn {
@@ -222,6 +223,13 @@ body, html {
     display: flex;
     flex-direction: column;
     gap: 10px; 
+}
+
+.form-check-input{
+    width: 20px; 
+    height: 20px; 
+    transform: scale(1.4); 
+    margin: 5px; 
 }
 
 #add-explanation-form, #edit-explanation-form{
@@ -341,6 +349,14 @@ dialog p {
     margin-left: 5rem;
 }
 
+.pagination .page-link {
+    font-size: 14px; 
+}
+
+.pagination .page-link::before {
+    font-size: inherit; 
+}
+
 /* Responsive layout for small screens */
 @media (max-width: 768px){
     .sidebar {
@@ -377,7 +393,9 @@ dialog p {
     #delete-topic-btn,
     #add-subtopic-btn,
     #rename-subtopic-btn,
-    #delete-subtopic-button{
+    #delete-subtopic-button,
+    #edit-question-btn,
+    #get-edit-all-questions-btn{
         padding: 10px 20px;
         font-size: 1.1rem;
         margin-bottom: 10px;
@@ -387,6 +405,20 @@ dialog p {
         font-size: 1rem;
         height: 50px;
     }
-    
+    .btn-group{
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-left: 15px;
+    }
+    .pagination .page-link{
+        font-size: 18px;
+        padding: 10px 16px;
+    }
+    .pagination .page-item{
+        margin: 2px;
+    }
+    .pagination .page-link::before{
+        font-size: 20px;
+    }
     
 }

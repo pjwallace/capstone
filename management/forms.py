@@ -232,8 +232,9 @@ class AddChoiceForm(forms.ModelForm):
         model = Choice
         fields = ['id', 'text', 'is_correct']
         widgets = {
-            'text' : forms.TextInput(attrs={
+            'text' : forms.Textarea(attrs={
                 'class' : 'form-control',
+                'rows' : 1,
                 'placeholder' : 'Answer Choice',              
             }),
             'is_correct': forms.CheckboxInput(attrs={
