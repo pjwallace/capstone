@@ -22,7 +22,7 @@ RETRY_DELAY = 1  # Delay in seconds
 def management_portal(request): 
     # load topics for sidebar
     topics = Topic.objects.all()
-    print(request.session)
+    
     # returning from dashboard
     if 'show_welcome' not in request.session:
         request.session['show_welcome'] = True
@@ -723,8 +723,6 @@ def edit_question_and_choices(request):
         subtopic_id = int(data.get("subtopic_id", ""))
         question_name = data.get("question_name", "")
         question_type_id = data.get("question_type_id", "")
-
-        print(choice_forms)
        
         # Make sure the subtopic exists
         try:
@@ -915,9 +913,6 @@ def edit_all_questions_and_choices(request):
         #load the answer choice forms
         edit_choice_forms = [AddChoiceForm(prefix=str(i), instance=choices[i]) for i in range(len(choices_data))]
 
-        for i, form in enumerate(edit_choice_forms):
-            print(f"Form {i}: Prefix = {form.prefix}, ID = {form.initial.get('id')}, Text = {form.initial.get('text')}")
-
         # can't modify the text field for True/False questions
         if question.question_type.name == 'True/False':
            
@@ -946,9 +941,8 @@ def edit_all_questions_and_choices(request):
         return render(request, 'management/edit_all_questions_and_choices.html', context)
 
     elif request.method == 'POST':
-        print("POST Data:")
-        for key, value in request.POST.items():
-            print(f"{key}: {value}")
+        #for key, value in request.POST.items():
+        #    print(f"{key}: {value}")
         # load topics for sidebar
         topics = Topic.objects.all()
 
@@ -989,17 +983,12 @@ def edit_all_questions_and_choices(request):
                 choice_id = request.POST.get(f'choice-id-{index+1}', None)
                 choice_text = value
                 is_correct = f'{index}-is_correct' in request.POST
-                # Debugging output to confirm alignment
-                print(f"Processing: Text Index = {index}, Choice ID Index = {index + 1}, Choice ID = {choice_id}, Text = {value}")
+                
                 choice_forms.append({
                     'id': choice_id,
                     'text': choice_text,
                     'is_correct': is_correct,
                 })
-        for key, value in request.POST.items():
-            if key.startswith('choice-id'):
-                print(f"{key}: {value}")
-
 
         #load the answer choice forms
         choices = Choice.objects.filter(question=question)
@@ -1075,7 +1064,7 @@ def edit_all_questions_and_choices(request):
                         # update answer choices table if any changes
                         modified = 'no'
                         for choice_form in choice_forms:
-                            print(choice_form)
+                            
                             if choice_form['id']:
                                 
                                 original_choice = Choice.objects.get(id=choice_form['id'])
@@ -1216,7 +1205,6 @@ def load_choices(request, question_id):
         # get the answer choices for the selected question
         try:
             choices = question.choices.all()
-            #choices_data = [{"id": choice.id, "text": choice.text, "is_correct": choice.is_correct} for choice in choices]
             
             #load the answer choice forms
             choice_forms = [AddChoiceForm(prefix=str(i), instance=choices[i]) for i in range(len(choices))]

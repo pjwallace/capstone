@@ -1855,10 +1855,10 @@ function selectQuestionToEdit(){
 
             // iterate over the choice forms array and prepopulate the blank choice forms
             questionData.choices.forEach((choice, index) => {
-                document.querySelector(`#edit-choice-${index + 1} input[name$="text"]`).value = choice.text;
+                document.querySelector(`#edit-choice-${index + 1} textarea[name$="text"]`).value = choice.text;
                 document.querySelector(`#edit-choice-${index + 1} input[name$="is_correct"]`).checked = choice.is_correct;
             });
-
+            console.log(questionData.choices);
             // Can't change the value of True and False
             if (questionData.question.question_type.name === 'True/False'){                
                 document.getElementById('id_0-text').readOnly = true;
