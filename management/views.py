@@ -174,7 +174,7 @@ def add_subtopic(request):
     elif request.method == 'POST':
         data = json.loads(request.body)
         topic_id = int(data.get("topic_id", ""))
-        name = data.get("name", "").strip().title()
+        name = data.get("name", "").strip()
 
         # make sure the topic exists
         try:
@@ -228,7 +228,7 @@ def rename_subtopic(request):
         data = json.loads(request.body)
         topic_id = int(data.get("topic_id", ""))
         subtopic_id = int(data.get("subtopic_id", ""))
-        new_subtopic_name = data.get("new_subtopic_name", "").strip().title()
+        new_subtopic_name = data.get("new_subtopic_name", "").strip()
 
         # make sure the topic exists
         try:
