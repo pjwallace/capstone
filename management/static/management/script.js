@@ -1332,9 +1332,9 @@ function addAnotherChoice(){
         // clone the choice form and get all the fields and labels           
         const newChoiceForm = addChoicesContainer.firstElementChild.cloneNode(true);
                     
-        let choiceFields = newChoiceForm.querySelectorAll('input');
+        let choiceFields = newChoiceForm.querySelectorAll('textarea, input');
         let choiceLabels = newChoiceForm.querySelectorAll('label');
-        
+        console.log(choiceFields);
         let choiceCount = addChoicesContainer.childElementCount;       
                         
         // clear the values from the cloned choice form
@@ -1398,7 +1398,7 @@ function addChoiceToEditForm(){
         if (editChoicesContainer){
             // clone the choice form and get all the fields and labels           
             const newChoiceForm = editChoicesContainer.firstElementChild.cloneNode(true);                      
-            let choiceFields = newChoiceForm.querySelectorAll('input');
+            let choiceFields = newChoiceForm.querySelectorAll('input, textarea');
             let choiceLabels = newChoiceForm.querySelectorAll('label');           
             let choiceCount = editChoicesContainer.childElementCount; 
 
@@ -1451,10 +1451,6 @@ function addChoiceToEditForm(){
     }
 
 }
-
-//function addAnotherChoiceForEditAllQuestions(){
-//    addChoiceToEditForm();
-//}
 
 function selectTopicForQuestionToEdit(){
     const topicMenu = document.getElementById('topic-for-edit-question');

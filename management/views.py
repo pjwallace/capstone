@@ -204,7 +204,7 @@ def add_subtopic(request):
             subtopic = Subtopic(topic=topic, name=name, created_by=request.user, modified_by=request.user)
             subtopic.save()
             return JsonResponse({"success": True, "subtopic_id": subtopic.id, "subtopic_name": subtopic.name, "topic_id": topic.id,
-                "messages": [{"message": f"{name} has been successfully added as a subtopic of {topic}.", "tags": "success"}]})
+                "messages": [{"message": f"{name} is now a subtopic of {topic}.", "tags": "success"}]})
 
         except IntegrityError:
             return JsonResponse({"success": False,  
