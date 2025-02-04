@@ -199,7 +199,7 @@ class AddQuestionForm(forms.ModelForm):
             'class': 'form-control',
             'id': 'new-question',
             'placeholder': 'Enter Question',
-            'rows': 1,
+            'rows': 2,
         })
     )
 
@@ -234,7 +234,7 @@ class AddChoiceForm(forms.ModelForm):
         widgets = {
             'text' : forms.Textarea(attrs={
                 'class' : 'form-control',
-                'rows' : 1,
+                'rows' : 2,
                 'placeholder' : 'Answer Choice',              
             }),
             'is_correct': forms.CheckboxInput(attrs={
@@ -333,7 +333,7 @@ class EditQuestionTextForm(forms.Form):
     question_type = forms.CharField(label='Question Type', max_length=25, 
             widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'question-name', 'readonly': 'readonly'}))
     text = forms.CharField(label='Question', 
-            widget=forms.Textarea(attrs={'rows':1, 'class': 'form-control', 'id': 'question-text'}))
+            widget=forms.Textarea(attrs={'rows':2, 'class': 'form-control', 'id': 'question-text'}))
 
 class AddExplanationForm(forms.ModelForm):
     topic = forms.ModelChoiceField(
@@ -372,6 +372,7 @@ class AddExplanationForm(forms.ModelForm):
         widget=forms.Textarea(attrs={
             'class': 'form-control',
             'id': 'text-for-add-explanation',
+            'autofocus': True,
             'placeholder': 'Explanation',
             'rows': 5,
         })

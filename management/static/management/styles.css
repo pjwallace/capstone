@@ -208,17 +208,18 @@ body, html {
 
 .choice-form {
     margin-bottom: 10px;
+    
 }
 
 .add-choice-fields, .edit-choice-fields, .choice-fields {
     display: flex;
-    align-items: center; /* Align items vertically centered */
+    align-items: center; 
     gap: 10px; /* Adds space between the text field and the checkbox */
 }
 
 .btn-group {
     display: flex;
-    justify-content: center; /* Distributes space between the buttons */
+    justify-content: center; 
     gap: 50px; 
     width: 100%;
 }

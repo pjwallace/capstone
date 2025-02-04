@@ -16,8 +16,7 @@ class QuestionTypeAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('text', 'subtopic', 'question_type', 'created_by', 'date_created', 'date_modified',
-                    'modified_by')
+    list_display = ('text', 'subtopic', 'question_type', 'display_order')
     search_fields = ('text', 'subtopic',)
     list_filter = ('subtopic', 'question_type', 'date_created')
     readonly_fields = ('date_created', 'date_modified')

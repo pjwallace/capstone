@@ -1283,6 +1283,7 @@ function selectQuestionType(onLoad=false){
                             document.getElementById(`id_${i}-text`).readOnly = false;
                             document.getElementById(`id_${i}-text`).disabled = false;
                             document.getElementById(`id_${i}-is_correct`).disabled = false;
+                            document.getElementById(`id_${i}-is_correct`).checked = false;
                         }
                     }
 
@@ -1334,7 +1335,7 @@ function addAnotherChoice(){
                     
         let choiceFields = newChoiceForm.querySelectorAll('textarea, input');
         let choiceLabels = newChoiceForm.querySelectorAll('label');
-        console.log(choiceFields);
+        
         let choiceCount = addChoicesContainer.childElementCount;       
                         
         // clear the values from the cloned choice form

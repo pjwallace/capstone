@@ -21,7 +21,8 @@ RETRY_DELAY = 1  # Delay in seconds
 
 def management_portal(request): 
     # load topics for sidebar
-    topics = Topic.objects.all()
+    #topics = Topic.objects.all().order_by('display_order')
+    topics = Topic.objects.filter(is_visible=True).order_by('display_order')
     
     # returning from dashboard
     if 'show_welcome' not in request.session:
@@ -43,7 +44,7 @@ def subtopics_for_topic(request, topic_id):
     Used for dynamic loading in the sidebar.
     '''
     topic = get_object_or_404(Topic, id=topic_id)
-    subtopics = topic.subtopics.filter(is_visible=True)
+    subtopics = topic.subtopics.filter(is_visible=True).order_by('display_order')
     if subtopics:
         subtopic_data = []
         for subtopic in subtopics:
@@ -64,7 +65,7 @@ def add_topic(request):
     if request.method == 'GET':
         add_topic_form = AddTopicForm()
         # load topics for sidebar
-        topics = Topic.objects.all()
+        topics = Topic.objects.filter(is_visible=True).order_by('display_order')
         return render(request, 'management/add_topic.html', { 
             'add_topic_form' : add_topic_form,
             'topics' : topics,
@@ -92,7 +93,7 @@ def rename_topic(request):
     if request.method == 'GET':
         rename_topic_form = RenameTopicForm()
          # load topics for sidebar
-        topics = Topic.objects.all()
+        topics = Topic.objects.filter(is_visible=True).order_by('display_order')
         return render(request, 'management/rename_topic.html', { 
             'rename_topic_form' : rename_topic_form,
             'topics' : topics,
@@ -127,7 +128,7 @@ def delete_topic_form(request):
     if request.method == 'GET':
         delete_topic_form = DeleteTopicForm()
         # load topics for sidebar
-        topics = Topic.objects.all()
+        topics = Topic.objects.filter(is_visible=True).order_by('display_order')
         return render(request, 'management/delete_topic_form.html', { 
             'delete_topic_form' : delete_topic_form,
             'topics' : topics,
@@ -165,7 +166,7 @@ def add_subtopic(request):
     if request.method == 'GET':
         add_subtopic_form = AddSubtopicForm()
          # load topics for sidebar
-        topics = Topic.objects.all()
+        topics = Topic.objects.filter(is_visible=True).order_by('display_order')
         return render(request, 'management/add_subtopic.html', { 
             'add_subtopic_form' : add_subtopic_form,
             'topics' : topics,
@@ -218,7 +219,7 @@ def rename_subtopic(request):
     if request.method == 'GET':
         rename_subtopic_form = RenameSubtopicForm()
          # load topics for sidebar
-        topics = Topic.objects.all()
+        topics = Topic.objects.filter(is_visible=True).order_by('display_order')
         return render(request, 'management/rename_subtopic.html', { 
             'rename_subtopic_form' : rename_subtopic_form,
             'topics' : topics,
@@ -287,7 +288,7 @@ def delete_subtopic_form(request):
     if request.method == 'GET':
         delete_subtopic_form = DeleteSubtopicForm()
          # load topics for sidebar
-        topics = Topic.objects.all()
+        topics = Topic.objects.filter(is_visible=True).order_by('display_order')
         return render(request, 'management/delete_subtopic_form.html', { 
             'delete_subtopic_form' : delete_subtopic_form,
             'topics' : topics,
@@ -295,7 +296,9 @@ def delete_subtopic_form(request):
     
 @login_required(login_url='login')  
 def get_subtopics(request, topic_id):
-    subtopics = Subtopic.objects.filter(topic_id=topic_id).values('id', 'name')
+    #subtopics = Subtopic.objects.filter(topic_id=topic_id).values('id', 'name')
+    subtopics = Subtopic.objects.filter(topic_id=topic_id, is_visible=True).order_by('display_order').values('id', 'name')
+
     subtopics_count = subtopics.count() # used for updating the sidebar up/down caret
     
     if subtopics:
@@ -312,7 +315,13 @@ def get_subtopics_with_questions(request, topic_id):
     get_object_or_404(Topic, id=topic_id)
 
     # only retrieve subtopics that have available questions
-    subtopics = Subtopic.objects.filter(topic_id=topic_id, questions__isnull=False).values('id', 'name').distinct()
+    #subtopics = Subtopic.objects.filter(topic_id=topic_id, questions__isnull=False).values('id', 'name').distinct()
+    subtopics = Subtopic.objects.filter(
+    topic_id=topic_id,
+    is_visible=True,
+    questions__isnull=False
+    ).order_by('display_order').values('id', 'name').distinct()
+
     subtopics_count = subtopics.count() # used for updating the sidebar up/down caret
     
     if subtopics:
@@ -331,9 +340,10 @@ def get_subtopics_with_questions_without_explanations(request, topic_id):
     # only retrieve subtopics that have available questions without explanations
     subtopics = Subtopic.objects.filter(
         topic_id=topic_id, 
+        is_visible = True,
         questions__isnull = False, # subtopic has questions
         questions__explanation__isnull=True # questions don't already have explanations 
-    ).values('id', 'name').distinct()
+    ).order_by('display_order').values('id', 'name').distinct()
        
     if subtopics:
         return JsonResponse({'success': True, 'subtopics': list(subtopics)}, safe=False)
@@ -349,10 +359,11 @@ def get_subtopics_with_questions_with_explanations(request, topic_id):
 
     # only retrieve subtopics that have available questions without explanations
     subtopics = Subtopic.objects.filter(
-        topic_id=topic_id, 
+        topic_id=topic_id,
+        is_visible = True, 
         questions__isnull = False, # subtopic has questions
         questions__explanation__isnull=False # questions with explanations 
-    ).values('id', 'name').distinct()
+    ).order_by('display_order').values('id', 'name').distinct()
        
     if subtopics:
         return JsonResponse({'success': True, 'subtopics': list(subtopics)}, safe=False)
@@ -393,7 +404,7 @@ def add_question_and_choices(request):
         add_choice_forms = [AddChoiceForm(prefix=str(i)) for i in range(4)]  
         
         # load topics for sidebar
-        topics = Topic.objects.all()
+        topics = Topic.objects.filter(is_visible=True).order_by('display_order')
         
         return render(request, 'management/add_question_and_choices.html', { 
             'add_question_form' : add_question_form,
@@ -541,7 +552,7 @@ def get_question_to_edit(request):
         edit_question_form = EditQuestionForm()
 
          # load topics for sidebar
-        topics = Topic.objects.all()
+        topics = Topic.objects.filter(is_visible=True).order_by('display_order')
 
         return render(request, 'management/select_question_to_edit.html', { 
             'edit_question_form' : edit_question_form,
@@ -626,7 +637,8 @@ def load_questions(request, subtopic_id):
     The response object will be returned to the Javascript function loadQuestionsToEdit.
     '''
     if request.method == 'GET':
-        questions = Question.objects.filter(subtopic_id=subtopic_id).values('id', 'text', 'question_type')
+        questions = Question.objects.filter(
+        subtopic_id=subtopic_id).order_by('display_order').values('id', 'text', 'question_type')
 
         if questions:
             return JsonResponse({"success": True, "questions": list(questions)}, safe=False)
@@ -638,7 +650,9 @@ def load_questions(request, subtopic_id):
 def load_questions_without_explanation(request, subtopic_id):
     if request.method == 'GET':
         # only select questions without an explanation
-        questions_query = Question.objects.filter(subtopic_id=subtopic_id, explanation__isnull=True)
+        questions_query = Question.objects.filter(
+        subtopic_id=subtopic_id, 
+        explanation__isnull=True).order_by('display_order')
         
         if not questions_query.exists():
             return JsonResponse({"success": False,
@@ -663,7 +677,7 @@ def load_questions_with_explanation(request, subtopic_id):
         # only select questions with an explanation
         questions_with_explanation = (
             Question.objects.filter(subtopic_id=subtopic_id)
-            .filter(explanation__isnull=False).values('id', 'text')
+            .filter(explanation__isnull=False).order_by('display_order').values('id', 'text')
         )
         
         if not questions_with_explanation.exists():
@@ -684,7 +698,7 @@ def get_all_questions_to_edit(request):
     if request.method == 'GET':
         get_all_questions_form = GetAllQuestionsForm()
          # load topics for sidebar
-        topics = Topic.objects.all()
+        topics = Topic.objects.filter(is_visible=True).order_by('display_order')
         return render(request, 'management/get_all_questions.html', { 
             'get_all_questions_form' : get_all_questions_form,
             'topics' : topics,
@@ -880,10 +894,10 @@ def edit_all_questions_and_choices(request):
         subtopic = get_object_or_404(Subtopic, id=subtopic_id)
 
         # load topics for sidebar
-        topics = Topic.objects.all()
+        topics = Topic.objects.filter(is_visible=True).order_by('display_order')
 
         # load all the questions for the topic/subtopic
-        questions = Question.objects.filter(subtopic=subtopic).order_by('id')
+        questions = Question.objects.filter(subtopic=subtopic).order_by('display_order')
 
         if not questions:
             messages.info(request, "There are no questions for this Topic/Subtopic combination")
@@ -941,10 +955,8 @@ def edit_all_questions_and_choices(request):
         return render(request, 'management/edit_all_questions_and_choices.html', context)
 
     elif request.method == 'POST':
-        #for key, value in request.POST.items():
-        #    print(f"{key}: {value}")
         # load topics for sidebar
-        topics = Topic.objects.all()
+        topics = Topic.objects.filter(is_visible=True).order_by('display_order')
 
         question_id = request.POST.get('question-id')
         question_text = request.POST.get('text').strip()
@@ -956,7 +968,7 @@ def edit_all_questions_and_choices(request):
         question = get_object_or_404(Question, id=question_id)
 
         # load all the questions for the topic/subtopic
-        questions = Question.objects.filter(subtopic=subtopic).order_by('id')
+        questions = Question.objects.filter(subtopic=subtopic).order_by('display_order')
         
         # set up pagination
         paginator = Paginator(questions, 1)  # Display one question per page       
@@ -1144,7 +1156,7 @@ def add_explanation(request):
         add_explanation_form = AddExplanationForm()
 
          # load topics for sidebar
-        topics = Topic.objects.all()
+        topics = Topic.objects.filter(is_visible=True).order_by('display_order')
 
         return render(request, 'management/add_explanation.html', { 
             'add_explanation_form' : add_explanation_form,
@@ -1186,7 +1198,7 @@ def get_topics_for_add_explanation(request):
         subtopics__isnull=False,
         subtopics__questions__isnull=False,
         subtopics__questions__explanation__isnull=True
-    ).distinct().values('id', 'name')
+    ).order_by('display_order').values('id', 'name').distinct()
 
     return topics
  
@@ -1226,7 +1238,7 @@ def edit_explanation(request):
         edit_explanation_form = EditExplanationForm()
 
          # load topics for sidebar
-        topics = Topic.objects.all()
+        topics = Topic.objects.filter(is_visible=True).order_by('display_order')
 
         return render(request, 'management/edit_explanation.html', { 
             'edit_explanation_form' : edit_explanation_form,

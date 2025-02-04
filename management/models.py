@@ -72,6 +72,7 @@ class Question(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, 
         null=True, blank=True, related_name='modified_questions')
+    display_order = models.IntegerField(default=0, blank=False, null=False)
 
     def __str__(self):
         return self.text
