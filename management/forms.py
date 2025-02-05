@@ -372,8 +372,8 @@ class AddExplanationForm(forms.ModelForm):
         widget=forms.Textarea(attrs={
             'class': 'form-control',
             'id': 'text-for-add-explanation',
-            'autofocus': True,
             'placeholder': 'Explanation',
+            'disabled': 'disabled',
             'rows': 5,
         })
     )

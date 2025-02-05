@@ -549,7 +549,6 @@ function updateTopicSelectMenu(formTopicId){
             placeholderOption.selected = true;
             selectTopics.appendChild(placeholderOption);
             
-            //selectTopics.innerHTML = '<option value="" selected ="">---------</option>';
             data.topics.forEach(topic => {
                 const option = document.createElement('option');
                 option.value = topic.id;
@@ -2142,6 +2141,7 @@ function loadQuestionsToAddExplanationForm() {
 function loadChoicesToAddExplanationForm(){
     const questionMenu = document.getElementById('question-for-add-explanation');
     const selectedQuestionId = questionMenu.value;
+    const addExplanationTextArea = document.getElementById('text-for-add-explanation');
 
     // get all the questions for the chosen subtopic
     const route = `/management/portal/load_choices/${selectedQuestionId}`;
@@ -2161,6 +2161,11 @@ function loadChoicesToAddExplanationForm(){
                 field.setAttribute('disabled', true);  
             });
 
+            // enable the textarea
+            addExplanationTextArea.removeAttribute('disabled');
+            addExplanationTextArea.focus();
+            addExplanationTextArea.value = '';
+
         }else{
             clearMessages();
             // errors
@@ -2174,6 +2179,7 @@ function loadChoicesToAddExplanationForm(){
 function addExplanation(){
     const topicMenu = document.getElementById('topic-for-add-explanation');
     const add_explanation_msg = document.getElementById('add-explanation-msg');
+    const addExplanationTextArea = document.getElementById('text-for-add-explanation');
 
     const route = `/management/portal/add_explanation`;
 
@@ -2198,6 +2204,9 @@ function addExplanation(){
         if (data.success){ 
             document.getElementById('add-explanation-form').reset(); // reset the form
             document.getElementById('choices-container').innerHTML = '';
+            addExplanationTextArea.setAttribute('disabled', 'disabled');
+            addExplanationTextArea.value = '';
+
             topicMenu.innerHTML = '';
             // Add placeholder option for topic menu
             placeholderOption = placeholderDefaultOption();
