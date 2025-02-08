@@ -70,15 +70,21 @@ def login_view(request):
         response['Pragma'] = 'no-cache'
         response['Expires'] = '0'
         return response
-        #return redirect("index")       
-        
+        #return redirect("index") 
+        #       
+@never_cache        
 def register(request):
+    if request.user.is_authenticated:
+        if request.user.is_superuser or request.user.is_staff:
+            return redirect('management_portal')
+        else:
+            return redirect('dashboard')
     
     if request.method == "POST":
-        username = request.POST["username"]
-        email = request.POST["email"]
-        password = request.POST["password"]
-        confirmation = request.POST["confirmation"]
+        username = request.POST.get("username", "").strip()
+        email = request.POST.get("email", "").strip()
+        password = request.POST.get("password", "").strip()
+        confirmation = request.POST.get("confirmation", "").strip()
 
         # pass the form data back to the user if there is a validation error
         # password information will not be passed back for security reasons
@@ -186,7 +192,12 @@ def register(request):
         
     
     else:
-        return render(request, "learners/register.html")
+        response = render(request, "learners/register.html")
+        response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        return response
+        #return render(request, "learners/register.html")
     
 def edit_profile(request):
     if request.method == 'POST':
