@@ -393,7 +393,6 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topi
                 return;
             }
         })
-
         
     }
 
@@ -417,9 +416,13 @@ function loadQuizLayout(subtopicId, topicId, buttonType){
             // Replace the entire document (both <head> and <body>)
             document.documentElement.innerHTML = data.quiz_layout_html;
 
+            // update the browser's URL without reloading the page (for the back and forward buttons)
+            const quizURL = `/quizes/home/quiz/${subtopicId}/`;
+            history.pushState({subtopicId: subtopicId, topicId: topicId}, '', quizURL);
+
             // attach progress bar event listeners
             attachProgressBarEventListeners();
-            console.log(buttonType);
+            
             // load the first quiz question if starting a new quiz
             if (buttonType === 'start' || buttonType === 'retake'){
                 loadQuizQuestionsAndAnswers(subtopicId, pageNumber=1);
@@ -453,6 +456,27 @@ function attachProgressBarEventListeners(){
             })
         })
     }
+}
+
+
+
+
+// manage the browser back and forward buttons
+window.onpopstate = function(event){
+    // user has visited a quiz page
+    if (event.state){
+        const subtopicId = event.state.subtopicId;
+        const topicId = event.state.topicId;
+        console.log(`Returning to quiz with Subtopic ID: ${subtopicId}, Topic ID: ${topicId}`);
+        if (window.location.pathname.includes('/quiz/')){
+           loadQuizLayout(subtopicId, topicId, 'resume');
+        } else {
+            window.location.href = '/quizes/home/';
+       }
+
+    } else {
+        window.location.href = '/quizes/home/';    
+   }
 }
 
 function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){

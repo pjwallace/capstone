@@ -2,23 +2,41 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError, transaction
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.messages import get_messages
+from django.views.decorators.cache import never_cache
 import re
 from .forms import ProfileForm
 from .models import User, Profile
 
 def index(request):
-    return render(request, 'learners/index.html')
+    if request.user.is_authenticated:
+        if request.user.is_superuser or request.user.is_staff:
+            return redirect('management_portal')
+        else:
+            return redirect('dashboard')
+        
+    response = render(request, 'learners/index.html')
+    response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
+    #return render(request, 'learners/index.html')
 
-def login_view(request):
+@never_cache
+def login_view(request):  
+    if request.user.is_authenticated:
+        if request.user.is_superuser or request.user.is_staff:
+            return redirect('management_portal')
+        else:
+            return redirect('dashboard')
+        
     if request.method == "POST":
 
         # Attempt to sign user in
-        username = request.POST["username"]
-        password = request.POST["password"]
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "").strip()
         context = {
             'username': username
         }
@@ -47,7 +65,12 @@ def login_view(request):
             return render(request, "learners/index.html", context)
         
     else:
-        return redirect("index")
+        response = render(request, "learners/index.html")
+        response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        return response
+        #return redirect("index")       
         
 def register(request):
     
