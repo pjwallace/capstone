@@ -19,11 +19,21 @@ document.addEventListener('DOMContentLoaded', function(){
     loadSubtopicsForQuizTopic();    
 }); 
 
-function loadSubtopicsForQuizTopic(){
+async function loadSubtopicsForQuizTopic(){
+    setTimeout(() => {
+        console.log("Topics in DOM:", document.querySelectorAll('.topics'));
+    }, 500);
     // add event listener to each topic in the sidebar
-    document.querySelectorAll('.topics').forEach(topicDiv =>{
-        topicDiv.addEventListener('click', function(e){
+    //document.querySelectorAll('.topics').forEach(topicDiv =>{
+    //    topicDiv.addEventListener('click', async function(e){
+    document.getElementById('dashboard-container').addEventListener('click', async function(e){           
+            const topicDiv = e.target.closest('.topics');
+            if (!topicDiv) return;
+
             e.preventDefault();
+
+            
+
             const topicId = topicDiv.dataset.topicId;
             const subtopicsContainer = document.getElementById('subtopicscontainer-' + topicId);
             const plusIcon = document.getElementById('plus-' + topicId);
@@ -34,152 +44,163 @@ function loadSubtopicsForQuizTopic(){
             if (subtopicsContainer.children.length > 0){
                 subtopicsContainer.innerHTML = '';
                 minusIcon.style.display = 'none';
-                plusIcon.style.display = 'block';               
-            }else{
+                plusIcon.style.display = 'block'; 
+                return;              
+            }
+
+            try {
                 // fetch subtopics for the chosen topic
                 route = `/quizes/home/get_subtopics_for_quiz/${topicId}`;
-                fetch(route)
-                .then(response => response.json())
-                .then(data =>{
-                    if (data.success){
-                        subtopicsContainer.innerHTML = '';
-                        minusIcon.style.display = 'block';
-                        plusIcon.style.display = 'none';
-                        
-                        minusIcon.style.display = 'block'; // Show the minus icon
-                        plusIcon.style.display = 'none';   // Hide the plus icon
+                const response = await fetch(route);
+                const data = await response.json();
+                              
+                if (data.success){
+                    subtopicsContainer.innerHTML = '';
+                    minusIcon.style.display = 'block';
+                    plusIcon.style.display = 'none';
+                    
+                    minusIcon.style.display = 'block'; // Show the minus icon
+                    plusIcon.style.display = 'none';   // Hide the plus icon
 
-                        // build the subtopic header columns
-                        const subtopicHeader = document.createElement('div');
-                        subtopicHeader.classList.add('row', 'column-header')
+                    // build the subtopic header columns
+                    const subtopicHeader = document.createElement('div');
+                    subtopicHeader.classList.add('row', 'column-header')
 
-                        // subtopic name
-                        const subtopicName = document.createElement('div');
-                        subtopicName.classList.add('col-md-4', 'col-sm-6');
-                        subtopicName.setAttribute('id', 'subtopic-header');
-                        const subtopicNameSpan = document.createElement('span');
-                        subtopicNameSpan.classList.add('header-span');
-                        subtopicNameSpan.setAttribute('id', 'subtopic-name');
-                        subtopicNameSpan.textContent = 'Subtopic';
-                        subtopicName.append(subtopicNameSpan);
-                        subtopicHeader.append(subtopicName);
+                    // subtopic name
+                    const subtopicName = document.createElement('div');
+                    subtopicName.classList.add('col-md-4', 'col-sm-6');
+                    subtopicName.setAttribute('id', 'subtopic-header');
+                    const subtopicNameSpan = document.createElement('span');
+                    subtopicNameSpan.classList.add('header-span');
+                    subtopicNameSpan.setAttribute('id', 'subtopic-name');
+                    subtopicNameSpan.textContent = 'Subtopic';
+                    subtopicName.append(subtopicNameSpan);
+                    subtopicHeader.append(subtopicName);
 
-                        // subtopic status
-                        const subtopicStatus = document.createElement('div');
-                        subtopicStatus.classList.add('col-md-2', 'col-sm-6');
-                        subtopicStatus.setAttribute('id', 'status-header');
-                        const subtopicStatusSpan = document.createElement('span');
-                        subtopicStatusSpan.classList.add('header-span');
-                        subtopicStatusSpan.setAttribute('id', 'subtopic-status');
-                        subtopicStatusSpan.textContent = 'Status';
-                        subtopicStatus.append(subtopicStatusSpan);
-                        subtopicHeader.append(subtopicStatus);
+                    // subtopic status
+                    const subtopicStatus = document.createElement('div');
+                    subtopicStatus.classList.add('col-md-2', 'col-sm-6');
+                    subtopicStatus.setAttribute('id', 'status-header');
+                    const subtopicStatusSpan = document.createElement('span');
+                    subtopicStatusSpan.classList.add('header-span');
+                    subtopicStatusSpan.setAttribute('id', 'subtopic-status');
+                    subtopicStatusSpan.textContent = 'Status';
+                    subtopicStatus.append(subtopicStatusSpan);
+                    subtopicHeader.append(subtopicStatus);
 
-                        // subtopic progress
-                        const subtopicProgress = document.createElement('div');
-                        subtopicProgress.classList.add('col-md-2', 'col-sm-6');
-                        subtopicProgress.setAttribute('id', 'progress-header');
-                        const subtopicProgressSpan = document.createElement('span');
-                        subtopicProgressSpan.classList.add('header-span');
-                        subtopicProgressSpan.setAttribute('id', 'subtopic-progress');
-                        subtopicProgressSpan.textContent = 'Progress';
-                        subtopicProgress.append(subtopicProgressSpan);
-                        subtopicHeader.append(subtopicProgress);
+                    // subtopic progress
+                    const subtopicProgress = document.createElement('div');
+                    subtopicProgress.classList.add('col-md-2', 'col-sm-6');
+                    subtopicProgress.setAttribute('id', 'progress-header');
+                    const subtopicProgressSpan = document.createElement('span');
+                    subtopicProgressSpan.classList.add('header-span');
+                    subtopicProgressSpan.setAttribute('id', 'subtopic-progress');
+                    subtopicProgressSpan.textContent = 'Progress';
+                    subtopicProgress.append(subtopicProgressSpan);
+                    subtopicHeader.append(subtopicProgress);
 
-                        // subtopic score
-                        const subtopicScore = document.createElement('div');
-                        subtopicScore.classList.add('col-md-2', 'col-sm-6');
-                        subtopicScore.setAttribute('id', 'score-header');
-                        const subtopicScoreSpan = document.createElement('span');
-                        subtopicScoreSpan.classList.add('header-span');
-                        subtopicScoreSpan.setAttribute('id', 'subtopic-score');
-                        subtopicScoreSpan.textContent = 'Score';
-                        subtopicScore.append(subtopicScoreSpan);
-                        subtopicHeader.append(subtopicScore);
+                    // subtopic score
+                    const subtopicScore = document.createElement('div');
+                    subtopicScore.classList.add('col-md-2', 'col-sm-6');
+                    subtopicScore.setAttribute('id', 'score-header');
+                    const subtopicScoreSpan = document.createElement('span');
+                    subtopicScoreSpan.classList.add('header-span');
+                    subtopicScoreSpan.setAttribute('id', 'subtopic-score');
+                    subtopicScoreSpan.textContent = 'Score';
+                    subtopicScore.append(subtopicScoreSpan);
+                    subtopicHeader.append(subtopicScore);
 
-                        // review/retake
-                        const subtopicReview = document.createElement('div');
-                        subtopicReview.classList.add('col-md-2', 'col-sm-6');
-                        subtopicReview.setAttribute('id', 'review-header');
-                        const subtopicReviewSpan = document.createElement('span');
-                        subtopicReviewSpan.classList.add('header-span');
-                        subtopicReviewSpan.setAttribute('id', 'subtopic-review');
-                        subtopicReviewSpan.textContent = 'Review/Retake';
-                        subtopicReview.append(subtopicReviewSpan);
-                        subtopicHeader.append(subtopicReview);
+                    // review/retake
+                    const subtopicReview = document.createElement('div');
+                    subtopicReview.classList.add('col-md-2', 'col-sm-6');
+                    subtopicReview.setAttribute('id', 'review-header');
+                    const subtopicReviewSpan = document.createElement('span');
+                    subtopicReviewSpan.classList.add('header-span');
+                    subtopicReviewSpan.setAttribute('id', 'subtopic-review');
+                    subtopicReviewSpan.textContent = 'Review/Retake';
+                    subtopicReview.append(subtopicReviewSpan);
+                    subtopicHeader.append(subtopicReview);
 
-                        // for mobile responsiveness, hide the progress and review/retake headers
-                        if (window.innerWidth <= 768) {
-                            subtopicProgress.style.display = 'none';
-                            subtopicReview.style.display = 'none';
-                        } else {
-                            subtopicProgress.style.display = '';
-                            subtopicReview.style.display = '';
-                        }
-
-                        subtopicsContainer.append(subtopicHeader);
-                       
-                        data.subtopic_data.forEach(subtopic =>{
-                            
-                            // Create a Bootstrap row div to hold the subtopic and other columns
-                            const subtopicRow = document.createElement('div');
-                            subtopicRow.classList.add('row', 'subtopics-row');
-                            subtopicRow.setAttribute('id', `subtopicrow-${subtopic.subtopic_id}`);
-
-                            // create div to hold the subtopic                         
-                            const subtopicDiv = document.createElement('div');                            
-                            subtopicDiv.setAttribute('id', `subtopic-${subtopic.subtopic_id}`);
-                            subtopicDiv.classList.add('col-md-4', 'col-sm-6', 'subtopics');
-                            subtopicDiv.setAttribute('data-subtopic-id', subtopic.subtopic_id);
-                            subtopicDiv.textContent = subtopic.subtopic_name;
-                            subtopicRow.appendChild(subtopicDiv);
-
-                            const subtopicId = subtopic.subtopic_id;
-                            const questionCount = subtopic.subtopic_question_count;
-                           
-                            // retrieve user progress data
-                            getProgressData(subtopicId)
-                                .then(progressData =>{
-                                    // set up the status column
-                                    statusColumn(subtopicRow, subtopicId, progressData, questionCount, topicId);
-
-                                    // set up the progress column
-                                    progressColumn(subtopicRow, progressData, questionCount);
-
-                                    // set up the score column
-                                    scoreColumn(subtopicRow, progressData, questionCount);
-
-                                    // set up the review column
-                                    reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topicId);
-
-                                    subtopicsContainer.appendChild(subtopicRow);
-                                })
-                                .catch(error => console.error('Error retrieving progress data:', error));                                                                                                        
-                        })
-                    }else{
-                        // errors
-                        let dashboard_msg = document.getElementById('dashboard-msg');
-                        dashboard_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" 
-                            role="alert">${data.messages[0].message}</div>`;
+                    // for mobile responsiveness, hide the progress and review/retake headers
+                    if (window.innerWidth <= 768) {
+                        subtopicProgress.style.display = 'none';
+                        subtopicReview.style.display = 'none';
+                    } else {
+                        subtopicProgress.style.display = '';
+                        subtopicReview.style.display = '';
                     }
 
-                })
-                .catch(error => console.error('Error retrieving subtopics:', error));
+                    subtopicsContainer.append(subtopicHeader);
+                    
+                    for (const subtopic of data.subtopic_data){
+                        
+                        // Create a Bootstrap row div to hold the subtopic and other columns
+                        const subtopicRow = document.createElement('div');
+                        subtopicRow.classList.add('row', 'subtopics-row');
+                        subtopicRow.setAttribute('id', `subtopicrow-${subtopic.subtopic_id}`);
+
+                        // create div to hold the subtopic                         
+                        const subtopicDiv = document.createElement('div');                            
+                        subtopicDiv.setAttribute('id', `subtopic-${subtopic.subtopic_id}`);
+                        subtopicDiv.classList.add('col-md-4', 'col-sm-6', 'subtopics');
+                        subtopicDiv.setAttribute('data-subtopic-id', subtopic.subtopic_id);
+                        subtopicDiv.textContent = subtopic.subtopic_name;
+                        subtopicRow.appendChild(subtopicDiv);
+
+                        const subtopicId = subtopic.subtopic_id;
+                        const questionCount = subtopic.subtopic_question_count;
+                        
+                        // retrieve user progress data
+                        const progressData = await getProgressData(subtopicId)
+                            
+                        // set up the status column
+                        statusColumn(subtopicRow, subtopicId, progressData, questionCount, topicId);
+
+                        // set up the progress column
+                        progressColumn(subtopicRow, progressData, questionCount);
+
+                        // set up the score column
+                        scoreColumn(subtopicRow, progressData, questionCount);
+
+                        // set up the review column
+                        reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topicId);
+
+                        subtopicsContainer.appendChild(subtopicRow);
+                                                                                                                                   
+                    }
+                    requestAnimationFrame(() => {
+                        document.getElementById('dashboard-container').style.display = 'none';
+                        document.getElementById('dashboard-container').offsetHeight; // Trigger reflow
+                        document.getElementById('dashboard-container').style.display = 'block';
+                    });
+                    
+                }else{
+                    // errors
+                    let dashboard_msg = document.getElementById('dashboard-msg');
+                    dashboard_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" 
+                        role="alert">${data.messages[0].message}</div>`;
+                }
+                
+            } catch (error) {
+                console.error('Error retrieving subtopics:', error);
             }
-        })
-    })    
+        //});
+    });    
 }
 
-function getProgressData(subtopicId){
+async function getProgressData(subtopicId){
     route = `/quizes/home/get_progress_data/${subtopicId}`;
-    return fetch(route)
-        .then(response => response.json())
-        .then(progressData =>{
-            return progressData;
-        }) 
-        .catch(error => {
-            console.error('Error fetching progress data:', error);
-        });   
+
+    try {
+        const response = await fetch(route);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return await response.json();  // This returns the parsed JSON as progressData
+    } catch (error) {
+        console.error('Error fetching progress data:', error);
+        return null;  // Return null so the caller knows there was an error
+    } 
 }
 
 function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topicId){

@@ -20,13 +20,17 @@ RETRIES = 3
 
 def dashboard(request):
     # Load topics that have subtopics with questions
-    topics = Topic.objects.filter(subtopics__questions__isnull=False).distinct()
+    #topics = Topic.objects.filter(is_visible=True)
+    topics = Topic.objects.filter(is_visible=True, subtopics__questions__isnull=False).distinct().order_by('display_order', 'id')
+    print(f'topics: {topics}')
     return render(request, 'quizes/dashboard.html', {'topics': topics})
 
 @login_required(login_url='login')
 def get_subtopics_for_quiz(request, topic_id):
     topic = get_object_or_404(Topic, id=topic_id)
-    subtopics = topic.subtopics.all().order_by('id')
+    #subtopics = topic.subtopics.all().order_by('display_order', 'id')
+    subtopics = topic.subtopics.filter(questions__isnull=False).distinct().order_by('display_order', 'id')
+    print(f'subtopics: {subtopics}')
     if subtopics:
         subtopic_data = []
         for subtopic in subtopics:
@@ -45,6 +49,10 @@ def get_subtopics_for_quiz(request, topic_id):
 @login_required(login_url='login')
 def get_progress_data(request, subtopic_id):
     if request.method == 'GET':
+        # if a question has been deleted from the database, the questions_answered in the progress record
+        # may be greater than the actual number of questions. This will need to be adjusted.
+        
+
         # retrieve the unique user/subtopic_id progress record
         try:
             progress = Progress.objects.get(learner=request.user, subtopic_id=subtopic_id)

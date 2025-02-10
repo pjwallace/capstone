@@ -21,7 +21,6 @@ RETRY_DELAY = 1  # Delay in seconds
 
 def management_portal(request): 
     # load topics for sidebar
-    #topics = Topic.objects.all().order_by('display_order')
     topics = Topic.objects.filter(is_visible=True).order_by('display_order')
     
     # returning from dashboard
