@@ -182,13 +182,46 @@ body, html {
     width: 100%;
     font-size: medium;
 }
-/*
-.score-results span{
-    width: 45%;
-    text-align: left; 
-    margin-right: 60px;   
+/* Dialog box */
+dialog {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    padding: 20px;
+    max-width: 400px;
+    width: 90%;
 }
-*/
+
+dialog::backdrop {
+    background-color: rgba(0,0,0,0.5);
+}
+
+dialog h5 {
+    margin: 0 0 10px;
+    font-size: 1.25rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+dialog p {
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+
+.btn-close {
+    background-color: lightgray;
+    color: black;
+}
+
+
 
 /* Responsive layout for small screens */
 @media (max-width: 576px) {

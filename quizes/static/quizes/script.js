@@ -16,23 +16,48 @@ window.addEventListener('beforeunload', ()=>{
 });
 
 document.addEventListener('DOMContentLoaded', function(){
-    loadSubtopicsForQuizTopic();    
+    loadSubtopicsForQuizTopic(); 
+
+    // add eventlistener for a clicked button in the subtopics container (start, resume, review, retake)
+    document.getElementById('dashboard-container').addEventListener('click', function(e){
+        const clickedButton = e.target.closest('button');
+        if (!clickedButton) return;
+
+        const subtopicId = clickedButton.dataset.subtopicId;
+        if (!subtopicId) return;
+
+        const topicId = clickedButton.dataset.topicId;
+        if (!topicId) return;
+
+        const questionCount = clickedButton.dataset.questionCount;
+
+        // process the buttons
+        if (clickedButton.classList.contains('start')){
+            processStartButton(subtopicId, topicId, questionCount);
+        } else if (clickedButton.classList.contains('resume')){
+            processResumeButton(subtopicId, topicId, questionCount);
+        } else if (clickedButton.classList.contains('review')){
+            processReviewButton(subtopicId, topicId);
+        } else if (clickedButton.classList.contains('retake')){
+            setupRetakeQuizDialog(subtopicId, topicId, questionCount);
+        }
+    });
+    document.getElementById('dashboard-container').addEventListener('click', function(e){
+        if (e.target.tagName === 'BUTTON' && e.target.id === 'cancel-button'){
+            cancelRetakeQuizDialog();
+        }
+        if (e.target.tagName === 'BUTTON' && e.target.id === 'confirm-quiz-retake-button'){
+            processRetakeButton();
+        }
+    });
 }); 
 
 async function loadSubtopicsForQuizTopic(){
-    setTimeout(() => {
-        console.log("Topics in DOM:", document.querySelectorAll('.topics'));
-    }, 500);
-    // add event listener to each topic in the sidebar
-    //document.querySelectorAll('.topics').forEach(topicDiv =>{
-    //    topicDiv.addEventListener('click', async function(e){
     document.getElementById('dashboard-container').addEventListener('click', async function(e){           
             const topicDiv = e.target.closest('.topics');
             if (!topicDiv) return;
 
             e.preventDefault();
-
-            
 
             const topicId = topicDiv.dataset.topicId;
             const subtopicsContainer = document.getElementById('subtopicscontainer-' + topicId);
@@ -212,38 +237,38 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         const startButton = document.createElement('button');
         startButton.type = 'button';
         startButton.setAttribute('id', `start-${subtopicId}`);
-        startButton.classList.add('btn', 'btn-success', 'btn-sm');
-        startButton.setAttribute('data-subtopic-id', subtopicId);
+        startButton.classList.add('btn', 'btn-success', 'btn-sm', 'start');
+        startButton.dataset.subtopicId = subtopicId;
+        startButton.dataset.topicId = topicId;
+        startButton.dataset.questionCount = questionCount;
         startButton.textContent = 'Start';
         statusDiv.append(startButton);
         subtopicRow.append(statusDiv);
 
         // add event listener to start button
-        startButton.addEventListener('click', function(e){
-            e.preventDefault;
-            quizState.questionCount = questionCount;
-            let buttonType = 'start';
-            loadQuizLayout(subtopicId, topicId, buttonType);
-        })
+        //startButton.addEventListener('click', function(e){
+        //    e.preventDefault;
+        //    quizState.questionCount = questionCount;
+        //    let buttonType = 'start';
+        //    loadQuizLayout(subtopicId, topicId, buttonType);
+        //})
 
     // resume quiz button
     }else if (progressData.progress_exists == 'yes' && questionCount != progressData.questions_answered){
         const resumeButton = document.createElement('button');
         resumeButton.type = 'button';
         resumeButton.setAttribute('id', `review-${subtopicId}`);
-        resumeButton.classList.add('btn', 'btn-primary', 'btn-sm');
-        resumeButton.setAttribute('data-subtopic-id', subtopicId);
+        resumeButton.classList.add('btn', 'btn-primary', 'btn-sm', 'resume');
+        resumeButton.dataset.subtopicId = subtopicId;
+        resumeButton.dataset.topicId = topicId;
+        resumeButton.dataset.questionCount = questionCount;
         resumeButton.textContent = 'Resume';
         statusDiv.append(resumeButton);
         subtopicRow.append(statusDiv);
 
-        // add event listener to resume button
-        resumeButton.addEventListener('click', function(e){
-            e.preventDefault();
-            quizState.questionCount = questionCount;
-            let buttonType = 'resume';
-            loadQuizLayout(subtopicId, topicId, buttonType);
-        })
+        //console.log(questionCount);
+        //quizState.questionCount = questionCount;
+        
 
     // Display quiz complete text
     }else if (progressData.progress_exists == 'yes' && questionCount == progressData.questions_answered){
@@ -254,6 +279,18 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         statusDiv.appendChild(completeText);
         subtopicRow.append(statusDiv);
     }
+}
+
+function processStartButton(subtopicId, topicId, questionCount){
+    quizState.questionCount = questionCount;
+    let buttonType = 'start';
+    loadQuizLayout(subtopicId, topicId, buttonType);
+}
+
+function processResumeButton(subtopicId, topicId, questionCount){
+    quizState.questionCount = questionCount;
+    let buttonType = 'resume';
+    loadQuizLayout(subtopicId, topicId, buttonType);    
 }
 
 function progressColumn(subtopicRow, progressData, questionCount){
@@ -383,37 +420,44 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         // review button
         const reviewButton = document.createElement('button');
         reviewButton.type = 'button';
-        reviewButton.classList.add('btn', 'btn-info', 'btn-sm');
-        reviewButton.setAttribute('id', `review-${subtopicId}`)
+        reviewButton.classList.add('btn', 'btn-info', 'btn-sm', 'review');
+        reviewButton.setAttribute('id', `review-${subtopicId}`);
+        reviewButton.dataset.subtopicId = subtopicId;
+        reviewButton.dataset.topicId = topicId;
         reviewButton.textContent = 'Review';
         reviewDiv.appendChild(reviewButton);
 
         // add event listener to resume button
-        reviewButton.addEventListener('click', function(e){
-            e.preventDefault();
-            const buttonType = 'review';
-            loadQuizLayout(subtopicId, topicId, buttonType);
-        })
+        //reviewButton.addEventListener('click', function(e){
+        //    e.preventDefault();
+        //    const buttonType = 'review';
+        //    loadQuizLayout(subtopicId, topicId, buttonType);
+        //})
 
         // retake button
         const retakeButton = document.createElement('button');
         retakeButton.type = 'button';
-        retakeButton.classList.add('btn', 'btn-danger', 'btn-sm');
-        retakeButton.setAttribute('id', `retake-${subtopicId}`)
+        retakeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'retake');
+        retakeButton.setAttribute('id', `retake-${subtopicId}`);
+        retakeButton.dataset.subtopicId = subtopicId;
+        retakeButton.dataset.topicId = topicId;
+        retakeButton.dataset.questionCount = questionCount;
         retakeButton.textContent = 'Retake';
         reviewDiv.appendChild(retakeButton);
 
-        retakeButton.addEventListener('click', function(e){
-            e.preventDefault();
-            const retakeConfirmed = confirm('Are you sure you want to retake this quiz? This will delete your current answers.')
+        //quizState.questionCount = questionCount;
 
-            if (retakeConfirmed){
-                quizState.questionCount = questionCount;
-                retakeQuiz(subtopicId, topicId);   
-            } else {
-                return;
-            }
-        })
+        //retakeButton.addEventListener('click', function(e){
+        //    e.preventDefault();
+        //    const retakeConfirmed = confirm('Are you sure you want to retake this quiz? This will delete your current answers.')
+
+        //    if (retakeConfirmed){
+        //        quizState.questionCount = questionCount;
+        //        retakeQuiz(subtopicId, topicId);   
+        //    } else {
+        //        return;
+        //    }
+        //})
         
     }
 
@@ -425,6 +469,42 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topi
     }
 
     subtopicRow.appendChild(reviewDiv);
+}
+
+function processReviewButton(subtopicId, topicId){
+    let buttonType = 'review';
+    loadQuizLayout(subtopicId, topicId, buttonType);    
+}
+
+function setupRetakeQuizDialog(subtopicId, topicId, questionCount){
+    const dialogElement = document.getElementById('confirm-retake-quiz-dialog');
+    if (!dialogElement){
+        console.error('Dialog element with ID confirm-retake-quiz-dialog not found.');
+        return;
+    }
+    // add subtopicId, topicId, and questionCount data attributes to confirm quiz retake button
+    confirmQuizRetakeButton = document.getElementById('confirm-quiz-retake-button');
+    confirmQuizRetakeButton.dataset.subtopicId = subtopicId;
+    confirmQuizRetakeButton.dataset.topicId = topicId;
+    confirmQuizRetakeButton.dataset.questionCount = questionCount;
+    dialogElement.showModal();
+}
+
+function cancelRetakeQuizDialog(){
+    const dialogElement = document.getElementById('confirm-retake-quiz-dialog');
+    if (!dialogElement){
+        console.error('Dialog element with ID confirm-retake-quiz-dialog not found.');
+        return;
+    }
+    dialogElement.close();
+}
+
+function processRetakeButton(subtopicId, topicId){
+    confirmQuizRetakeButton = document.getElementById('confirm-quiz-retake-button');
+    subtopicId = confirmQuizRetakeButton.dataset.subtopicId;
+    topicId = confirmQuizRetakeButton.dataset.topicId;  
+    questionCount = confirmQuizRetakeButton.dataset.questionCount;
+    retakeQuiz(subtopicId, topicId, questionCount); 
 }
 
 function loadQuizLayout(subtopicId, topicId, buttonType){
@@ -779,7 +859,7 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
             await loadQuizQuestionExplanation(questionId, subtopicId);          
             
 
-            //console.log(`questionsAnswered: ${quizState.questionsAnswered}, questionCount: ${quizState.questionCount}`);
+            console.log(`questionsAnswered: ${quizState.questionsAnswered}, questionCount: ${quizState.questionCount}`);
             if (!previouslyAnswered){
                 // if the quiz is complete
                 if (quizState.questionCount == quizState.questionsAnswered){
@@ -1159,7 +1239,7 @@ function displayQuizScore(quizScoreHTML){
 
 }
 
-function retakeQuiz(subtopicId, topicId){
+function retakeQuiz(subtopicId, topicId, questionCount){
     const route = `/quizes/home/delete_student_answers/${subtopicId}`; 
     const buttonType = 'retake';
     
@@ -1176,6 +1256,7 @@ function retakeQuiz(subtopicId, topicId){
     .then(response => response.json())
     .then(data => {
         if (data.success){
+            quizState.questionCount = questionCount;
             loadQuizLayout(subtopicId, topicId, buttonType);
 
         }else{

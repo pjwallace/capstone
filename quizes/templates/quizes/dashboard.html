@@ -99,36 +99,19 @@
                      
                 </div>
 
-                <!-- 
-                <div class="modal" id="confirm-retake-quiz-modal" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">
-                                    Retake Self-Assessment
-                                </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="close">                                
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <p>You can retake this Self-Assessment as many times as you like.
-                                    If you continue, your last attempt will be deleted. Your initial
-                                    score will still be kept.
-                                </p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Cancel
-                                </button>
-                                <button type="button" class="btn btn-danger" id="confirm-retake-quiz-button">
-                                    Retake
-                                </button>
-                            </div>
-                        </div>
+                <!-- Confirmation Dialog-->
+                <dialog id="confirm-retake-quiz-dialog">
+                    <h5>Confirm Quiz Retake</h5>
+
+                    <p>You can retake this Quiz as many times as you like.
+                        If you continue, your last attempt will be deleted. Your initial
+                        score will still be kept.</p>
+
+                    <div class="dialog-buttons">
+                        <button type="button" id="cancel-button" class="btn btn-close"></button>
+                        <button type="button" id="confirm-quiz-retake-button" class="btn btn-primary">Retake</button>
                     </div>
-                </div>
-                -->
+                </dialog>
             
             </div>
         </div>
