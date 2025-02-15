@@ -71,6 +71,11 @@ body, html {
     color: green;
 }
 
+#progress-container a:hover,
+#progress-container a:focus {
+    color: #FFD700;
+}
+
 #quiz-page-container{
     display: flex;
     margin-left: 170px;
@@ -124,21 +129,23 @@ body, html {
 }
 
 .quiz-question p{
-    font-size: 20px;
+    font-family: 'Merriweather', serif; 
+    font-size: 1.2rem; 
 }
 
 .choice-container{
     margin-bottom: 10px;
     padding-left: 30px;
+    font-family: 'Lato', sans-serif;
 }
 
 .choice-container input[type="radio"] {
-    transform: scale(1.5); /* Increase the scale value to make the radio button larger */
+    transform: scale(1.6); /* Increase the scale value to make the radio button larger */
     margin-right: 10px; 
 }
 
 .choice-container input[type="checkbox"] {
-    transform: scale(1.5); /* Increase the scale value to make the radio button larger */
+    transform: scale(1.6); /* Increase the scale value to make the radio button larger */
     margin-right: 10px; 
 }
 

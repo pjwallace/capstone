@@ -211,8 +211,13 @@ dialog p {
 .dialog-buttons {
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 50px;
     margin-top: 20px;
+}
+
+.dialog-buttons .btn {
+    padding: 10px 15px;
+    margin-right: 30px;
 }
 
 

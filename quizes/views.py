@@ -540,6 +540,8 @@ def delete_student_answers(request, subtopic_id):
                 "messages": [{"message": f"An error occurred: {str(e)}",
                               "tags": "danger"}]   
             }, status=500)
+        
+
 
 
 

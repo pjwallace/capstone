@@ -518,8 +518,9 @@ function loadQuizLayout(subtopicId, topicId, buttonType){
             document.documentElement.innerHTML = data.quiz_layout_html;
 
             // update the browser's URL without reloading the page (for the back and forward buttons)
-            const quizURL = `/quizes/home/quiz/${subtopicId}/`;
-            history.pushState({subtopicId: subtopicId, topicId: topicId}, '', quizURL);
+            //const quizURL = `quizes/home/quiz/${subtopicId}/`;
+            //history.pushState({subtopicId: subtopicId, topicId: topicId}, '', quizURL);
+            
 
             // attach progress bar event listeners
             attachProgressBarEventListeners();
@@ -859,7 +860,7 @@ async function processQuizQuestion(selectedAnswers, previouslyAnswered){
             await loadQuizQuestionExplanation(questionId, subtopicId);          
             
 
-            console.log(`questionsAnswered: ${quizState.questionsAnswered}, questionCount: ${quizState.questionCount}`);
+            //console.log(`questionsAnswered: ${quizState.questionsAnswered}, questionCount: ${quizState.questionCount}`);
             if (!previouslyAnswered){
                 // if the quiz is complete
                 if (quizState.questionCount == quizState.questionsAnswered){
