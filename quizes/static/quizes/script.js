@@ -245,14 +245,6 @@ function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         statusDiv.append(startButton);
         subtopicRow.append(statusDiv);
 
-        // add event listener to start button
-        //startButton.addEventListener('click', function(e){
-        //    e.preventDefault;
-        //    quizState.questionCount = questionCount;
-        //    let buttonType = 'start';
-        //    loadQuizLayout(subtopicId, topicId, buttonType);
-        //})
-
     // resume quiz button
     }else if (progressData.progress_exists == 'yes' && questionCount != progressData.questions_answered){
         const resumeButton = document.createElement('button');
