@@ -106,6 +106,7 @@ Once a quiz is started or resumed, the student is taken to the quiz page. This p
       - `created_by`
       - `date_modified`
       - `modified_by` 
+      - `display_order`
 
      5.`Choice`: Answer choices are defined for a topic/subtopic/question combination.
       - `question`: `ForeignKey(Question)`
@@ -123,7 +124,7 @@ Once a quiz is started or resumed, the student is taken to the quiz page. This p
       - `created_by`
       - `date_modified`
       - `modified_by`
-    - `urls.py`: Consists of 29 paths to python views.
+    - `urls.py`: Consists of all paths to python views.
     - `validation.py`: Validates question and answer choices.
     - `views.py`: Updates the database when add, change, and delete forms are submitted.
 
