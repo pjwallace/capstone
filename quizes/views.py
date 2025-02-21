@@ -49,8 +49,6 @@ def get_subtopics_for_quiz(request, topic_id):
 @login_required(login_url='login')
 def get_progress_data(request, subtopic_id):
     if request.method == 'GET':
-        # if a question has been deleted from the database, the questions_answered in the progress record
-        # may be greater than the actual number of questions. This will need to be adjusted.
         
 
         # retrieve the unique user/subtopic_id progress record
