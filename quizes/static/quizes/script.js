@@ -88,74 +88,74 @@ async function loadSubtopicsForQuizTopic(){
                     plusIcon.style.display = 'none';   // Hide the plus icon
 
                     // build the subtopic header columns
-                    const subtopicHeader = document.createElement('div');
-                    subtopicHeader.classList.add('row', 'column-header')
+                    //const subtopicHeader = document.createElement('div');
+                    //subtopicHeader.classList.add('row', 'column-header')
 
                     // subtopic name
-                    const subtopicName = document.createElement('div');
-                    subtopicName.classList.add('col-md-4', 'col-sm-6');
-                    subtopicName.setAttribute('id', 'subtopic-header');
-                    const subtopicNameSpan = document.createElement('span');
-                    subtopicNameSpan.classList.add('header-span');
-                    subtopicNameSpan.setAttribute('id', 'subtopic-name');
-                    subtopicNameSpan.textContent = 'Subtopic';
-                    subtopicName.append(subtopicNameSpan);
-                    subtopicHeader.append(subtopicName);
+                    //const subtopicName = document.createElement('div');
+                    //subtopicName.classList.add('col-md-4', 'col-sm-6');
+                    //subtopicName.setAttribute('id', 'subtopic-header');
+                    //const subtopicNameSpan = document.createElement('span');
+                    //subtopicNameSpan.classList.add('header-span');
+                    //subtopicNameSpan.setAttribute('id', 'subtopic-name');
+                    //subtopicNameSpan.textContent = 'Subtopic';
+                    //subtopicName.append(subtopicNameSpan);
+                    //subtopicHeader.append(subtopicName);
 
                     // subtopic status
-                    const subtopicStatus = document.createElement('div');
-                    subtopicStatus.classList.add('col-md-2', 'col-sm-6');
-                    subtopicStatus.setAttribute('id', 'status-header');
-                    const subtopicStatusSpan = document.createElement('span');
-                    subtopicStatusSpan.classList.add('header-span');
-                    subtopicStatusSpan.setAttribute('id', 'subtopic-status');
-                    subtopicStatusSpan.textContent = 'Status';
-                    subtopicStatus.append(subtopicStatusSpan);
-                    subtopicHeader.append(subtopicStatus);
+                    //const subtopicStatus = document.createElement('div');
+                    //subtopicStatus.classList.add('col-md-2', 'col-sm-6');
+                    //subtopicStatus.setAttribute('id', 'status-header');
+                    //const subtopicStatusSpan = document.createElement('span');
+                    //subtopicStatusSpan.classList.add('header-span');
+                    //subtopicStatusSpan.setAttribute('id', 'subtopic-status');
+                    //subtopicStatusSpan.textContent = 'Status';
+                    //subtopicStatus.append(subtopicStatusSpan);
+                    //subtopicHeader.append(subtopicStatus);
 
                     // subtopic progress
-                    const subtopicProgress = document.createElement('div');
-                    subtopicProgress.classList.add('col-md-2', 'col-sm-6');
-                    subtopicProgress.setAttribute('id', 'progress-header');
-                    const subtopicProgressSpan = document.createElement('span');
-                    subtopicProgressSpan.classList.add('header-span');
-                    subtopicProgressSpan.setAttribute('id', 'subtopic-progress');
-                    subtopicProgressSpan.textContent = 'Progress';
-                    subtopicProgress.append(subtopicProgressSpan);
-                    subtopicHeader.append(subtopicProgress);
+                    //const subtopicProgress = document.createElement('div');
+                    //subtopicProgress.classList.add('col-md-2', 'col-sm-6');
+                    //subtopicProgress.setAttribute('id', 'progress-header');
+                    //const subtopicProgressSpan = document.createElement('span');
+                    //subtopicProgressSpan.classList.add('header-span');
+                    //subtopicProgressSpan.setAttribute('id', 'subtopic-progress');
+                    //subtopicProgressSpan.textContent = 'Progress';
+                    //subtopicProgress.append(subtopicProgressSpan);
+                    //subtopicHeader.append(subtopicProgress);
 
                     // subtopic score
-                    const subtopicScore = document.createElement('div');
-                    subtopicScore.classList.add('col-md-2', 'col-sm-6');
-                    subtopicScore.setAttribute('id', 'score-header');
-                    const subtopicScoreSpan = document.createElement('span');
-                    subtopicScoreSpan.classList.add('header-span');
-                    subtopicScoreSpan.setAttribute('id', 'subtopic-score');
-                    subtopicScoreSpan.textContent = 'Score';
-                    subtopicScore.append(subtopicScoreSpan);
-                    subtopicHeader.append(subtopicScore);
+                    //const subtopicScore = document.createElement('div');
+                    //subtopicScore.classList.add('col-md-2', 'col-sm-6');
+                    //subtopicScore.setAttribute('id', 'score-header');
+                    //const subtopicScoreSpan = document.createElement('span');
+                    //subtopicScoreSpan.classList.add('header-span');
+                    //subtopicScoreSpan.setAttribute('id', 'subtopic-score');
+                    //subtopicScoreSpan.textContent = 'Score';
+                    //subtopicScore.append(subtopicScoreSpan);
+                    //subtopicHeader.append(subtopicScore);
 
                     // review/retake
-                    const subtopicReview = document.createElement('div');
-                    subtopicReview.classList.add('col-md-2', 'col-sm-6');
-                    subtopicReview.setAttribute('id', 'review-header');
-                    const subtopicReviewSpan = document.createElement('span');
-                    subtopicReviewSpan.classList.add('header-span');
-                    subtopicReviewSpan.setAttribute('id', 'subtopic-review');
-                    subtopicReviewSpan.textContent = 'Review/Retake';
-                    subtopicReview.append(subtopicReviewSpan);
-                    subtopicHeader.append(subtopicReview);
+                    //const subtopicReview = document.createElement('div');
+                    //subtopicReview.classList.add('col-md-2', 'col-sm-6');
+                    //subtopicReview.setAttribute('id', 'review-header');
+                    //const subtopicReviewSpan = document.createElement('span');
+                    //subtopicReviewSpan.classList.add('header-span');
+                    //subtopicReviewSpan.setAttribute('id', 'subtopic-review');
+                    //subtopicReviewSpan.textContent = 'Review/Retake';
+                    //subtopicReview.append(subtopicReviewSpan);
+                    //subtopicHeader.append(subtopicReview);
 
                     // for mobile responsiveness, hide the progress and review/retake headers
-                    if (window.innerWidth <= 768) {
-                        subtopicProgress.style.display = 'none';
-                        subtopicReview.style.display = 'none';
-                    } else {
-                        subtopicProgress.style.display = '';
-                        subtopicReview.style.display = '';
-                    }
+                    //if (window.innerWidth <= 768) {
+                    //    subtopicProgress.style.display = 'none';
+                    //    subtopicReview.style.display = 'none';
+                    //} else {
+                    //    subtopicProgress.style.display = '';
+                    //    subtopicReview.style.display = '';
+                    //}
 
-                    subtopicsContainer.append(subtopicHeader);
+                    //subtopicsContainer.append(subtopicHeader);
                     
                     for (const subtopic of data.subtopic_data){
                         
