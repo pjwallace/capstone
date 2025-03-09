@@ -4,7 +4,11 @@ from . import views
 urlpatterns = [
      path("", views.dashboard, name="dashboard"),
      path("get_subtopics_for_quiz/<int:topic_id>", views.get_subtopics_for_quiz, name="get_subtopics_for_quiz"),
-     path("get_progress_data/<int:subtopic_id>", views.get_progress_data, name="get_progress_data"),
+     path("start_quiz/<int:subtopic_id>/<int:topic_id>", views.start_quiz, name="start_quiz"),
+     path("resume_quiz/<int:subtopic_id>/<int:topic_id>", views.resume_quiz, name="resume_quiz"),
+     path("review_quiz/<int:subtopic_id>/<int:topic_id>", views.review_quiz, name="review_quiz"),
+     path("retake_quiz/<int:subtopic_id>/<int:topic_id>", views.retake_quiz, name="retake_quiz"),
+     #path("get_progress_data/<int:subtopic_id>", views.get_progress_data, name="get_progress_data"),
      path("load_quiz_layout/<int:subtopic_id>/<int:topic_id>", views.load_quiz_layout, name="load_quiz_layout"),
      path("load_quiz_questions_and_answers/<int:subtopic_id>", views.load_quiz_questions_and_answers, 
           name="load_quiz_questions_and_answers"),

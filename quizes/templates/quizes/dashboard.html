@@ -82,46 +82,126 @@
                             <div class="col-md-12 col-sm-12 topics-list topics" id="topic-{{ topic.id }}" 
                                     data-topic-id="{{ topic.id }}">
                                     <span>
-                                        <i class="fa fa-regular fa-plus" id="plus-{{ topic.id }}"></i>
+                                        <i class="fa fa-regular fa-plus" id="plus-{{ topic.id }}"
+                                            style="display: block;"></i>
                                         <i class="fa fa-regular fa-minus" id="minus-{{ topic.id }}" 
-                                                style="display: none;"></i>
+                                            style="display: none;"></i>
                                     </span>
                                 <span>{{ topic.name }}</span>                                    
                             </div>
-                          
-                            <!-- subtopics list-->
-                            <div class="subtopics-list" id="subtopicscontainer-{{ topic.id }}">
-                                <!-- subtopics header-->
-                                 <div class="row column-header">
-                                    <div class="col-md-4 col-sm-6" id="subtopic-header">
-                                        <span class="header-span" id="subtopic-name">
-                                            Subtopic
-                                        </span>
+
+                            {% if topic.filtered_subtopics %}
+                                <!-- subtopics list-->
+                                <div class="subtopics-list" id="subtopicscontainer-{{ topic.id }}"
+                                    style="display: none;">
+                                    <!-- subtopics header-->
+                                    <div class="row column-header">
+                                        <div class="col-md-4 col-sm-6" id="subtopic-header">
+                                            <span class="header-span" id="subtopic-name">
+                                                Subtopic
+                                            </span>
+                                        </div>
+                                        <div class="col-md-2 col-sm-6" id="status-header">
+                                            <span class="header-span" id="subtopic-status">
+                                                Status
+                                            </span>
+                                        </div>
+                                        <div class="col-md-2 col-sm-6" id="progress-header">
+                                            <span class="header-span" id="subtopic-progress">
+                                                Progress
+                                            </span>
+                                        </div>
+                                        <div class="col-md-2 col-sm-6" id="score-header">
+                                            <span class="header-span" id="subtopic-score">
+                                                Score
+                                            </span>
+                                        </div>
+                                        <div class="col-md-4 col-sm-6" id="review-header">
+                                            <span class="header-span" id="subtopic-review">
+                                                Review/Retake
+                                            </span>
+                                        </div>                                    
                                     </div>
-                                    <div class="col-md-2 col-sm-6" id="status-header">
-                                        <span class="header-span" id="subtopic-status">
-                                            Status
-                                        </span>
-                                    </div>
-                                    <div class="col-md-2 col-sm-6" id="progress-header">
-                                        <span class="header-span" id="subtopic-progress">
-                                            Progress
-                                        </span>
-                                    </div>
-                                    <div class="col-md-2 col-sm-6" id="score-header">
-                                        <span class="header-span" id="subtopic-score">
-                                            Score
-                                        </span>
-                                    </div>
-                                    <div class="col-md-4 col-sm-6" id="review-header">
-                                        <span class="header-span" id="subtopic-review">
-                                            Review/Retake
-                                        </span>
-                                    </div>                                    
+                                    {% for subtopic in topic.filtered_subtopics %}
+                                        <div class="row subtopics-row">
+                                            <div class="col-md-4 col-sm-6 subtopics">
+                                                <span>{{ subtopic.name }}</span>
+                                            </div>
+                                            <!-- status column-->
+                                            <div class="col-md-2 col-sm-6 status-column">
+                                                {% if not subtopic.progress_record %}
+                                                    <!-- Quiz hasn't been attempted. Show start button-->                                                     
+                                                    <a href="{% url 'start_quiz' subtopic.id topic.id %}?question_count = {{ subtopic.question_count}}"
+                                                        class="btn btn-sm btn-success">Start</a>
+                                                                                                    
+                                                {% elif subtopic.progress_record.questions_answered < subtopic.question_count %}
+                                                    <!-- Quiz in progress. Show resume button-->
+                                                    <a href="{% url 'resume_quiz' subtopic.id topic.id %}?question_count={{ subtopic.question_count }}&questions_answered={{ subtopic.progress_record.questions_answered|default:0 }}"
+                                                    class="btn btn-sm btn-primary">
+                                                    Resume</a>
+
+                                                {% else %}
+                                                    <!-- Quiz complete-->
+                                                    <span>Complete</span>
+
+                                                {% endif %}
+                                            </div>
+                                            <!-- progress column -->
+                                            <div class="col-md-2 col-sm-6 progress-column">
+                                                {% if not subtopic.progress_record %}
+                                                    <span>Not Started</span>
+                                                {% else %}
+                                                    <div class="questions-text">
+                                                        <span>Questions</span>
+                                                        <span id="questions-progress">{{ subtopic.progress_record.questions_answered }}
+                                                            of {{ subtopic.question_count }}
+                                                        </span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <!-- score column -->
+                                            <div class="col-md-2 col-sm-6 score-column">
+                                                {% if not subtopic.progress_record %}
+                                                    <div class="score-dash">
+                                                        <i class="fa fa-solid fa-minus minus-bigger"></i>
+                                                        <i class="fa fa-solid fa-minus minus-bigger"></i>
+                                                    </div>
+                                                {% else %}
+                                                    <div>
+                                                        <div class="score-label">
+                                                            <span>Initial</span>
+                                                            <span>Latest</span>
+                                                        </div>
+                                                        <div class="score-results">
+                                                            <span>{{ subtopic.progress_record.initial_score|default:0 }}%</span>
+                                                            <span>{{ subtopic.progress_record.latest_score|default:0 }}%</span>
+                                                        </div>
+
+                                                    </div>
+                                                {% endif %}
+
+                                            </div>
+                                            <!-- review/retake column -->
+                                            <div class="col-md-2 col-sm-6 review-column">
+                                                {% if not subtopic.progress_record or subtopic.progress_record.questions_answered != subtopic.question_count %}
+                                                    <div class="review-minus">
+                                                        <i class="fa fa-solid fa-minus minus-bigger"></i>
+                                                    </div>
+                                                {% elif subtopic.progress_record and subtopic.progress_record.questions_answered == subtopic.question_count %}
+                                                    <!-- Review Button-->
+                                                    <a href="{% url 'review_quiz' subtopic.id topic.id %}"
+                                                        class="btn btn-sm btn-info">Review</a>
+                                                    <!-- Retake Button-->
+                                                    <a href="{% url 'retake_quiz' subtopic.id topic.id %}"
+                                                        class="btn btn-sm btn-danger">Retake</a>
+                                                {% endif %}
+                                            </div>
+                                        
+                                        </div>
+                                    {% endfor %}
+                            
                                 </div>
-                        
-                            </div>
-                        
+                            {% endif %}    
                         {% endfor %} 
                     </div>                      
                      

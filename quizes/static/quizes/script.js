@@ -19,29 +19,29 @@ document.addEventListener('DOMContentLoaded', function(){
     loadSubtopicsForQuizTopic(); 
 
     // add eventlistener for a clicked button in the subtopics container (start, resume, review, retake)
-    document.getElementById('dashboard-container').addEventListener('click', function(e){
-        const clickedButton = e.target.closest('button');
-        if (!clickedButton) return;
+    //document.getElementById('dashboard-container').addEventListener('click', function(e){
+    //    const clickedButton = e.target.closest('button');
+    //    if (!clickedButton) return;
 
-        const subtopicId = clickedButton.dataset.subtopicId;
-        if (!subtopicId) return;
+    //    const subtopicId = clickedButton.dataset.subtopicId;
+    //    if (!subtopicId) return;
 
-        const topicId = clickedButton.dataset.topicId;
-        if (!topicId) return;
+    //    const topicId = clickedButton.dataset.topicId;
+    //    if (!topicId) return;
 
-        const questionCount = clickedButton.dataset.questionCount;
+    //    const questionCount = clickedButton.dataset.questionCount;
 
         // process the buttons
-        if (clickedButton.classList.contains('start')){
-            processStartButton(subtopicId, topicId, questionCount);
-        } else if (clickedButton.classList.contains('resume')){
-            processResumeButton(subtopicId, topicId, questionCount);
-        } else if (clickedButton.classList.contains('review')){
-            processReviewButton(subtopicId, topicId);
-        } else if (clickedButton.classList.contains('retake')){
-            setupRetakeQuizDialog(subtopicId, topicId, questionCount);
-        }
-    });
+    //    if (clickedButton.classList.contains('start')){
+    //        processStartButton(subtopicId, topicId, questionCount);
+    //    } else if (clickedButton.classList.contains('resume')){
+    //        processResumeButton(subtopicId, topicId, questionCount);
+    //    } else if (clickedButton.classList.contains('review')){
+    //        processReviewButton(subtopicId, topicId);
+    //    } else if (clickedButton.classList.contains('retake')){
+    //        setupRetakeQuizDialog(subtopicId, topicId, questionCount);
+    //    }
+    //});
     document.getElementById('dashboard-container').addEventListener('click', function(e){
         if (e.target.tagName === 'BUTTON' && e.target.id === 'cancel-button'){
             cancelRetakeQuizDialog();
@@ -51,9 +51,8 @@ document.addEventListener('DOMContentLoaded', function(){
         }
     });
 }); 
-
-async function loadSubtopicsForQuizTopic(){
-    document.getElementById('dashboard-container').addEventListener('click', async function(e){           
+function loadSubtopicsForQuizTopic(){
+    document.getElementById('dashboard-container').addEventListener('click', function(e){           
             const topicDiv = e.target.closest('.topics');
             if (!topicDiv) return;
 
@@ -64,28 +63,32 @@ async function loadSubtopicsForQuizTopic(){
             const plusIcon = document.getElementById('plus-' + topicId);
             const minusIcon = document.getElementById('minus-' + topicId);
             
-            // if subtopics have been loaded, when the div is clicked they shouldn't be displayed
-            // and the plus sign should appear
-            if (subtopicsContainer.children.length > 0){
-                subtopicsContainer.innerHTML = '';
-                minusIcon.style.display = 'none';
-                plusIcon.style.display = 'block'; 
-                return;              
-            }
+            if (!subtopicsContainer || !plusIcon || !minusIcon) return;
 
-            try {
+            if (plusIcon.style.display === 'block'){
+                subtopicsContainer.style.display = 'block';
+                plusIcon.style.display = 'none';
+                minusIcon.style.display = 'block';
+            } else if (minusIcon.style.display === 'block'){
+                subtopicsContainer.style.display = 'none';
+                plusIcon.style.display = 'block';
+                minusIcon.style.display = 'none';
+            }             
+    })          
+}
+            //try {
                 // fetch subtopics for the chosen topic
-                route = `/quizes/home/get_subtopics_for_quiz/${topicId}`;
-                const response = await fetch(route);
-                const data = await response.json();
+            //    route = `/quizes/home/get_subtopics_for_quiz/${topicId}`;
+            //    const response = await fetch(route);
+            //    const data = await response.json();
                               
-                if (data.success){
-                    subtopicsContainer.innerHTML = '';
-                    minusIcon.style.display = 'block';
-                    plusIcon.style.display = 'none';
+            //    if (data.success){
+            //        subtopicsContainer.innerHTML = '';
+            //        minusIcon.style.display = 'block';
+            //        plusIcon.style.display = 'none';
                     
-                    minusIcon.style.display = 'block'; // Show the minus icon
-                    plusIcon.style.display = 'none';   // Hide the plus icon
+            //        minusIcon.style.display = 'block'; // Show the minus icon
+            //        plusIcon.style.display = 'none';   // Hide the plus icon
 
                     // build the subtopic header columns
                     //const subtopicHeader = document.createElement('div');
@@ -157,121 +160,121 @@ async function loadSubtopicsForQuizTopic(){
 
                     //subtopicsContainer.append(subtopicHeader);
                     
-                    for (const subtopic of data.subtopic_data){
+                    //for (const subtopic of data.subtopic_data){
                         
                         // Create a Bootstrap row div to hold the subtopic and other columns
-                        const subtopicRow = document.createElement('div');
-                        subtopicRow.classList.add('row', 'subtopics-row');
-                        subtopicRow.setAttribute('id', `subtopicrow-${subtopic.subtopic_id}`);
+                    //    const subtopicRow = document.createElement('div');
+                    //    subtopicRow.classList.add('row', 'subtopics-row');
+                    //    subtopicRow.setAttribute('id', `subtopicrow-${subtopic.subtopic_id}`);
 
                         // create div to hold the subtopic                         
-                        const subtopicDiv = document.createElement('div');                            
-                        subtopicDiv.setAttribute('id', `subtopic-${subtopic.subtopic_id}`);
-                        subtopicDiv.classList.add('col-md-4', 'col-sm-6', 'subtopics');
-                        subtopicDiv.setAttribute('data-subtopic-id', subtopic.subtopic_id);
-                        subtopicDiv.textContent = subtopic.subtopic_name;
-                        subtopicRow.appendChild(subtopicDiv);
+                    //    const subtopicDiv = document.createElement('div');                            
+                    //    subtopicDiv.setAttribute('id', `subtopic-${subtopic.subtopic_id}`);
+                    //    subtopicDiv.classList.add('col-md-4', 'col-sm-6', 'subtopics');
+                    //    subtopicDiv.setAttribute('data-subtopic-id', subtopic.subtopic_id);
+                    //    subtopicDiv.textContent = subtopic.subtopic_name;
+                    //    subtopicRow.appendChild(subtopicDiv);
 
-                        const subtopicId = subtopic.subtopic_id;
-                        const questionCount = subtopic.subtopic_question_count;
+                    //    const subtopicId = subtopic.subtopic_id;
+                    //    const questionCount = subtopic.subtopic_question_count;
                         
                         // retrieve user progress data
-                        const progressData = await getProgressData(subtopicId)
+                    //    const progressData = await getProgressData(subtopicId)
                             
                         // set up the status column
-                        statusColumn(subtopicRow, subtopicId, progressData, questionCount, topicId);
+                    //    statusColumn(subtopicRow, subtopicId, progressData, questionCount, topicId);
 
                         // set up the progress column
-                        progressColumn(subtopicRow, progressData, questionCount);
+                    //    progressColumn(subtopicRow, progressData, questionCount);
 
                         // set up the score column
-                        scoreColumn(subtopicRow, progressData, questionCount);
+                    //    scoreColumn(subtopicRow, progressData, questionCount);
 
                         // set up the review column
-                        reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topicId);
+                    //    reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topicId);
 
-                        subtopicsContainer.appendChild(subtopicRow);
+                    //    subtopicsContainer.appendChild(subtopicRow);
                                                                                                                                    
-                    }
-                    requestAnimationFrame(() => {
-                        document.getElementById('dashboard-container').style.display = 'none';
-                        document.getElementById('dashboard-container').offsetHeight; // Trigger reflow
-                        document.getElementById('dashboard-container').style.display = 'block';
-                    });
+                    //}
+                    //requestAnimationFrame(() => {
+                    //    document.getElementById('dashboard-container').style.display = 'none';
+                    //    document.getElementById('dashboard-container').offsetHeight; // Trigger reflow
+                    //    document.getElementById('dashboard-container').style.display = 'block';
+                    //});
                     
-                }else{
+                //}else{
                     // errors
-                    let dashboard_msg = document.getElementById('dashboard-msg');
-                    dashboard_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" 
-                        role="alert">${data.messages[0].message}</div>`;
-                }
+                //    let dashboard_msg = document.getElementById('dashboard-msg');
+                //    dashboard_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" 
+                //        role="alert">${data.messages[0].message}</div>`;
+                //}
                 
-            } catch (error) {
-                console.error('Error retrieving subtopics:', error);
-            }
+            //} catch (error) {
+            //    console.error('Error retrieving subtopics:', error);
+            //}
         //});
-    });    
-}
+    //});    
+//}
 
-async function getProgressData(subtopicId){
-    route = `/quizes/home/get_progress_data/${subtopicId}`;
+//async function getProgressData(subtopicId){
+//    route = `/quizes/home/get_progress_data/${subtopicId}`;
 
-    try {
-        const response = await fetch(route);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return await response.json();  // This returns the parsed JSON as progressData
-    } catch (error) {
-        console.error('Error fetching progress data:', error);
-        return null;  // Return null so the caller knows there was an error
-    } 
-}
+//    try {
+//        const response = await fetch(route);
+//       if (!response.ok) {
+//            throw new Error(`HTTP error! Status: ${response.status}`);
+//        }
+//        return await response.json();  // This returns the parsed JSON as progressData
+//    } catch (error) {
+//        console.error('Error fetching progress data:', error);
+//        return null;  // Return null so the caller knows there was an error
+//   } 
+//}
 
-function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topicId){
-    const statusDiv = document.createElement('div');
-    statusDiv.classList.add('col-md-2', 'col-sm-6', 'status-column');
+//function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topicId){
+//    const statusDiv = document.createElement('div');
+//    statusDiv.classList.add('col-md-2', 'col-sm-6', 'status-column');
 
     // display start button if a quiz hasn't been attempted yet
-    if (progressData.progress_exists == 'no'){
-        const startButton = document.createElement('button');
-        startButton.type = 'button';
-        startButton.setAttribute('id', `start-${subtopicId}`);
-        startButton.classList.add('btn', 'btn-success', 'btn-sm', 'start');
-        startButton.dataset.subtopicId = subtopicId;
-        startButton.dataset.topicId = topicId;
-        startButton.dataset.questionCount = questionCount;
-        startButton.textContent = 'Start';
-        statusDiv.append(startButton);
-        subtopicRow.append(statusDiv);
+//   if (progressData.progress_exists == 'no'){
+//        const startButton = document.createElement('button');
+//        startButton.type = 'button';
+//        startButton.setAttribute('id', `start-${subtopicId}`);
+//        startButton.classList.add('btn', 'btn-success', 'btn-sm', 'start');
+//        startButton.dataset.subtopicId = subtopicId;
+//       startButton.dataset.topicId = topicId;
+//        startButton.dataset.questionCount = questionCount;
+//        startButton.textContent = 'Start';
+//        statusDiv.append(startButton);
+//        subtopicRow.append(statusDiv);
 
     // resume quiz button
-    }else if (progressData.progress_exists == 'yes' && questionCount != progressData.questions_answered){
-        const resumeButton = document.createElement('button');
-        resumeButton.type = 'button';
-        resumeButton.setAttribute('id', `review-${subtopicId}`);
-        resumeButton.classList.add('btn', 'btn-primary', 'btn-sm', 'resume');
-        resumeButton.dataset.subtopicId = subtopicId;
-        resumeButton.dataset.topicId = topicId;
-        resumeButton.dataset.questionCount = questionCount;
-        resumeButton.textContent = 'Resume';
-        statusDiv.append(resumeButton);
-        subtopicRow.append(statusDiv);
+//    }else if (progressData.progress_exists == 'yes' && questionCount != progressData.questions_answered){
+//        const resumeButton = document.createElement('button');
+//        resumeButton.type = 'button';
+//        resumeButton.setAttribute('id', `review-${subtopicId}`);
+//        resumeButton.classList.add('btn', 'btn-primary', 'btn-sm', 'resume');
+//        resumeButton.dataset.subtopicId = subtopicId;
+//        resumeButton.dataset.topicId = topicId;
+//        resumeButton.dataset.questionCount = questionCount;
+//        resumeButton.textContent = 'Resume';
+//        statusDiv.append(resumeButton);
+//        subtopicRow.append(statusDiv);
 
         //console.log(questionCount);
         //quizState.questionCount = questionCount;
         
 
     // Display quiz complete text
-    }else if (progressData.progress_exists == 'yes' && questionCount == progressData.questions_answered){
-        // complete span
-        const completeText = document.createElement('span');
-        completeText.textContent = 'Complete';
-        completeText.id = 'complete-status';
-        statusDiv.appendChild(completeText);
-        subtopicRow.append(statusDiv);
-    }
-}
+//    }else if (progressData.progress_exists == 'yes' && questionCount == progressData.questions_answered){
+//        // complete span
+//        const completeText = document.createElement('span');
+//        completeText.textContent = 'Complete';
+//        completeText.id = 'complete-status';
+//        statusDiv.appendChild(completeText);
+//        subtopicRow.append(statusDiv);
+//    }
+//}
 
 function processStartButton(subtopicId, topicId, questionCount){
     quizState.questionCount = questionCount;
@@ -285,114 +288,114 @@ function processResumeButton(subtopicId, topicId, questionCount){
     loadQuizLayout(subtopicId, topicId, buttonType);    
 }
 
-function progressColumn(subtopicRow, progressData, questionCount){
-    const progressDiv = document.createElement('div');
-    progressDiv.classList.add('col-md-2', 'col-sm-6', 'progress-column');
+//function progressColumn(subtopicRow, progressData, questionCount){
+//    const progressDiv = document.createElement('div');
+//    progressDiv.classList.add('col-md-2', 'col-sm-6', 'progress-column');
 
     // Quiz not started yet
-    if (progressData.progress_exists == 'no'){
-        const progressDash = document.createElement('span');
-        progressDash.textContent = 'Not Started';
-        progressDiv.appendChild(progressDash);
+//    if (progressData.progress_exists == 'no'){
+//        const progressDash = document.createElement('span');
+//        progressDash.textContent = 'Not Started';
+//        progressDiv.appendChild(progressDash);
 
     // quiz in progress or completed
-    }else if (progressData.progress_exists == 'yes'){
-        const progressQuestionsText = document.createElement('div');
-        progressQuestionsText.setAttribute('class', 'questions-text');
+//    }else if (progressData.progress_exists == 'yes'){
+//        const progressQuestionsText = document.createElement('div');
+//        progressQuestionsText.setAttribute('class', 'questions-text');
 
         // create the first line 'Questions'
-        const questionLabel = document.createElement('span');
-        questionLabel.textContent = 'Questions';
-        progressQuestionsText.appendChild(questionLabel);
+//        const questionLabel = document.createElement('span');
+//        questionLabel.textContent = 'Questions';
+//        progressQuestionsText.appendChild(questionLabel);
 
         // create the second line 'number answered of total questions'
-        const questionsProgress = document.createElement('span');
-        questionsProgress.setAttribute('id', 'questions-progress');
-        questionsProgress.textContent = `${progressData.questions_answered} of ${questionCount}`;
-        progressQuestionsText.appendChild(questionsProgress);
+//        const questionsProgress = document.createElement('span');
+//        questionsProgress.setAttribute('id', 'questions-progress');
+//        questionsProgress.textContent = `${progressData.questions_answered} of ${questionCount}`;
+//        progressQuestionsText.appendChild(questionsProgress);
 
-        progressDiv.appendChild(progressQuestionsText);
-    }
+//        progressDiv.appendChild(progressQuestionsText);
+//    }
 
     // For mobile responsiveness, check screen size and hide if necessary
-    if (window.innerWidth <= 768) {
-        progressDiv.style.display = 'none';
-    } else {
-        progressDiv.style.display = '';
-    }
+//    if (window.innerWidth <= 768) {
+//        progressDiv.style.display = 'none';
+//    } else {
+//        progressDiv.style.display = '';
+//    }
 
-    subtopicRow.appendChild(progressDiv);
-}
+//    subtopicRow.appendChild(progressDiv);
+//}
 
-function scoreColumn(subtopicRow, progressData, questionCount){
-    const scoreDiv = document.createElement('div');
-    scoreDiv.classList.add('col-md-2', 'col-sm-6', 'score-column');
-    completeSpan = document.getElementById('complete-status');
+//function scoreColumn(subtopicRow, progressData, questionCount){
+//    const scoreDiv = document.createElement('div');
+//    scoreDiv.classList.add('col-md-2', 'col-sm-6', 'score-column');
+//    completeSpan = document.getElementById('complete-status');
     
-    if (progressData.progress_exists == 'no'){
+//    if (progressData.progress_exists == 'no'){
         // display 2 minus signs to indicate no score yet
-        const scoreDashes = document.createElement('div');
-        scoreDashes.setAttribute('class', 'score-dash');
+//        const scoreDashes = document.createElement('div');
+//        scoreDashes.setAttribute('class', 'score-dash');
 
-        const initialMinus = document.createElement('i');
-        initialMinus.classList.add('fa', 'fa-solid', 'fa-minus', 'minus-bigger');
+//       const initialMinus = document.createElement('i');
+//        initialMinus.classList.add('fa', 'fa-solid', 'fa-minus', 'minus-bigger');
         
-        const latestMinus = document.createElement('i');
-        latestMinus.classList.add('fa', 'fa-solid', 'fa-minus', 'minus-bigger');
+//        const latestMinus = document.createElement('i');
+//        latestMinus.classList.add('fa', 'fa-solid', 'fa-minus', 'minus-bigger');
+//
+//        scoreDashes.append(initialMinus);
+//        scoreDashes.append(latestMinus);
+//        scoreDiv.append(scoreDashes);
 
-        scoreDashes.append(initialMinus);
-        scoreDashes.append(latestMinus);
-        scoreDiv.append(scoreDashes);
-
-    }else if (progressData.progress_exists == 'yes'){
+//    }else if (progressData.progress_exists == 'yes'){
         // score container
-        const scoreText = document.createElement('div');
-        scoreText.setAttribute('class', 'score-text');
+//        const scoreText = document.createElement('div');
+//        scoreText.setAttribute('class', 'score-text');
 
         // first line 'inital     Latest'
-        const scoreLabel = document.createElement('div');
-        scoreLabel.setAttribute('class', 'score-label'); 
+//        const scoreLabel = document.createElement('div');
+//        scoreLabel.setAttribute('class', 'score-label'); 
 
-        const initialLabel = document.createElement('span');
-        initialLabel.textContent = 'Initial';
+//        const initialLabel = document.createElement('span');
+//        initialLabel.textContent = 'Initial';
 
-        const latestLabel = document.createElement('span');
-        latestLabel.textContent = 'Latest';
+//        const latestLabel = document.createElement('span');
+//        latestLabel.textContent = 'Latest';
 
-        scoreLabel.appendChild(initialLabel);
-        scoreLabel.appendChild(latestLabel);
-        scoreText.appendChild(scoreLabel);
+//        scoreLabel.appendChild(initialLabel);
+//        scoreLabel.appendChild(latestLabel);
+//        scoreText.appendChild(scoreLabel);
         
         // second line
-        const scoreResults = document.createElement('div');
-        scoreResults.setAttribute('class', 'score-results');
+//        const scoreResults = document.createElement('div');
+//        scoreResults.setAttribute('class', 'score-results');
 
-        const initialScore = document.createElement('span');
-        const initialScorePercent = progressData.initial_score;
-        initialScore.textContent = `${initialScorePercent}%`;
+//        const initialScore = document.createElement('span');
+//        const initialScorePercent = progressData.initial_score;
+//        initialScore.textContent = `${initialScorePercent}%`;
 
-        const latestScore = document.createElement('span');
-        const latestScorePercent = progressData.latest_score;
-        latestScore.textContent = `${latestScorePercent}%`;
+//        const latestScore = document.createElement('span');
+//        const latestScorePercent = progressData.latest_score;
+//        latestScore.textContent = `${latestScorePercent}%`;
 
-        scoreResults.appendChild(initialScore);
-        scoreResults.appendChild(latestScore);
-        scoreText.appendChild(scoreResults);
+//        scoreResults.appendChild(initialScore);
+//        scoreResults.appendChild(latestScore);
+//        scoreText.appendChild(scoreResults);
 
-        scoreDiv.appendChild(scoreText);
-    }
+////        scoreDiv.appendChild(scoreText);
+//    }
 
     // For mobile responsiveness, check screen size and hide if necessary
-    if (window.innerWidth <= 576) {
-        scoreDiv.style.display = 'none';
-    }  else if (window.innerWidth <= 768){
-        scoreDiv.style.display = 'flex';
-    } else {
-        scoreDiv.style.display = '';
-    }    
+//    if (window.innerWidth <= 576) {
+//        scoreDiv.style.display = 'none';
+//    }  else if (window.innerWidth <= 768){
+//        scoreDiv.style.display = 'flex';
+//    } else {
+//        scoreDiv.style.display = '';
+//    }    
 
-    subtopicRow.appendChild(scoreDiv);
-}
+//    subtopicRow.appendChild(scoreDiv);
+//}
 
 function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topicId){
     const reviewDiv = document.createElement('div');

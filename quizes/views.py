@@ -20,17 +20,49 @@ RETRIES = 3
 
 def dashboard(request):
     # Load topics that have subtopics with questions
-    #topics = Topic.objects.filter(is_visible=True)
     topics = Topic.objects.filter(is_visible=True, subtopics__questions__isnull=False).distinct().order_by('display_order', 'id')
-    print(f'topics: {topics}')
+    # retrieve topic subtopics
+    for topic in topics:
+        topic.filtered_subtopics = topic.subtopics.filter(is_visible =True, questions__isnull=False).distinct().order_by('display_order', 'id')
+        # retrieve progress record for each subtopic (if it exists)
+        for subtopic in topic.filtered_subtopics:
+            subtopic.question_count = subtopic.questions.count()
+            subtopic.progress_record = (
+                subtopic.progress.filter(learner=request.user)
+                .only("questions_answered", "initial_score", "latest_score").first()
+            )
     return render(request, 'quizes/dashboard.html', {'topics': topics})
+
+@login_required(login_url='login')
+def start_quiz(request, subtopic_id, topic_id):
+    #subtopic = get_object_or_404(Subtopic, id=subtopic_id)
+    #question_count = request.GET.get('question_count', 0)
+    #question_count = int(question_count)
+    pass
+
+@login_required(login_url='login')
+def resume_quiz(request, subtopic_id, topic_id):
+    #subtopic = get_object_or_404(Subtopic, id=subtopic_id)
+    #question_count = request.GET.get('question_count', 0)
+    #questions_answered = request.GET.get('questions_answered', 0)
+    #questions_answered = int(questions_answered)
+    #question_count = int(question_count)
+    pass
+
+@login_required(login_url='login')
+def review_quiz(request, subtopic_id, topic_id):
+    #subtopic = get_object_or_404(Subtopic, id=subtopic_id)
+    pass
+
+@login_required(login_url='login')
+def retake_quiz(request, subtopic_id, topic_id):
+    #subtopic = get_object_or_404(Subtopic, id=subtopic_id)
+    pass
 
 @login_required(login_url='login')
 def get_subtopics_for_quiz(request, topic_id):
     topic = get_object_or_404(Topic, id=topic_id)
-    #subtopics = topic.subtopics.all().order_by('display_order', 'id')
     subtopics = topic.subtopics.filter(questions__isnull=False).distinct().order_by('display_order', 'id')
-    print(f'subtopics: {subtopics}')
     if subtopics:
         subtopic_data = []
         for subtopic in subtopics:
@@ -46,26 +78,26 @@ def get_subtopics_for_quiz(request, topic_id):
         return JsonResponse({"success": False,  
                 "messages": [{"message": "Subtopic retrieval failed.", "tags": "danger"}]})
 
-@login_required(login_url='login')
-def get_progress_data(request, subtopic_id):
-    if request.method == 'GET':
+#login_required(login_url='login')
+#def get_progress_data(request, subtopic_id):
+#    if request.method == 'GET':
         
 
         # retrieve the unique user/subtopic_id progress record
-        try:
-            progress = Progress.objects.get(learner=request.user, subtopic_id=subtopic_id)
-            progress_data = {
-                'questions_answered': progress.questions_answered,
-                'initial_score': progress.initial_score if progress.initial_score is not None else 0,
-                'latest_score': progress.latest_score if progress.latest_score is not None else 0,
-                'progress_exists': 'yes'
-            }
-        except Progress.DoesNotExist:
-            progress_data = {
-                'progress_exists': 'no'
-            }
+#        try:
+#            progress = Progress.objects.get(learner=request.user, subtopic_id=subtopic_id)
+#            progress_data = {
+#                'questions_answered': progress.questions_answered,
+#                'initial_score': progress.initial_score if progress.initial_score is not None else 0,
+#                'latest_score': progress.latest_score if progress.latest_score is not None else 0,
+#                'progress_exists': 'yes'
+#            }
+#        except Progress.DoesNotExist:
+#           progress_data = {
+#               'progress_exists': 'no'
+#            }
 
-        return JsonResponse(progress_data)
+#        return JsonResponse(progress_data)
     
 @login_required(login_url='login')
 def load_quiz_layout(request, subtopic_id, topic_id):
