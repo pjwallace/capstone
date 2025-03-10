@@ -1,47 +1,46 @@
 // Define quizState globally with initial default values
-const quizState = {
-    hasNext: false,
-    hasPrevious: false,
-    pageNumber: 1,
-    totalPages: 0,
-    correctAnswers: 0,
-    incorrectAnswers: 0,
-    questionCount: 0,
-    questionsAnswered: 0,
-};
+//const quizState = {
+//    hasNext: false,
+//    hasPrevious: false,
+//    pageNumber: 1,
+//    totalPages: 0,
+//    correctAnswers: 0,
+////    incorrectAnswers: 0,
+//    questionCount: 0,
+//    questionsAnswered: 0,
+//};
 
 // reset quizState when leaving the quiz page
-window.addEventListener('beforeunload', ()=>{
-    initializeQuizState();
-});
+//window.addEventListener('beforeunload', ()=>{
+//    initializeQuizState();
+//});
 
 document.addEventListener('DOMContentLoaded', function(){
-    loadSubtopicsForQuizTopic(); 
+    const dashboardContainer = document.getElementById('dashboard-container');
+    if (dashboardContainer){
+        loadSubtopicsForQuizTopic();
+    }
+     
 
-    // add eventlistener for a clicked button in the subtopics container (start, resume, review, retake)
-    //document.getElementById('dashboard-container').addEventListener('click', function(e){
-    //    const clickedButton = e.target.closest('button');
-    //    if (!clickedButton) return;
+    // add eventlistener for a clicked retake button in the subtopics container
+    document.getElementById('dashboard-container').addEventListener('click', function(e){
+        const clickedButton = e.target.closest('button');
+        if (!clickedButton) return;
 
-    //    const subtopicId = clickedButton.dataset.subtopicId;
-    //    if (!subtopicId) return;
+        const subtopicId = clickedButton.dataset.subtopicId;
+        if (!subtopicId) return;
 
-    //    const topicId = clickedButton.dataset.topicId;
-    //    if (!topicId) return;
+        const topicId = clickedButton.dataset.topicId;
+        if (!topicId) return;
 
-    //    const questionCount = clickedButton.dataset.questionCount;
+        const questionCount = clickedButton.dataset.questionCount;
 
-        // process the buttons
-    //    if (clickedButton.classList.contains('start')){
-    //        processStartButton(subtopicId, topicId, questionCount);
-    //    } else if (clickedButton.classList.contains('resume')){
-    //        processResumeButton(subtopicId, topicId, questionCount);
-    //    } else if (clickedButton.classList.contains('review')){
-    //        processReviewButton(subtopicId, topicId);
-    //    } else if (clickedButton.classList.contains('retake')){
-    //        setupRetakeQuizDialog(subtopicId, topicId, questionCount);
-    //    }
-    //});
+        // process the retake button
+        if (clickedButton.classList.contains('retake')){
+            setupRetakeQuizDialog(subtopicId, topicId, questionCount);
+        } 
+    });
+
     document.getElementById('dashboard-container').addEventListener('click', function(e){
         if (e.target.tagName === 'BUTTON' && e.target.id === 'cancel-button'){
             cancelRetakeQuizDialog();
@@ -76,19 +75,7 @@ function loadSubtopicsForQuizTopic(){
             }             
     })          
 }
-            //try {
-                // fetch subtopics for the chosen topic
-            //    route = `/quizes/home/get_subtopics_for_quiz/${topicId}`;
-            //    const response = await fetch(route);
-            //    const data = await response.json();
-                              
-            //    if (data.success){
-            //        subtopicsContainer.innerHTML = '';
-            //        minusIcon.style.display = 'block';
-            //        plusIcon.style.display = 'none';
-                    
-            //        minusIcon.style.display = 'block'; // Show the minus icon
-            //        plusIcon.style.display = 'none';   // Hide the plus icon
+            
 
                     // build the subtopic header columns
                     //const subtopicHeader = document.createElement('div');
@@ -276,17 +263,17 @@ function loadSubtopicsForQuizTopic(){
 //    }
 //}
 
-function processStartButton(subtopicId, topicId, questionCount){
-    quizState.questionCount = questionCount;
-    let buttonType = 'start';
-    loadQuizLayout(subtopicId, topicId, buttonType);
-}
+//function processStartButton(subtopicId, topicId, questionCount){
+//    quizState.questionCount = questionCount;
+//    let buttonType = 'start';
+//    loadQuizLayout(subtopicId, topicId, buttonType);
+//}
 
-function processResumeButton(subtopicId, topicId, questionCount){
-    quizState.questionCount = questionCount;
-    let buttonType = 'resume';
-    loadQuizLayout(subtopicId, topicId, buttonType);    
-}
+//function processResumeButton(subtopicId, topicId, questionCount){
+//    quizState.questionCount = questionCount;
+//    let buttonType = 'resume';
+//    loadQuizLayout(subtopicId, topicId, buttonType);    
+//}
 
 //function progressColumn(subtopicRow, progressData, questionCount){
 //    const progressDiv = document.createElement('div');
@@ -397,30 +384,30 @@ function processResumeButton(subtopicId, topicId, questionCount){
 //    subtopicRow.appendChild(scoreDiv);
 //}
 
-function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topicId){
-    const reviewDiv = document.createElement('div');
-    reviewDiv.classList.add('col-md-2', 'col-sm-6', 'review-column');
+//function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topicId){
+//    const reviewDiv = document.createElement('div');
+//    reviewDiv.classList.add('col-md-2', 'col-sm-6', 'review-column');
 
-    if (progressData.progress_exists == 'no' || progressData.questions_answered != questionCount){
-        const reviewMinus = document.createElement('div');
-        reviewMinus.setAttribute('class', 'review-minus');
+//    if (progressData.progress_exists == 'no' || progressData.questions_answered != questionCount){
+//        const reviewMinus = document.createElement('div');
+//        reviewMinus.setAttribute('class', 'review-minus');
 
-        const reviewMinusIcon = document.createElement('i');
-        reviewMinusIcon.classList.add('fa', 'fa-solid', 'fa-minus', 'minus-bigger');
+//        const reviewMinusIcon = document.createElement('i');
+//        reviewMinusIcon.classList.add('fa', 'fa-solid', 'fa-minus', 'minus-bigger');
 
-        reviewMinus.append(reviewMinusIcon);
-        reviewDiv.append(reviewMinus);
+//        reviewMinus.append(reviewMinusIcon);
+//        reviewDiv.append(reviewMinus);
 
-    }else if (progressData.progress_exists == 'yes' && progressData.questions_answered == questionCount){
+//    }else if (progressData.progress_exists == 'yes' && progressData.questions_answered == questionCount){
         // review button
-        const reviewButton = document.createElement('button');
-        reviewButton.type = 'button';
-        reviewButton.classList.add('btn', 'btn-info', 'btn-sm', 'review');
-        reviewButton.setAttribute('id', `review-${subtopicId}`);
-        reviewButton.dataset.subtopicId = subtopicId;
-        reviewButton.dataset.topicId = topicId;
-        reviewButton.textContent = 'Review';
-        reviewDiv.appendChild(reviewButton);
+//        const reviewButton = document.createElement('button');
+//        reviewButton.type = 'button';
+//        reviewButton.classList.add('btn', 'btn-info', 'btn-sm', 'review');
+//        reviewButton.setAttribute('id', `review-${subtopicId}`);
+//        reviewButton.dataset.subtopicId = subtopicId;
+//        reviewButton.dataset.topicId = topicId;
+//        reviewButton.textContent = 'Review';
+//        reviewDiv.appendChild(reviewButton);
 
         // add event listener to resume button
         //reviewButton.addEventListener('click', function(e){
@@ -430,15 +417,15 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         //})
 
         // retake button
-        const retakeButton = document.createElement('button');
-        retakeButton.type = 'button';
-        retakeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'retake');
-        retakeButton.setAttribute('id', `retake-${subtopicId}`);
-        retakeButton.dataset.subtopicId = subtopicId;
-        retakeButton.dataset.topicId = topicId;
-        retakeButton.dataset.questionCount = questionCount;
-        retakeButton.textContent = 'Retake';
-        reviewDiv.appendChild(retakeButton);
+//       const retakeButton = document.createElement('button');
+//        retakeButton.type = 'button';
+//        retakeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'retake');
+//        retakeButton.setAttribute('id', `retake-${subtopicId}`);
+//        retakeButton.dataset.subtopicId = subtopicId;
+//        retakeButton.dataset.topicId = topicId;
+//        retakeButton.dataset.questionCount = questionCount;
+//       retakeButton.textContent = 'Retake';
+//        reviewDiv.appendChild(retakeButton);
 
         //quizState.questionCount = questionCount;
 
@@ -454,22 +441,22 @@ function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topi
         //    }
         //})
         
-    }
+    //}
 
     // For mobile responsiveness, review/retake only displays on larger screens
-    if (window.innerWidth <= 768) {
-        reviewDiv.style.display = 'none';
-    } else {
-        reviewDiv.style.display = '';
-    }
+//    if (window.innerWidth <= 768) {
+//        reviewDiv.style.display = 'none';
+//    } else {
+//        reviewDiv.style.display = '';
+//    }
 
-    subtopicRow.appendChild(reviewDiv);
-}
+//    subtopicRow.appendChild(reviewDiv);
+//}
 
-function processReviewButton(subtopicId, topicId){
-    let buttonType = 'review';
-    loadQuizLayout(subtopicId, topicId, buttonType);    
-}
+//function processReviewButton(subtopicId, topicId){
+////    let buttonType = 'review';
+//    loadQuizLayout(subtopicId, topicId, buttonType);    
+//}
 
 function setupRetakeQuizDialog(subtopicId, topicId, questionCount){
     const dialogElement = document.getElementById('confirm-retake-quiz-dialog');
@@ -512,10 +499,7 @@ function loadQuizLayout(subtopicId, topicId, buttonType){
             // Replace the entire document (both <head> and <body>)
             document.documentElement.innerHTML = data.quiz_layout_html;
 
-            // update the browser's URL without reloading the page (for the back and forward buttons)
-            //const quizURL = `quizes/home/quiz/${subtopicId}/`;
-            //history.pushState({subtopicId: subtopicId, topicId: topicId}, '', quizURL);
-            
+                       
 
             // attach progress bar event listeners
             attachProgressBarEventListeners();

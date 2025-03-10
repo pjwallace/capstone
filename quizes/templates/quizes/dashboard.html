@@ -131,14 +131,13 @@
                                             <div class="col-md-2 col-sm-6 status-column">
                                                 {% if not subtopic.progress_record %}
                                                     <!-- Quiz hasn't been attempted. Show start button-->                                                     
-                                                    <a href="{% url 'start_quiz' subtopic.id topic.id %}?question_count = {{ subtopic.question_count}}"
+                                                    <a href="{% url 'load_quiz_layout' subtopic.id topic.id %}?button_type=start"
                                                         class="btn btn-sm btn-success">Start</a>
                                                                                                     
                                                 {% elif subtopic.progress_record.questions_answered < subtopic.question_count %}
                                                     <!-- Quiz in progress. Show resume button-->
-                                                    <a href="{% url 'resume_quiz' subtopic.id topic.id %}?question_count={{ subtopic.question_count }}&questions_answered={{ subtopic.progress_record.questions_answered|default:0 }}"
-                                                    class="btn btn-sm btn-primary">
-                                                    Resume</a>
+                                                    <a href="{% url 'load_quiz_layout' subtopic.id topic.id %}?button_type=resume"
+                                                        class="btn btn-sm btn-primary">Resume</a>
 
                                                 {% else %}
                                                     <!-- Quiz complete-->
@@ -189,11 +188,16 @@
                                                     </div>
                                                 {% elif subtopic.progress_record and subtopic.progress_record.questions_answered == subtopic.question_count %}
                                                     <!-- Review Button-->
-                                                    <a href="{% url 'review_quiz' subtopic.id topic.id %}"
+                                                    <a href="{% url 'load_quiz_layout' subtopic.id topic.id %}?button_type=review"
                                                         class="btn btn-sm btn-info">Review</a>
                                                     <!-- Retake Button-->
-                                                    <a href="{% url 'retake_quiz' subtopic.id topic.id %}"
-                                                        class="btn btn-sm btn-danger">Retake</a>
+                                                    <!--
+                                                    <a href="{% url 'load_quiz_layout' subtopic.id topic.id %}?button_type=retake"
+                                                        class="btn btn-sm btn-danger retake"></a>
+                                                    -->
+                                                    <button type="button" class="btn btn-sm btn-danger retake"
+                                                        data-subtopic-id="{{ subtopic.id }}" data-topic-id="{{ topic.id }}"
+                                                        data-question-count="{{ subtopic.question_count }}">Retake</button>
                                                 {% endif %}
                                             </div>
                                         

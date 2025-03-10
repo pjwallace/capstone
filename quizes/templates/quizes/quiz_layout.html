@@ -55,6 +55,9 @@
         </nav>
 
         
+        <input type="hidden" id="quiz-subtopic" value="{{ subtopic_id }}">
+        <input type="hidden" id="question-count" value="{{ question_count }}">
+        <input type="hidden" id="button-type" value="{{ button_type }}">
 
         <div id="quiz-title-container"> 
             <h2>{{ topic_name }}: {{ subtopic_name }}</h2>            
@@ -72,7 +75,7 @@
         <div id="progress-container">
             {% for question in questions %}
                 <a href="javascript:void(0);" 
-                    id="question-{{ question.id }}" class="questions not-attempted wrong correct" 
+                    id="question-{{ question.id }}" class="questions" 
                     data-question-id="{{ question.id }}" data-subtopic-id="{{ question.subtopic_id}}"
                     data-page="{{ forloop.counter}}">
                         <i class="fa fa-circle" id="circle-{{ question.id }}"></i>
@@ -90,7 +93,7 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" 
             integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" 
             crossorigin="anonymous"></script>
-        <script src="{% static 'quizes/script.js' %}"></script>
+        <script src="{% static 'quizes/script_quiz.js' %}"></script>
         
 
     </body>

@@ -59,24 +59,24 @@ def retake_quiz(request, subtopic_id, topic_id):
     #subtopic = get_object_or_404(Subtopic, id=subtopic_id)
     pass
 
-@login_required(login_url='login')
-def get_subtopics_for_quiz(request, topic_id):
-    topic = get_object_or_404(Topic, id=topic_id)
-    subtopics = topic.subtopics.filter(questions__isnull=False).distinct().order_by('display_order', 'id')
-    if subtopics:
-        subtopic_data = []
-        for subtopic in subtopics:
-            if subtopic.questions.count() > 0:
-                subtopic_data.append({
-                    'subtopic_id': subtopic.id,
-                    'subtopic_name': subtopic.name,
-                    'subtopic_question_count': subtopic.questions.count()
-                })
+#@login_required(login_url='login')
+#def get_subtopics_for_quiz(request, topic_id):
+#    topic = get_object_or_404(Topic, id=topic_id)
+#    subtopics = topic.subtopics.filter(questions__isnull=False).distinct().order_by('display_order', 'id')
+#    if subtopics:
+#        subtopic_data = []
+#        for subtopic in subtopics:
+#            if subtopic.questions.count() > 0:
+#                subtopic_data.append({
+#                    'subtopic_id': subtopic.id,
+#                    'subtopic_name': subtopic.name,
+#                   'subtopic_question_count': subtopic.questions.count()
+#                })
 
-        return JsonResponse({'success' : True, 'subtopic_data' : subtopic_data})
-    else:
-        return JsonResponse({"success": False,  
-                "messages": [{"message": "Subtopic retrieval failed.", "tags": "danger"}]})
+#        return JsonResponse({'success' : True, 'subtopic_data' : subtopic_data})
+#    else:
+#        return JsonResponse({"success": False,  
+#                "messages": [{"message": "Subtopic retrieval failed.", "tags": "danger"}]})
 
 #login_required(login_url='login')
 #def get_progress_data(request, subtopic_id):
@@ -109,24 +109,23 @@ def load_quiz_layout(request, subtopic_id, topic_id):
     subtopic = get_object_or_404(Subtopic, id=subtopic_id)
     subtopic_name = subtopic.name
 
-    #get all the questions for the subtopic
+    # get all the questions for the subtopic
     questions = Question.objects.filter(subtopic_id=subtopic_id)
     questions_count = questions.count()
 
-    if  not questions:
-        return JsonResponse({"success": False,  
-                "messages": [{"message": "An error occurred while retrieving questions.", "tags": "info"}]}, 
-                status=500)    
+    # get the button type
+    button_type = request.GET.get('button_type')
 
     context = {
         'topic_name': topic_name,
         'subtopic_name': subtopic_name,
         'questions': questions,
-        'question_count': questions_count,        
+        'question_count': questions_count,
+        'subtopic_id': subtopic_id,
+        'button_type': button_type,        
     }
 
-    quiz_layout_html = render_to_string('quizes/quiz_layout.html', context)
-    return JsonResponse({"success": True, 'quiz_layout_html': quiz_layout_html})
+    return render(request, "quizes/quiz_layout.html", context)
 
 @login_required(login_url='login')    
 def load_quiz_questions_and_answers(request, subtopic_id):
