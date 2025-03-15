@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function(){
         loadSubtopicsForQuizTopic();
     }
      
-
     // add eventlistener for a clicked retake button in the subtopics container
     document.getElementById('dashboard-container').addEventListener('click', function(e){
         const clickedButton = e.target.closest('button');
@@ -45,9 +44,7 @@ document.addEventListener('DOMContentLoaded', function(){
         if (e.target.tagName === 'BUTTON' && e.target.id === 'cancel-button'){
             cancelRetakeQuizDialog();
         }
-        if (e.target.tagName === 'BUTTON' && e.target.id === 'confirm-quiz-retake-button'){
-            processRetakeButton();
-        }
+        
     });
 }); 
 function loadSubtopicsForQuizTopic(){
@@ -77,64 +74,6 @@ function loadSubtopicsForQuizTopic(){
 }
             
 
-                    // build the subtopic header columns
-                    //const subtopicHeader = document.createElement('div');
-                    //subtopicHeader.classList.add('row', 'column-header')
-
-                    // subtopic name
-                    //const subtopicName = document.createElement('div');
-                    //subtopicName.classList.add('col-md-4', 'col-sm-6');
-                    //subtopicName.setAttribute('id', 'subtopic-header');
-                    //const subtopicNameSpan = document.createElement('span');
-                    //subtopicNameSpan.classList.add('header-span');
-                    //subtopicNameSpan.setAttribute('id', 'subtopic-name');
-                    //subtopicNameSpan.textContent = 'Subtopic';
-                    //subtopicName.append(subtopicNameSpan);
-                    //subtopicHeader.append(subtopicName);
-
-                    // subtopic status
-                    //const subtopicStatus = document.createElement('div');
-                    //subtopicStatus.classList.add('col-md-2', 'col-sm-6');
-                    //subtopicStatus.setAttribute('id', 'status-header');
-                    //const subtopicStatusSpan = document.createElement('span');
-                    //subtopicStatusSpan.classList.add('header-span');
-                    //subtopicStatusSpan.setAttribute('id', 'subtopic-status');
-                    //subtopicStatusSpan.textContent = 'Status';
-                    //subtopicStatus.append(subtopicStatusSpan);
-                    //subtopicHeader.append(subtopicStatus);
-
-                    // subtopic progress
-                    //const subtopicProgress = document.createElement('div');
-                    //subtopicProgress.classList.add('col-md-2', 'col-sm-6');
-                    //subtopicProgress.setAttribute('id', 'progress-header');
-                    //const subtopicProgressSpan = document.createElement('span');
-                    //subtopicProgressSpan.classList.add('header-span');
-                    //subtopicProgressSpan.setAttribute('id', 'subtopic-progress');
-                    //subtopicProgressSpan.textContent = 'Progress';
-                    //subtopicProgress.append(subtopicProgressSpan);
-                    //subtopicHeader.append(subtopicProgress);
-
-                    // subtopic score
-                    //const subtopicScore = document.createElement('div');
-                    //subtopicScore.classList.add('col-md-2', 'col-sm-6');
-                    //subtopicScore.setAttribute('id', 'score-header');
-                    //const subtopicScoreSpan = document.createElement('span');
-                    //subtopicScoreSpan.classList.add('header-span');
-                    //subtopicScoreSpan.setAttribute('id', 'subtopic-score');
-                    //subtopicScoreSpan.textContent = 'Score';
-                    //subtopicScore.append(subtopicScoreSpan);
-                    //subtopicHeader.append(subtopicScore);
-
-                    // review/retake
-                    //const subtopicReview = document.createElement('div');
-                    //subtopicReview.classList.add('col-md-2', 'col-sm-6');
-                    //subtopicReview.setAttribute('id', 'review-header');
-                    //const subtopicReviewSpan = document.createElement('span');
-                    //subtopicReviewSpan.classList.add('header-span');
-                    //subtopicReviewSpan.setAttribute('id', 'subtopic-review');
-                    //subtopicReviewSpan.textContent = 'Review/Retake';
-                    //subtopicReview.append(subtopicReviewSpan);
-                    //subtopicHeader.append(subtopicReview);
 
                     // for mobile responsiveness, hide the progress and review/retake headers
                     //if (window.innerWidth <= 768) {
@@ -145,232 +84,7 @@ function loadSubtopicsForQuizTopic(){
                     //    subtopicReview.style.display = '';
                     //}
 
-                    //subtopicsContainer.append(subtopicHeader);
-                    
-                    //for (const subtopic of data.subtopic_data){
-                        
-                        // Create a Bootstrap row div to hold the subtopic and other columns
-                    //    const subtopicRow = document.createElement('div');
-                    //    subtopicRow.classList.add('row', 'subtopics-row');
-                    //    subtopicRow.setAttribute('id', `subtopicrow-${subtopic.subtopic_id}`);
 
-                        // create div to hold the subtopic                         
-                    //    const subtopicDiv = document.createElement('div');                            
-                    //    subtopicDiv.setAttribute('id', `subtopic-${subtopic.subtopic_id}`);
-                    //    subtopicDiv.classList.add('col-md-4', 'col-sm-6', 'subtopics');
-                    //    subtopicDiv.setAttribute('data-subtopic-id', subtopic.subtopic_id);
-                    //    subtopicDiv.textContent = subtopic.subtopic_name;
-                    //    subtopicRow.appendChild(subtopicDiv);
-
-                    //    const subtopicId = subtopic.subtopic_id;
-                    //    const questionCount = subtopic.subtopic_question_count;
-                        
-                        // retrieve user progress data
-                    //    const progressData = await getProgressData(subtopicId)
-                            
-                        // set up the status column
-                    //    statusColumn(subtopicRow, subtopicId, progressData, questionCount, topicId);
-
-                        // set up the progress column
-                    //    progressColumn(subtopicRow, progressData, questionCount);
-
-                        // set up the score column
-                    //    scoreColumn(subtopicRow, progressData, questionCount);
-
-                        // set up the review column
-                    //    reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topicId);
-
-                    //    subtopicsContainer.appendChild(subtopicRow);
-                                                                                                                                   
-                    //}
-                    //requestAnimationFrame(() => {
-                    //    document.getElementById('dashboard-container').style.display = 'none';
-                    //    document.getElementById('dashboard-container').offsetHeight; // Trigger reflow
-                    //    document.getElementById('dashboard-container').style.display = 'block';
-                    //});
-                    
-                //}else{
-                    // errors
-                //    let dashboard_msg = document.getElementById('dashboard-msg');
-                //    dashboard_msg.innerHTML = `<div class="alert alert-${data.messages[0].tags}" 
-                //        role="alert">${data.messages[0].message}</div>`;
-                //}
-                
-            //} catch (error) {
-            //    console.error('Error retrieving subtopics:', error);
-            //}
-        //});
-    //});    
-//}
-
-//async function getProgressData(subtopicId){
-//    route = `/quizes/home/get_progress_data/${subtopicId}`;
-
-//    try {
-//        const response = await fetch(route);
-//       if (!response.ok) {
-//            throw new Error(`HTTP error! Status: ${response.status}`);
-//        }
-//        return await response.json();  // This returns the parsed JSON as progressData
-//    } catch (error) {
-//        console.error('Error fetching progress data:', error);
-//        return null;  // Return null so the caller knows there was an error
-//   } 
-//}
-
-//function statusColumn(subtopicRow, subtopicId, progressData, questionCount, topicId){
-//    const statusDiv = document.createElement('div');
-//    statusDiv.classList.add('col-md-2', 'col-sm-6', 'status-column');
-
-    // display start button if a quiz hasn't been attempted yet
-//   if (progressData.progress_exists == 'no'){
-//        const startButton = document.createElement('button');
-//        startButton.type = 'button';
-//        startButton.setAttribute('id', `start-${subtopicId}`);
-//        startButton.classList.add('btn', 'btn-success', 'btn-sm', 'start');
-//        startButton.dataset.subtopicId = subtopicId;
-//       startButton.dataset.topicId = topicId;
-//        startButton.dataset.questionCount = questionCount;
-//        startButton.textContent = 'Start';
-//        statusDiv.append(startButton);
-//        subtopicRow.append(statusDiv);
-
-    // resume quiz button
-//    }else if (progressData.progress_exists == 'yes' && questionCount != progressData.questions_answered){
-//        const resumeButton = document.createElement('button');
-//        resumeButton.type = 'button';
-//        resumeButton.setAttribute('id', `review-${subtopicId}`);
-//        resumeButton.classList.add('btn', 'btn-primary', 'btn-sm', 'resume');
-//        resumeButton.dataset.subtopicId = subtopicId;
-//        resumeButton.dataset.topicId = topicId;
-//        resumeButton.dataset.questionCount = questionCount;
-//        resumeButton.textContent = 'Resume';
-//        statusDiv.append(resumeButton);
-//        subtopicRow.append(statusDiv);
-
-        //console.log(questionCount);
-        //quizState.questionCount = questionCount;
-        
-
-    // Display quiz complete text
-//    }else if (progressData.progress_exists == 'yes' && questionCount == progressData.questions_answered){
-//        // complete span
-//        const completeText = document.createElement('span');
-//        completeText.textContent = 'Complete';
-//        completeText.id = 'complete-status';
-//        statusDiv.appendChild(completeText);
-//        subtopicRow.append(statusDiv);
-//    }
-//}
-
-//function processStartButton(subtopicId, topicId, questionCount){
-//    quizState.questionCount = questionCount;
-//    let buttonType = 'start';
-//    loadQuizLayout(subtopicId, topicId, buttonType);
-//}
-
-//function processResumeButton(subtopicId, topicId, questionCount){
-//    quizState.questionCount = questionCount;
-//    let buttonType = 'resume';
-//    loadQuizLayout(subtopicId, topicId, buttonType);    
-//}
-
-//function progressColumn(subtopicRow, progressData, questionCount){
-//    const progressDiv = document.createElement('div');
-//    progressDiv.classList.add('col-md-2', 'col-sm-6', 'progress-column');
-
-    // Quiz not started yet
-//    if (progressData.progress_exists == 'no'){
-//        const progressDash = document.createElement('span');
-//        progressDash.textContent = 'Not Started';
-//        progressDiv.appendChild(progressDash);
-
-    // quiz in progress or completed
-//    }else if (progressData.progress_exists == 'yes'){
-//        const progressQuestionsText = document.createElement('div');
-//        progressQuestionsText.setAttribute('class', 'questions-text');
-
-        // create the first line 'Questions'
-//        const questionLabel = document.createElement('span');
-//        questionLabel.textContent = 'Questions';
-//        progressQuestionsText.appendChild(questionLabel);
-
-        // create the second line 'number answered of total questions'
-//        const questionsProgress = document.createElement('span');
-//        questionsProgress.setAttribute('id', 'questions-progress');
-//        questionsProgress.textContent = `${progressData.questions_answered} of ${questionCount}`;
-//        progressQuestionsText.appendChild(questionsProgress);
-
-//        progressDiv.appendChild(progressQuestionsText);
-//    }
-
-    // For mobile responsiveness, check screen size and hide if necessary
-//    if (window.innerWidth <= 768) {
-//        progressDiv.style.display = 'none';
-//    } else {
-//        progressDiv.style.display = '';
-//    }
-
-//    subtopicRow.appendChild(progressDiv);
-//}
-
-//function scoreColumn(subtopicRow, progressData, questionCount){
-//    const scoreDiv = document.createElement('div');
-//    scoreDiv.classList.add('col-md-2', 'col-sm-6', 'score-column');
-//    completeSpan = document.getElementById('complete-status');
-    
-//    if (progressData.progress_exists == 'no'){
-        // display 2 minus signs to indicate no score yet
-//        const scoreDashes = document.createElement('div');
-//        scoreDashes.setAttribute('class', 'score-dash');
-
-//       const initialMinus = document.createElement('i');
-//        initialMinus.classList.add('fa', 'fa-solid', 'fa-minus', 'minus-bigger');
-        
-//        const latestMinus = document.createElement('i');
-//        latestMinus.classList.add('fa', 'fa-solid', 'fa-minus', 'minus-bigger');
-//
-//        scoreDashes.append(initialMinus);
-//        scoreDashes.append(latestMinus);
-//        scoreDiv.append(scoreDashes);
-
-//    }else if (progressData.progress_exists == 'yes'){
-        // score container
-//        const scoreText = document.createElement('div');
-//        scoreText.setAttribute('class', 'score-text');
-
-        // first line 'inital     Latest'
-//        const scoreLabel = document.createElement('div');
-//        scoreLabel.setAttribute('class', 'score-label'); 
-
-//        const initialLabel = document.createElement('span');
-//        initialLabel.textContent = 'Initial';
-
-//        const latestLabel = document.createElement('span');
-//        latestLabel.textContent = 'Latest';
-
-//        scoreLabel.appendChild(initialLabel);
-//        scoreLabel.appendChild(latestLabel);
-//        scoreText.appendChild(scoreLabel);
-        
-        // second line
-//        const scoreResults = document.createElement('div');
-//        scoreResults.setAttribute('class', 'score-results');
-
-//        const initialScore = document.createElement('span');
-//        const initialScorePercent = progressData.initial_score;
-//        initialScore.textContent = `${initialScorePercent}%`;
-
-//        const latestScore = document.createElement('span');
-//        const latestScorePercent = progressData.latest_score;
-//        latestScore.textContent = `${latestScorePercent}%`;
-
-//        scoreResults.appendChild(initialScore);
-//        scoreResults.appendChild(latestScore);
-//        scoreText.appendChild(scoreResults);
-
-////        scoreDiv.appendChild(scoreText);
-//    }
 
     // For mobile responsiveness, check screen size and hide if necessary
 //    if (window.innerWidth <= 576) {
@@ -381,8 +95,6 @@ function loadSubtopicsForQuizTopic(){
 //        scoreDiv.style.display = '';
 //    }    
 
-//    subtopicRow.appendChild(scoreDiv);
-//}
 
 //function reviewColumn(subtopicRow, subtopicId, progressData, questionCount, topicId){
 //    const reviewDiv = document.createElement('div');
@@ -464,11 +176,10 @@ function setupRetakeQuizDialog(subtopicId, topicId, questionCount){
         console.error('Dialog element with ID confirm-retake-quiz-dialog not found.');
         return;
     }
-    // add subtopicId, topicId, and questionCount data attributes to confirm quiz retake button
-    confirmQuizRetakeButton = document.getElementById('confirm-quiz-retake-button');
-    confirmQuizRetakeButton.dataset.subtopicId = subtopicId;
-    confirmQuizRetakeButton.dataset.topicId = topicId;
-    confirmQuizRetakeButton.dataset.questionCount = questionCount;
+    
+    // set up the href link for the a tag
+    const retakeLink = document.getElementById("confirm-quiz-retake-button");
+    retakeLink.href = `/quizes/home/load_quiz_layout/${subtopicId}/${topicId}?button_type=retake`;
     dialogElement.showModal();
 }
 
@@ -481,502 +192,413 @@ function cancelRetakeQuizDialog(){
     dialogElement.close();
 }
 
-function processRetakeButton(subtopicId, topicId){
-    confirmQuizRetakeButton = document.getElementById('confirm-quiz-retake-button');
-    subtopicId = confirmQuizRetakeButton.dataset.subtopicId;
-    topicId = confirmQuizRetakeButton.dataset.topicId;  
-    questionCount = confirmQuizRetakeButton.dataset.questionCount;
-    retakeQuiz(subtopicId, topicId, questionCount); 
-}
+//function processRetakeButton(subtopicId, topicId){
+//    confirmQuizRetakeButton = document.getElementById('confirm-quiz-retake-button');
+//    subtopicId = confirmQuizRetakeButton.dataset.subtopicId;
+//    topicId = confirmQuizRetakeButton.dataset.topicId;  
+//    questionCount = confirmQuizRetakeButton.dataset.questionCount;
+//    retakeQuiz(subtopicId, topicId, questionCount); 
+//}
 
-function loadQuizLayout(subtopicId, topicId, buttonType){
-    const route = `/quizes/home/load_quiz_layout/${subtopicId}/${topicId}`;   
-    fetch(route)
-    .then(response => response.json())
-    .then(data =>{
-        if (data.success){
-                        
-            // Replace the entire document (both <head> and <body>)
-            document.documentElement.innerHTML = data.quiz_layout_html;
 
-                       
 
-            // attach progress bar event listeners
-            attachProgressBarEventListeners();
-            
-            // load the first quiz question if starting a new quiz
-            if (buttonType === 'start' || buttonType === 'retake'){
-                loadQuizQuestionsAndAnswers(subtopicId, pageNumber=1);
-            } else if (buttonType === 'resume'){
-                resumeQuiz(subtopicId);
-            } else if (buttonType === 'review'){
-                reviewQuiz(subtopicId);
-            }
-        }
-        else{
-            console.error("Failed to load quiz layout");
-        }
-
-    })
-    .catch(error => console.error('Error loading quiz layout:', error));
-
-}
-
-function attachProgressBarEventListeners(){
-    const progressContainer = document.getElementById('progress-container');
+//function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
+//    const quizContainer = document.getElementById('quiz-container');
+//    const quizScoreContainer = document.getElementById('quiz-score-container');
+//    const explanationContainer = document.getElementById('explanation-container');
    
-    if (progressContainer){
-        const questionLinks = document.querySelectorAll('#progress-container a');
+//    if (quizContainer){
+//        const route = `/quizes/home/load_quiz_questions_and_answers/${subtopicId}?page=${pageNumber}`;   
+//        fetch(route)
+//        .then(response => response.json())
+//        .then(data =>{
+//            if (data.success){
+//                quizState.hasNext = data.has_next;
+//                quizState.hasPrevious = data.has_previous;
+//                quizState.pageNumber  = data.page_number;
+//                quizState.totalPages = data.total_pages;
 
-        questionLinks.forEach(link => {
-            link.addEventListener('click', function(e){
-                e.preventDefault();
-                const subtopicId = this.getAttribute('data-subtopic-id');
-                const pageNumber = this.getAttribute('data-page');
-                loadQuizQuestionsAndAnswers(subtopicId, pageNumber);
-            })
-        })
-    }
-}
+//                if (quizScoreContainer){
+//                    quizScoreContainer.innerHTML = '';    
+//                }
 
+//                if (explanationContainer){
+//                    explanationContainer.innerHTML = '';    
+//                }
 
-
-
-// manage the browser back and forward buttons
-window.onpopstate = function(event){
-    // user has visited a quiz page
-    if (event.state){
-        const subtopicId = event.state.subtopicId;
-        const topicId = event.state.topicId;
-        console.log(`Returning to quiz with Subtopic ID: ${subtopicId}, Topic ID: ${topicId}`);
-        if (window.location.pathname.includes('/quiz/')){
-           loadQuizLayout(subtopicId, topicId, 'resume');
-        } else {
-            window.location.href = '/quizes/home/';
-       }
-
-    } else {
-        window.location.href = '/quizes/home/';    
-   }
-}
-
-function loadQuizQuestionsAndAnswers(subtopicId, pageNumber){
-    const quizContainer = document.getElementById('quiz-container');
-    const quizScoreContainer = document.getElementById('quiz-score-container');
-    const explanationContainer = document.getElementById('explanation-container');
-   
-    if (quizContainer){
-        const route = `/quizes/home/load_quiz_questions_and_answers/${subtopicId}?page=${pageNumber}`;   
-        fetch(route)
-        .then(response => response.json())
-        .then(data =>{
-            if (data.success){
-                quizState.hasNext = data.has_next;
-                quizState.hasPrevious = data.has_previous;
-                quizState.pageNumber  = data.page_number;
-                quizState.totalPages = data.total_pages;
-
-                if (quizScoreContainer){
-                    quizScoreContainer.innerHTML = '';    
-                }
-
-                if (explanationContainer){
-                    explanationContainer.innerHTML = '';    
-                }
-
-                quizContainer.innerHTML = '';
-                quizContainer.innerHTML = data.quiz_html;
+//                quizContainer.innerHTML = '';
+//                quizContainer.innerHTML = data.quiz_html;
                 
-                document.getElementById('quizsubtopic-id').value = subtopicId;
+//                document.getElementById('quizsubtopic-id').value = subtopicId;
 
                
                 // if there isn't a previous quiz question, hide the previous button;
                 // else display the button and add an event listener              
-                const previousButton = document.getElementById('previous-button');
-                if (previousButton){
-                    if (quizState.hasPrevious){
-                        previousButton.classList.remove('hidden');
+//                const previousButton = document.getElementById('previous-button');
+//                if (previousButton){
+//                    if (quizState.hasPrevious){
+//                        previousButton.classList.remove('hidden');
 
                         // remove the old event listener to prevent multiple event listeners for the same button
-                        previousButton.removeEventListener('click', previousPageHandler);
+//                        previousButton.removeEventListener('click', previousPageHandler);
 
                         // define previousPageHandler
-                        function previousPageHandler(){
-                            previousPage(subtopicId, quizState.pageNumber);    
-                        }
+//                        function previousPageHandler(){
+//                            previousPage(subtopicId, quizState.pageNumber);    
+//                        }
                         // add the event listener
-                        previousButton.addEventListener('click', previousPageHandler);
-                    }else{
-                        previousButton.classList.add('hidden');
-                    }
-                }   
+//                        previousButton.addEventListener('click', previousPageHandler);
+//                    }else{
+//                        previousButton.classList.add('hidden');
+//                    }
+//                }   
                 
                 // if there isn't a next quiz question, hide the next button;
                 // else display the button and add an event listener
-                const nextButton = document.getElementById('next-button');
-                if (nextButton){
-                    if (quizState.hasNext){
-                        nextButton.classList.remove('hidden');
+//                const nextButton = document.getElementById('next-button');
+//                if (nextButton){
+//                    if (quizState.hasNext){
+//                        nextButton.classList.remove('hidden');
 
                         // remove the old event listener to prevent multiple event listeners for the same button
-                        nextButton.removeEventListener('click', nextPageHandler);
+//                        nextButton.removeEventListener('click', nextPageHandler);
 
                         // define nextPageHandler
-                        function nextPageHandler(){
-                            nextPage(subtopicId, quizState.pageNumber, quizState.totalPages);    
-                        }
+//                        function nextPageHandler(){
+//                            nextPage(subtopicId, quizState.pageNumber, quizState.totalPages);    
+//                        }
                          // add the event handler to the next button
-                        nextButton.addEventListener('click', nextPageHandler);
-                    }else{
-                        nextButton.classList.add('hidden');                        
-                    }
-                }
+//                        nextButton.addEventListener('click', nextPageHandler);
+//                    }else{
+//                        nextButton.classList.add('hidden');                        
+//                    }
+//                }
 
                 // check if this question has been previously answered (StudentAnswer record exists).                
-                (async () => {
-                    const questionId = document.getElementById('quizquestion-id').value;
-                    const studentAnswers = await getStudentAnswer(subtopicId, questionId);
+//                (async () => {
+//                    const questionId = document.getElementById('quizquestion-id').value;
+//                    const studentAnswers = await getStudentAnswer(subtopicId, questionId);
                     
-                    if (studentAnswers && studentAnswers.length > 0){
+//                    if (studentAnswers && studentAnswers.length > 0){
                         // disable the submit button
-                        const submitButton = document.getElementById('submit-quiz-question');
-                        const viewQuizResults = document.getElementById('view-quiz-results');
+//                        const submitButton = document.getElementById('submit-quiz-question');
+//                        const viewQuizResults = document.getElementById('view-quiz-results');
                         
-                        if (submitButton){
-                            submitButton.style.display = 'none';
-                        }
+//                        if (submitButton){
+//                            submitButton.style.display = 'none';
+//                        }
 
                         // disable the view quiz results button                        
-                        if (viewQuizResults){
-                            viewQuizResults.style.display = 'none';
-                        } 
+//                        if (viewQuizResults){
+//                            viewQuizResults.style.display = 'none';
+//                        } 
 
                         // mark the choices selected by the student
-                        studentAnswers.forEach(choiceId=>{
-                            const choiceInput = document.querySelector(`input[value="${choiceId}"]`);
-                            if (choiceInput){
-                                choiceInput.checked = 'true';
-                            }
-                        });
+//                        studentAnswers.forEach(choiceId=>{
+//                            const choiceInput = document.querySelector(`input[value="${choiceId}"]`);
+//                            if (choiceInput){
+//                                choiceInput.checked = 'true';
+//                            }
+//                        });
 
                         // disable all input boxes on the form
-                        const choiceInputs = document.querySelectorAll('input[type="radio"], input[type="checkbox"]');
-                        choiceInputs.forEach(input => {
-                            input.disabled = 'true';
-                        });
+//                        const choiceInputs = document.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+//                        choiceInputs.forEach(input => {
+//                            input.disabled = 'true';
+//                        });
 
-                        let previouslyAnswered = true;
-                        processQuizQuestion(studentAnswers, previouslyAnswered);
-                    }else{
+//                        let previouslyAnswered = true;
+//                        processQuizQuestion(studentAnswers, previouslyAnswered);
+//                    }else{
                         // question has not been previously answered
                         // make sure the submit button is displayed
-                        const submitButton = document.getElementById('submit-quiz-question');
-                        if (submitButton){
-                            submitButton.style.display = 'block';
-                        }
+//                       const submitButton = document.getElementById('submit-quiz-question');
+//                        if (submitButton){
+//                            submitButton.style.display = 'block';
+//                        }
     
                         // remove any old event listeners for the form submission event
-                        quizContainer.removeEventListener('submit', formSubmitHandler);               
+//                        quizContainer.removeEventListener('submit', formSubmitHandler);               
     
                         // add the form submit event handler
-                        quizContainer.addEventListener('submit', formSubmitHandler);
-                    }
-                })();
+//                        quizContainer.addEventListener('submit', formSubmitHandler);
+//                    }
+//                })();
 
-            }else{
-                console.error("Failed to load quiz html");
-            }
+//            }else{
+//                console.error("Failed to load quiz html");
+//            }
 
-        })
-        .catch(error => console.error('Error loading quiz:', error));
-    }
-}
+//        })
+//        .catch(error => console.error('Error loading quiz:', error));
+//    }
+//}
 
-function previousPage(subtopicId, pageNumber ){
-    if (pageNumber > 1){
-        pageNumber  --;
-        loadQuizQuestionsAndAnswers(subtopicId, pageNumber);
-    }
-}
 
-function nextPage(subtopicId, pageNumber, totalPages){
-    if (pageNumber < totalPages){
-        pageNumber ++;
-        loadQuizQuestionsAndAnswers(subtopicId, pageNumber);
-    }    
-}
 
-// add event listener to the form
-function formSubmitHandler(e){
-    e.preventDefault();
-    if (e.target && e.target.id === 'quiz'){
-        let previouslyAnswered = false;
-        const studentAnswers = [];
-        processQuizQuestion(studentAnswers, previouslyAnswered);
-    }
-};
 
-async function getStudentAnswer(subtopicId, questionId){
-    const route = `/quizes/home/get_student_answer/${subtopicId}/${questionId}`;   
-    try {
-        const response = await fetch(route);
-        const data = await response.json();
+
+//async function getStudentAnswer(subtopicId, questionId){
+//    const route = `/quizes/home/get_student_answer/${subtopicId}/${questionId}`;   
+//    try {
+//        const response = await fetch(route);
+//        const data = await response.json();
         
-        if (data.success) {
-            return data.student_answers_list;
-        } else {
-            return data.student_answers_list; 
-        }
-    } catch (error) {
-        console.error("Error fetching student answers:", error);
-        return null;
-    }
-}
+//        if (data.success) {
+//            return data.student_answers_list;
+//        } else {
+//            return data.student_answers_list; 
+//        }
+//    } catch (error) {
+//        console.error("Error fetching student answers:", error);
+//        return null;
+//    }
+//}
 
-async function processQuizQuestion(selectedAnswers, previouslyAnswered){
-    const subtopicId = document.getElementById('quizsubtopic-id').value;
-    const questionId = document.getElementById('quizquestion-id').value;
+//async function processQuizQuestion(selectedAnswers, previouslyAnswered){
+//    const subtopicId = document.getElementById('quizsubtopic-id').value;
+//    const questionId = document.getElementById('quizquestion-id').value;
             
     // retrieve the quiz answers from the form if question not previously answered
-    if (!previouslyAnswered){
-        selectedAnswers = [];
+//    if (!previouslyAnswered){
+//        selectedAnswers = [];
         
-        const checkedAnswers = document.querySelectorAll("input[name^='question-']:checked");
-        checkedAnswers.forEach((answer) => {
-            selectedAnswers.push(answer.value); // value = choice.id
-        });
-    }
+//        const checkedAnswers = document.querySelectorAll("input[name^='question-']:checked");
+//        checkedAnswers.forEach((answer) => {
+//            selectedAnswers.push(answer.value); // value = choice.id
+//        });
+//    }
     
-    const route = `/quizes/home/process_quiz_question/${subtopicId}`;
+//    const route = `/quizes/home/process_quiz_question/${subtopicId}`;
 
     // Retrieve the django CSRF token from the form
-    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+//    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    try {        
-        const response = await fetch(route, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-            },
-            body: JSON.stringify({
-                selected_answers: selectedAnswers,
-                question_id: questionId,
-                previously_answered: previouslyAnswered
-            }),
-        });
+//    try {        
+//        const response = await fetch(route, {
+//            method: 'POST',
+//            headers: {
+//                'Content-Type': 'application/json',
+//                'X-CSRFToken': csrftoken,
+//            },
+//            body: JSON.stringify({
+//                selected_answers: selectedAnswers,
+//                question_id: questionId,
+//                previously_answered: previouslyAnswered
+//            }),
+//        });
         
-        const data = await response.json();
+//        const data = await response.json();
 
-        if (data.success) {
+//        if (data.success) {
             // Handle correct/incorrect answers
             
-            let incorrectAnswer = false;
-            if (data.question_type === 'True/False' || data.question_type === 'Multiple Choice'){
-                incorrectAnswer = Object.values(data.results_dict).some(result => !result.is_correct);
-            }else if (data.question_type === 'Multiple Answer'){
+//            let incorrectAnswer = false;
+//            if (data.question_type === 'True/False' || data.question_type === 'Multiple Choice'){
+//                incorrectAnswer = Object.values(data.results_dict).some(result => !result.is_correct);
+//            }else if (data.question_type === 'Multiple Answer'){
                 // For multiple-answer questions, check if:
                 // 1. Any selected answer is incorrect, or
                 // 2. Any correct answer was not selected by the student
-                incorrectAnswer = Object.values(data.results_dict).some(result => 
-                    (!result.is_correct && result.selected_by_student) ||  // Incorrect answer was selected
-                    (result.is_correct && !result.selected_by_student)     // Correct answer was not selected
-                );
-            }
+//                incorrectAnswer = Object.values(data.results_dict).some(result => 
+//                    (!result.is_correct && result.selected_by_student) ||  // Incorrect answer was selected
+//                    (result.is_correct && !result.selected_by_student)     // Correct answer was not selected
+//                );
+//            }
 
             // update the progress bar
-            document.getElementById(`circle-${questionId}`).style.display = 'none';
-            document.getElementById(`check-${questionId}`).style.display = incorrectAnswer ? 'none' : 'block';
-            document.getElementById(`times-${questionId}`).style.display = incorrectAnswer ? 'block' : 'none';
+//            document.getElementById(`circle-${questionId}`).style.display = 'none';
+//            document.getElementById(`check-${questionId}`).style.display = incorrectAnswer ? 'none' : 'block';
+//            document.getElementById(`times-${questionId}`).style.display = incorrectAnswer ? 'block' : 'none';
 
             // if new question, update right and wrong answer totals
-            if (!previouslyAnswered){
-                quizState.questionsAnswered ++;
+//            if (!previouslyAnswered){
+//                quizState.questionsAnswered ++;
                 
-                if (incorrectAnswer) {
-                    quizState.incorrectAnswers++;
-                } else {
-                    quizState.correctAnswers++;
-                }
-            }          
+//                if (incorrectAnswer) {
+//                    quizState.incorrectAnswers++;
+//                } else {
+//                    quizState.correctAnswers++;
+//                }
+//            }          
 
             // make sure the submit button is hidden so the form can't be resubmitted
-            const submitButton = document.getElementById('submit-quiz-question');
-            if (submitButton){
-                submitButton.style.display = 'none';
-            }
+//            const submitButton = document.getElementById('submit-quiz-question');
+//            if (submitButton){
+//                submitButton.style.display = 'none';
+//            }
 
             // Highlight correct/incorrect answers
-            highlightAnswers(data.results_dict, data.question_type); 
+//            highlightAnswers(data.results_dict, data.question_type); 
             
             // Load explanation           
             //await loadQuizQuestionExplanation(questionId, subtopicId); 
 
-            if (!previouslyAnswered){
+//            if (!previouslyAnswered){
                 // create a list to hold all the async promises
-                const promises = [];
+//                const promises = [];
 
                 // Create or update progress record first, then save the student answer for later review
-                if (data.progress_data.progress_exists === 'yes') {
-                    promises.push(updateProgressRecord(subtopicId)); // Wait for progress record to update
-                } else {
-                    promises.push(createProgressRecord(subtopicId)); // Wait for progress record to be created
-                }
+//                if (data.progress_data.progress_exists === 'yes') {
+//                    promises.push(updateProgressRecord(subtopicId)); // Wait for progress record to update
+//                } else {
+//                    promises.push(createProgressRecord(subtopicId)); // Wait for progress record to be created
+//                }
 
                 // save the student answer in the StudentAnswer model
-                promises.push(saveAnswer(questionId, data.student_answers));
+//                promises.push(saveAnswer(questionId, data.student_answers));
 
                 // explanation, if it exists
                 //promises.push(loadQuizQuestionExplanation(questionId, subtopicId));
 
                 // ensure all database actions are complete before proceeding
-                await Promise.all(promises);
-            } //else if (previouslyAnswered){
+//                await Promise.all(promises);
+//            } //else if (previouslyAnswered){
                 // Load explanation           
                 //await loadQuizQuestionExplanation(questionId, subtopicId);    
             //}
 
-            await loadQuizQuestionExplanation(questionId, subtopicId);          
+//            await loadQuizQuestionExplanation(questionId, subtopicId);          
             
 
             //console.log(`questionsAnswered: ${quizState.questionsAnswered}, questionCount: ${quizState.questionCount}`);
-            if (!previouslyAnswered){
+//            if (!previouslyAnswered){
                 // if the quiz is complete
-                if (quizState.questionCount == quizState.questionsAnswered){
-                    await processCompletedQuiz(subtopicId);
-                }
-            }
+//                if (quizState.questionCount == quizState.questionsAnswered){
+//                    await processCompletedQuiz(subtopicId);
+//                }
+//            }
 
-        } else {
-            clearMessages();
-            document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-        }        
-    } catch (error) {        
-        console.error('Error processing quiz answers:', error);        
-    }
-}
+//        } else {
+//            clearMessages();
+//            document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+//        }        
+//    } catch (error) {        
+//        console.error('Error processing quiz answers:', error);        
+//    }
+//}
 
-function highlightAnswers(results_dict, questionType){    
+//function highlightAnswers(results_dict, questionType){    
     // loop over each key, value pair in results_dict
-    for (const [choice_id, result] of Object.entries(results_dict)){
-        const choiceElement = document.getElementById(`span-${choice_id}`);
+//    for (const [choice_id, result] of Object.entries(results_dict)){
+//        const choiceElement = document.getElementById(`span-${choice_id}`);
         
-        if (!choiceElement){
-            continue;
-        }
+//        if (!choiceElement){
+//            continue;
+//        }
 
         // check if the choice was selected by the student
-        if (result.selected_by_student){
-            if (result.is_correct){
-                choiceElement.style.backgroundColor = "rgba(0, 128, 0, 0.5)";
-            }else{
-                choiceElement.style.backgroundColor = "rgba(255, 0, 0, 0.5)";    
-            }
-        }else if(result.is_correct){
+//        if (result.selected_by_student){
+//            if (result.is_correct){
+//                choiceElement.style.backgroundColor = "rgba(0, 128, 0, 0.5)";
+//            }else{
+//                choiceElement.style.backgroundColor = "rgba(255, 0, 0, 0.5)";    
+//            }
+//        }else if(result.is_correct){
             // answer not selected by the student
-            if (questionType === 'Multiple Answer'){
-                choiceElement.style.backgroundColor = "yellow";
-            }else{
-                choiceElement.style.backgroundColor = "rgba(0, 128, 0, 0.5)";
-            }
-        }
-    }
+//            if (questionType === 'Multiple Answer'){
+//                choiceElement.style.backgroundColor = "yellow";
+//            }else{
+//                choiceElement.style.backgroundColor = "rgba(0, 128, 0, 0.5)";
+//            }
+//        }
+//    }
 
-}
+//}
 
-async function createProgressRecord(subtopicId){
-    const route = `/quizes/home/create_progress_record/${subtopicId}`;
+//async function createProgressRecord(subtopicId){
+//    const route = `/quizes/home/create_progress_record/${subtopicId}`;
 
     // Retrieve the django CSRF token from the form
-    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+//    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    try {
-        const response = await fetch(route, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-            }
-        });
+//    try {
+//        const response = await fetch(route, {
+//            method: 'POST',
+//            headers: {
+//                'Content-Type': 'application/json',
+//                'X-CSRFToken': csrftoken,
+//            }
+//        });
 
-        const data = await response.json();
+//        const data = await response.json();
 
-        if (data.success) {
-            console.log("Progress record successfully added");
-        } else {
-            console.error("Error adding progress record:", data.messages[0].message);
-        }
-    } catch (error) {
-        console.error('Error in createProgressRecord:', error);
-    }
-}
+////        if (data.success) {
+//           console.log("Progress record successfully added");
+//        } else {
+//            console.error("Error adding progress record:", data.messages[0].message);
+//        }
+//    } catch (error) {
+//        console.error('Error in createProgressRecord:', error);
+//    }
+//}
 
-async function updateProgressRecord(subtopicId) {
-    const route = `/quizes/home/update_progress_record/${subtopicId}`;
-    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+//async function updateProgressRecord(subtopicId) {
+//    const route = `/quizes/home/update_progress_record/${subtopicId}`;
+//    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    try {
-        const response = await fetch(route, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-            }
-        });
+//    try {
+//        const response = await fetch(route, {
+//            method: 'PUT',
+//            headers: {
+//                'Content-Type': 'application/json',
+//                'X-CSRFToken': csrftoken,
+//            }
+//        });
 
-        const data = await response.json();
+//        const data = await response.json();
 
-        if (data.success) {
-            console.log("Progress record successfully updated");
-        } else {
-            console.error("Error updating progress record:", data.messages[0].message);
-        }
-    } catch (error) {
-        console.error('Error in updateProgressRecord:', error);
-    }
-}
+//        if (data.success) {
+//            console.log("Progress record successfully updated");
+//        } else {
+//            console.error("Error updating progress record:", data.messages[0].message);
+//        }
+//    } catch (error) {
+//        console.error('Error in updateProgressRecord:', error);
+//    }
+//}
 
-async function saveAnswer(questionId, studentAnswers){
-    const route = `/quizes/home/save_answer/${questionId}`
-    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+//async function saveAnswer(questionId, studentAnswers){
+//    const route = `/quizes/home/save_answer/${questionId}`
+//    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     
-    try {
-        const response = await fetch(route, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-            },
-            body: JSON.stringify({
-                student_answers: studentAnswers
-            }),
-        });
+//    try {
+//        const response = await fetch(route, {
+//            method: 'POST',
+//            headers: {
+//                'Content-Type': 'application/json',
+//                'X-CSRFToken': csrftoken,
+//            },
+//            body: JSON.stringify({
+//                student_answers: studentAnswers
+//            }),
+//        });
 
-        const data = await response.json();
+//        const data = await response.json();
 
-        if (data.success){
-            console.log('StudentAnswer record updated or created');
-        }else{
-            console.error("Error updating or creating StudentAnswer record:", data.messages[0].message);
-        }
+//        if (data.success){
+//            console.log('StudentAnswer record updated or created');
+//        }else{
+//            console.error("Error updating or creating StudentAnswer record:", data.messages[0].message);
+//        }
 
-    } catch (error){
-        console.error('Error saving student answer:', error);
-    }
-}
+//  } catch (error){
+//        console.error('Error saving student answer:', error);
+//    }
+//}
 
-async function loadQuizQuestionExplanation(questionId, subtopicId) {
-    const explanationContainer = document.getElementById('explanation-container');
-    explanationContainer.innerHTML = '';
+//async function loadQuizQuestionExplanation(questionId, subtopicId) {
+//    const explanationContainer = document.getElementById('explanation-container');
+//    explanationContainer.innerHTML = '';
         
-    try {
-        const response = await fetch(`/quizes/home/load_quiz_question_explanation/${questionId}`);
-        const data = await response.json();
+//    try {
+//        const response = await fetch(`/quizes/home/load_quiz_question_explanation/${questionId}`);
+//        const data = await response.json();
 
-        if (data.success) {
+//        if (data.success) {
             //console.log('Explanation fetched:', data.quiz_explanation_html);
 
-            explanationContainer.innerHTML = data.quiz_explanation_html;
+//            explanationContainer.innerHTML = data.quiz_explanation_html;
             //explanationContainer.offsetHeight; // Force reflow
             // Delay the insertion of explanation content
 
@@ -989,84 +611,84 @@ async function loadQuizQuestionExplanation(questionId, subtopicId) {
             // add event listeners to the previous and next buttons
             // if there isn't a previous quiz question, hide the previous button;
             // else display the button and add an event listener              
-            const previousButtonBottom = document.getElementById('previous-button-bottom');
-            if (previousButtonBottom){
-                if (quizState.hasPrevious){
-                    previousButtonBottom.classList.remove('hidden');
+//            const previousButtonBottom = document.getElementById('previous-button-bottom');
+//            if (previousButtonBottom){
+//                if (quizState.hasPrevious){
+//                    previousButtonBottom.classList.remove('hidden');
 
                     // remove the old event listener to prevent multiple event listeners for the same button
-                    previousButtonBottom.removeEventListener('click', previousPageHandler);
+//                    previousButtonBottom.removeEventListener('click', previousPageHandler);
 
                     // define previousPageHandler
-                    function previousPageHandler(){
-                        previousPage(subtopicId, quizState.pageNumber);    
-                    }
+//                    function previousPageHandler(){
+//                        previousPage(subtopicId, quizState.pageNumber);    
+//                    }
                     // add the event listener
-                    previousButtonBottom.addEventListener('click', previousPageHandler);
-                }else{
-                    previousButtonBottom.classList.add('hidden');
-                }
-            }   
+//                    previousButtonBottom.addEventListener('click', previousPageHandler);
+//                }else{
+//                    previousButtonBottom.classList.add('hidden');
+//                }
+//            }   
                 
             // if there isn't a next quiz question, hide the next button;
             // else display the button and add an event listener
-            const nextButtonBottom = document.getElementById('next-button-bottom');
-            if (nextButtonBottom){
-                if (quizState.hasNext){
-                    nextButtonBottom.classList.remove('hidden');
+//            const nextButtonBottom = document.getElementById('next-button-bottom');
+//            if (nextButtonBottom){
+//                if (quizState.hasNext){
+//                    nextButtonBottom.classList.remove('hidden');
 
                     // remove the old event listener to prevent multiple event listeners for the same button
-                    nextButtonBottom.removeEventListener('click', nextPageHandler);
+//                    nextButtonBottom.removeEventListener('click', nextPageHandler);
 
                     // define nextPageHandler
-                    function nextPageHandler(){
-                        nextPage(subtopicId, quizState.pageNumber, quizState.totalPages);    
-                    }
+//                    function nextPageHandler(){
+//                        nextPage(subtopicId, quizState.pageNumber, quizState.totalPages);    
+//                    }
                         // add the event handler to the next button
-                    nextButtonBottom.addEventListener('click', nextPageHandler);
-                }else{
-                    nextButtonBottom.classList.add('hidden');                        
-                }
-            }
-        } else {
+//                    nextButtonBottom.addEventListener('click', nextPageHandler);
+//                }else{
+//                    nextButtonBottom.classList.add('hidden');                        
+//                }
+//            }
+//        } else {
             
-            console.error('There is no explanation for this question:', data.messages);
-        }
-    } catch (error) {
-        console.error('Error loading explanation:', error); 
-    }
-}
+//            console.error('There is no explanation for this question:', data.messages);
+//        }
+//    } catch (error) {
+//        console.error('Error loading explanation:', error); 
+//    }
+//}
 
-async function resumeQuiz(subtopicId){
+//async function resumeQuiz(subtopicId){
     // get all the previous answers
-    const answerQuestionIds = await getPreviousStudentAnswers(subtopicId);
+//    const answerQuestionIds = await getPreviousStudentAnswers(subtopicId);
     
     // get the answer choice ids
-    for (const questionId of answerQuestionIds){
-        let studentAnswers = await getStudentAnswer(subtopicId, questionId);
+//    for (const questionId of answerQuestionIds){
+//        let studentAnswers = await getStudentAnswer(subtopicId, questionId);
 
-        await updateProgressBar(subtopicId, questionId, studentAnswers);
+//        await updateProgressBar(subtopicId, questionId, studentAnswers);
         
-    }
+//   }
 
     // get the first unanswered quiz question
-    getFirstUnansweredQuestion();
-}
+//    getFirstUnansweredQuestion();
+//}
 
-async function reviewQuiz(subtopicId){
+//async function reviewQuiz(subtopicId){
     // get all the previous answers
-    const answerQuestionIds = await getPreviousStudentAnswers(subtopicId);
+//    const answerQuestionIds = await getPreviousStudentAnswers(subtopicId);
     
     // get the answer choice ids
-    for (const questionId of answerQuestionIds){
-        let studentAnswers = await getStudentAnswer(subtopicId, questionId);
+//    for (const questionId of answerQuestionIds){
+//        let studentAnswers = await getStudentAnswer(subtopicId, questionId);
 
-        await updateProgressBar(subtopicId, questionId, studentAnswers);
+//        await updateProgressBar(subtopicId, questionId, studentAnswers);
         
-    }
+//    }
 
-    loadQuizQuestionsAndAnswers(subtopicId, pageNumber=1);
-}
+//    loadQuizQuestionsAndAnswers(subtopicId, pageNumber=1);
+//}
 
 async function getPreviousStudentAnswers(subtopicId){
     const route = `/quizes/home/get_previous_student_answers/${subtopicId}`;
@@ -1203,21 +825,21 @@ async function processCompletedQuiz(subtopicId){
     }
 }
 
-function displayQuizScore(quizScoreHTML){
+//function displayQuizScore(quizScoreHTML){
     // blank out the containers
-    const quizContainer = document.getElementById('quiz-container');
-    quizContainer.innerHTML = '';
+//    const quizContainer = document.getElementById('quiz-container');
+//    quizContainer.innerHTML = '';
 
-    const explanationContainer = document.getElementById('explanation-container');
-    explanationContainer.innerHTML = '';
+//    const explanationContainer = document.getElementById('explanation-container');
+//    explanationContainer.innerHTML = '';
 
-    const quizScoreContainer = document.getElementById('quiz-score-container');
-    quizScoreContainer.style.display = 'block';
-    quizScoreContainer.innerHTML = '';
+//    const quizScoreContainer = document.getElementById('quiz-score-container');
+//    quizScoreContainer.style.display = 'block';
+//    quizScoreContainer.innerHTML = '';
 
-    quizScoreContainer.innerHTML = quizScoreHTML;
+//    quizScoreContainer.innerHTML = quizScoreHTML;
 
-}
+//}
 
 function retakeQuiz(subtopicId, topicId, questionCount){
     const route = `/quizes/home/delete_student_answers/${subtopicId}`; 
@@ -1249,26 +871,26 @@ function retakeQuiz(subtopicId, topicId, questionCount){
 }
 
 
-function initializeQuizState() {
-    quizState.hasNext = false;
-    quizState.hasPrevious = false;
-    quizState.pageNumber = 1;
-    quizState.totalPages = 0;
-    quizState.correctAnswers = 0;
-    quizState.incorrectAnswers = 0;
-    quizState.questionCount = 0;
-    quizState.questionsAnswered = 0;
-}
+//function initializeQuizState() {
+//    quizState.hasNext = false;
+//    quizState.hasPrevious = false;
+//    quizState.pageNumber = 1;
+//    quizState.totalPages = 0;
+//    quizState.correctAnswers = 0;
+//    quizState.incorrectAnswers = 0;
+//    quizState.questionCount = 0;
+//    quizState.questionsAnswered = 0;
+//}
 
-function clearMessages(){
-    const messageContainer = document.querySelector('.error-msg');
-    const messageDiv = document.querySelector('.msg-div');
-    if (messageContainer) {
+//function clearMessages(){
+//    const messageContainer = document.querySelector('.error-msg');
+//    const messageDiv = document.querySelector('.msg-div');
+//    if (messageContainer) {
         // Clear any existing messages
-        messageContainer.innerHTML = '';
-    }
-    if (messageDiv) {
+//        messageContainer.innerHTML = '';
+//    }
+//    if (messageDiv) {
         // Clear any existing messages
-        messageDiv.innerHTML = '';
-    }
-}
+//        messageDiv.innerHTML = '';
+//    }
+//}

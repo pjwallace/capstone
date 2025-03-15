@@ -33,31 +33,6 @@ def dashboard(request):
             )
     return render(request, 'quizes/dashboard.html', {'topics': topics})
 
-@login_required(login_url='login')
-def start_quiz(request, subtopic_id, topic_id):
-    #subtopic = get_object_or_404(Subtopic, id=subtopic_id)
-    #question_count = request.GET.get('question_count', 0)
-    #question_count = int(question_count)
-    pass
-
-@login_required(login_url='login')
-def resume_quiz(request, subtopic_id, topic_id):
-    #subtopic = get_object_or_404(Subtopic, id=subtopic_id)
-    #question_count = request.GET.get('question_count', 0)
-    #questions_answered = request.GET.get('questions_answered', 0)
-    #questions_answered = int(questions_answered)
-    #question_count = int(question_count)
-    pass
-
-@login_required(login_url='login')
-def review_quiz(request, subtopic_id, topic_id):
-    #subtopic = get_object_or_404(Subtopic, id=subtopic_id)
-    pass
-
-@login_required(login_url='login')
-def retake_quiz(request, subtopic_id, topic_id):
-    #subtopic = get_object_or_404(Subtopic, id=subtopic_id)
-    pass
 
 #@login_required(login_url='login')
 #def get_subtopics_for_quiz(request, topic_id):
@@ -115,6 +90,11 @@ def load_quiz_layout(request, subtopic_id, topic_id):
 
     # get the button type
     button_type = request.GET.get('button_type')
+
+    # if button type = retake, delete StudentAnswer records and update Progress record
+    if button_type == 'retake':
+        delete_student_answers(request, subtopic_id)
+
 
     context = {
         'topic_name': topic_name,
@@ -532,25 +512,62 @@ def process_completed_quiz(request, subtopic_id):
     
 @login_required(login_url='login')
 def delete_student_answers(request, subtopic_id):
-    if request.method == 'POST':
-        learner = request.user
+#    if request.method == 'POST':
+#        learner = request.user
 
-        student_answers = StudentAnswer.objects.filter(
+#        student_answers = StudentAnswer.objects.filter(
+#            learner = learner,
+#            subtopic_id = subtopic_id
+#        )
+        # make sure the StudentAnswer records exist
+#        if not student_answers.exists():
+#            return JsonResponse({"success": False, 
+#                "messages": [{"message": "StudentAnswer records do not exist.", "tags": "danger"}]}, status=400)
+        
+        # retrieve the Progress record
+#        try:
+#           progress = Progress.objects.get(learner=learner, subtopic_id=subtopic_id)
+            
+#        except Progress.DoesNotExist:
+#            return JsonResponse({"success": False, 
+#                "messages": [{"message": "Progress record does not exist.", "tags": "danger"}]}, status=400)
+
+#        try:
+#            with transaction.atomic():
+#                student_answers.delete()
+                
+                # update the Progress record
+#                progress.questions_answered = 0
+#                progress.latest_score = None
+#                progress.save()
+
+#            return JsonResponse({"success": True})
+
+#        except Exception as e:
+#            return JsonResponse({
+#                "success": False,
+#                "messages": [{"message": f"An error occurred: {str(e)}",
+#                              "tags": "danger"}]   
+#           }, status=500)
+    print(request.user)
+    learner = request.user
+    student_answers = StudentAnswer.objects.filter(
             learner = learner,
             subtopic_id = subtopic_id
         )
-        # make sure the StudentAnswer records exist
-        if not student_answers.exists():
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "StudentAnswer records do not exist.", "tags": "danger"}]}, status=400)
-        
+    
+    # make sure the StudentAnswer records exist
+    if not student_answers.exists():
+        messages.error("StudentAnswer records do not exist.") 
+
+    else:
+
         # retrieve the Progress record
         try:
             progress = Progress.objects.get(learner=learner, subtopic_id=subtopic_id)
             
         except Progress.DoesNotExist:
-            return JsonResponse({"success": False, 
-                "messages": [{"message": "Progress record does not exist.", "tags": "danger"}]}, status=400)
+                messages.error("Progress record does not exist.") 
 
         try:
             with transaction.atomic():
@@ -561,14 +578,11 @@ def delete_student_answers(request, subtopic_id):
                 progress.latest_score = None
                 progress.save()
 
-            return JsonResponse({"success": True})
-
-        except Exception as e:
-            return JsonResponse({
-                "success": False,
-                "messages": [{"message": f"An error occurred: {str(e)}",
-                              "tags": "danger"}]   
-            }, status=500)
+        except Exception as e:           
+            messages.error(f"An error occurred: {str(e)}")
+               
+                
+            
         
 
 

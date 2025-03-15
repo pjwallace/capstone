@@ -16,7 +16,7 @@ const quizState = {
 window.addEventListener('beforeunload', ()=>{
     initializeQuizState();
 });
-
+// progress bar event listeners
 document.addEventListener('DOMContentLoaded', function(){
     const progressContainer = document.getElementById('progress-container');
    
@@ -33,11 +33,13 @@ document.addEventListener('DOMContentLoaded', function(){
         })
     }
 
+    // load the first quiz question
     const quizContainer = document.getElementById('quiz-container');
     const subtopicId = document.getElementById("quiz-subtopic").value;
     const buttonType = document.getElementById("button-type").value;
     let questionCount = document.getElementById("question-count").value;
     quizState.questionCount = questionCount;
+    console.log(buttonType);
     if (quizContainer && subtopicId && buttonType){
         if (buttonType === 'start' || buttonType === 'retake'){
             loadQuizQuestionsAndAnswers(subtopicId, pageNumber=1);
@@ -45,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function(){
             resumeQuiz(subtopicId);
         } else if (buttonType === 'review'){
             reviewQuiz(subtopicId);
-        }
+        } 
     }
 
 })
@@ -709,34 +711,34 @@ function displayQuizScore(quizScoreHTML){
 
 }
 
-function retakeQuiz(subtopicId, topicId, questionCount){
-    const route = `/quizes/home/delete_student_answers/${subtopicId}`; 
-    const buttonType = 'retake';
+//function retakeQuiz(subtopicId, topicId, questionCount){
+//    const route = `/quizes/home/delete_student_answers/${subtopicId}`; 
+//    const buttonType = 'retake';
     
     // Retrieve the django CSRF token 
-    const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+//   const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    fetch(route, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success){
-            quizState.questionCount = questionCount;
-            loadQuizLayout(subtopicId, topicId, buttonType);
+//    fetch(route, {
+//        method: 'POST',
+//        headers: {
+//            'Content-Type': 'application/json',
+//            'X-CSRFToken': csrftoken,
+//        },
+//    })
+//    .then(response => response.json())
+//    .then(data => {
+//        if (data.success){
+//            quizState.questionCount = questionCount;
+//            loadQuizLayout(subtopicId, topicId, buttonType);
+//
+//        }else{
+//            clearMessages();
+//            document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
+//        }
 
-        }else{
-            clearMessages();
-            document.getElementById('quiz-msg').innerHTML = `<div class="alert alert-${data.messages[0].tags}" role="alert">${data.messages[0].message}</div>`;
-        }
-
-    })
-    .catch(error => console.error('Delete Student Answer records failed:', error));
-}
+//    })
+//    .catch(error => console.error('Delete Student Answer records failed:', error));
+//}
 
 
 function initializeQuizState() {
