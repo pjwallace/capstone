@@ -96,39 +96,39 @@
                                     style="display: none;">
                                     <!-- subtopics header-->
                                     <div class="row column-header">
-                                        <div class="col-md-4 col-sm-6" id="subtopic-header">
-                                            <span class="header-span" id="subtopic-name">
+                                        <div class="col-md-4" id="subtopic-header">
+                                            <span id="subtopic-name">
                                                 Subtopic
                                             </span>
                                         </div>
-                                        <div class="col-md-2 col-sm-6" id="status-header">
-                                            <span class="header-span" id="subtopic-status">
+                                        <div class="col-md-2" id="status-header">
+                                            <span id="subtopic-status">
                                                 Status
                                             </span>
                                         </div>
-                                        <div class="col-md-2 col-sm-6" id="progress-header">
-                                            <span class="header-span" id="subtopic-progress">
+                                        <div class="col-md-2" id="progress-header">
+                                            <span id="subtopic-progress">
                                                 Progress
                                             </span>
                                         </div>
-                                        <div class="col-md-2 col-sm-6" id="score-header">
-                                            <span class="header-span" id="subtopic-score">
+                                        <div class="col-md-2" id="score-header">
+                                            <span id="subtopic-score">
                                                 Score
                                             </span>
                                         </div>
-                                        <div class="col-md-4 col-sm-6" id="review-header">
-                                            <span class="header-span" id="subtopic-review">
+                                        <div class="col-md-4" id="review-header">
+                                            <span id="subtopic-review">
                                                 Review/Retake
                                             </span>
                                         </div>                                    
                                     </div>
                                     {% for subtopic in topic.filtered_subtopics %}
                                         <div class="row subtopics-row">
-                                            <div class="col-md-4 col-sm-6 subtopics">
+                                            <div class="col-md-4 subtopics">
                                                 <span>{{ subtopic.name }}</span>
                                             </div>
                                             <!-- status column-->
-                                            <div class="col-md-2 col-sm-6 status-column">
+                                            <div class="col-md-2 status-column">
                                                 {% if not subtopic.progress_record %}
                                                     <!-- Quiz hasn't been attempted. Show start button-->                                                     
                                                     <a href="{% url 'load_quiz_layout' subtopic.id topic.id %}?button_type=start"
@@ -146,7 +146,7 @@
                                                 {% endif %}
                                             </div>
                                             <!-- progress column -->
-                                            <div class="col-md-2 col-sm-6 progress-column">
+                                            <div class="col-md-2 progress-column">
                                                 {% if not subtopic.progress_record %}
                                                     <span>Not Started</span>
                                                 {% else %}
@@ -159,7 +159,7 @@
                                                 {% endif %}
                                             </div>
                                             <!-- score column -->
-                                            <div class="col-md-2 col-sm-6 score-column">
+                                            <div class="col-md-2 score-column">
                                                 {% if not subtopic.progress_record %}
                                                     <div class="score-dash">
                                                         <i class="fa fa-solid fa-minus minus-bigger"></i>
@@ -181,7 +181,7 @@
 
                                             </div>
                                             <!-- review/retake column -->
-                                            <div class="col-md-2 col-sm-6 review-column">
+                                            <div class="col-md-2 review-column">
                                                 {% if not subtopic.progress_record or subtopic.progress_record.questions_answered != subtopic.question_count %}
                                                     <div class="review-minus">
                                                         <i class="fa fa-solid fa-minus minus-bigger"></i>
@@ -190,11 +190,7 @@
                                                     <!-- Review Button-->
                                                     <a href="{% url 'load_quiz_layout' subtopic.id topic.id %}?button_type=review"
                                                         class="btn btn-sm btn-info">Review</a>
-                                                    <!-- Retake Button-->
-                                                    <!--
-                                                    <a href="{% url 'load_quiz_layout' subtopic.id topic.id %}?button_type=retake"
-                                                        class="btn btn-sm btn-danger retake"></a>
-                                                    -->
+                                                    
                                                     <button type="button" class="btn btn-sm btn-danger retake"
                                                         data-subtopic-id="{{ subtopic.id }}" data-topic-id="{{ topic.id }}"
                                                         data-question-count="{{ subtopic.question_count }}">Retake</button>

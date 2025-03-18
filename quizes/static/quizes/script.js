@@ -56,39 +56,6 @@ function loadSubtopicsForQuizTopic(){
             }             
     })          
 }
-            
-
-
-// for mobile responsiveness, hide the progress and review/retake headers
-//if (window.innerWidth <= 768) {
-//    subtopicProgress.style.display = 'none';
-//    subtopicReview.style.display = 'none';
-//} else {
-//    subtopicProgress.style.display = '';
-//    subtopicReview.style.display = '';
-//}
-
-
-
-    // For mobile responsiveness, check screen size and hide if necessary
-//    if (window.innerWidth <= 576) {
-//        scoreDiv.style.display = 'none';
-//    }  else if (window.innerWidth <= 768){
-//        scoreDiv.style.display = 'flex';
-//    } else {
-//        scoreDiv.style.display = '';
-//    }           
-
-    // For mobile responsiveness, review/retake only displays on larger screens
-//    if (window.innerWidth <= 768) {
-//        reviewDiv.style.display = 'none';
-//    } else {
-//        reviewDiv.style.display = '';
-//    }
-
-//    subtopicRow.appendChild(reviewDiv);
-//}
-
 
 function setupRetakeQuizDialog(subtopicId, topicId, questionCount){
     const dialogElement = document.getElementById('confirm-retake-quiz-dialog');

@@ -197,7 +197,6 @@ def register(request):
         response['Pragma'] = 'no-cache'
         response['Expires'] = '0'
         return response
-        #return render(request, "learners/register.html")
     
 def edit_profile(request):
     if request.method == 'POST':

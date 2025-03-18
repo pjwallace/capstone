@@ -220,13 +220,32 @@ dialog p {
     margin-right: 30px;
 }
 
-
 .btn-close {
     background-color: lightgray;
     color: black;
 }
 
+/* Responsive layout for small screens 
+@media (max-width: 576px) {
+    #progress-header,
+    #score-header,
+    #review-header,
+    .progress-column,
+    .score-column,
+    .review-column {
+      display: none; 
+    }
+    #subtopic-header,
+    .subtopics {
+      flex: 2; 
+    }
+    #status-header,
+    .status-column {
+      flex: 1; 
+    }
 
+}
+*/
 
 /* Responsive layout for small screens */
 @media (max-width: 576px) {
@@ -236,45 +255,117 @@ dialog p {
     .progress-column,
     .score-column,
     .review-column {
-      display: none; /* Hide unnecessary columns on small screens */
+        display: none !important; /* Ensure they are fully hidden */
     }
-    #subtopic-header,
+
+    /* Make the headers row a flex container */
+    .column-header {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between; 
+    }
+
+    /* Make subtopic and status headers share space */
+    #subtopic-header {
+        flex: 2; /* Give more space to subtopic header */
+    }
+
+    #status-header {
+        flex: 1; /* Status header stays inline */
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    /* Override flex display to prevent empty columns from affecting layout */
+    .subtopics-row {
+        display: flex !important; 
+        align-items: center; 
+        justify-content: space-between; 
+        height: auto; 
+    }
+
+    /* Expand the name column */
     .subtopics {
-      flex: 2; /* Make the Name column longer */
+        flex: 2; /* Allow subtopic name to take more space */
     }
-    #status-header,
+
+    /* Keep the status column aligned with subtopics */
     .status-column {
-      flex: 1; /* Keep the Status column smaller */
+        flex: 1; /* Adjust width to keep inline */
+        display: flex;
+        justify-content: flex-start; 
+        align-items: center;
     }
+}
 
-  }
 
-  /* For screens between 577px and 768px */
+/* For screens between 577px and 768px */
 @media (min-width: 577px) and (max-width: 768px) {
-    #subtopic-header,
-    .subtopics {
-      flex: 2.5; /* Make the Name column longer */
-    }
-
-    #status-header,
-    .status-column {
-      flex: 1; /* Keep the Status column smaller */
-    }
-
-    #score-header,
-    .score-column {
-        display: flex; /* Add Score column */
-        flex: 1.5;
-    }
-
-    #progress-header,
-    .progress-column {
-        display: none; /* Keep Progress column hidden */
-    }
-
+    #progress-header,    
     #review-header,
+    .progress-column,   
     .review-column {
-        display: none; /* Keep Review column hidden */
+        display: none !important; /* Ensure they are fully hidden */
+    }
+    /* Make the headers row a flex container */
+    .column-header {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between; 
+    }
+
+    /* Make subtopic and status headers share space */
+    #subtopic-header {
+        flex: 2; /* Give more space to subtopic header */
+    }
+
+    #status-header {
+        flex: 1.2; /* Status header stays inline */
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin-left: 10px;
+    }
+
+    #score-header {
+        flex: 1.5; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Override flex display to prevent empty columns from affecting layout */
+    .subtopics-row {
+        display: flex !important; 
+        align-items: center; 
+        justify-content: space-between; 
+        height: auto; 
+        flex-wrap: nowrap; 
+    }
+
+    /* Expand the name column */
+    .subtopics {
+        flex: 2; /* Allow subtopic name to take more space */
+        display: flex;
+        align-items: center;
+    }
+
+    /* Keep the status column aligned with subtopics */
+    .status-column {
+        flex: 1.2; /* Adjust width to keep inline */
+        display: flex;
+        justify-content: flex-start; 
+        align-items: center;
+        white-space: nowrap; 
+        margin-left: 10px;
+    }
+
+    .score-column {
+        display: flex; 
+        flex: 1.5;
+        align-items: center;
+        justify-content: center;
     }
 
 }
@@ -298,14 +389,6 @@ dialog p {
         margin-right: 5px; 
     }
     
-}
-
-@media (max-width: 768px) {
-    .column-header #score-header {
-        justify-content: center;
-        flex: 1; /* Allow equal space distribution */
-        text-align: center;
-    }
 }
 
 /* Default layout for screens > 768px */
